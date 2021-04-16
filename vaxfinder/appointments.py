@@ -24,6 +24,7 @@ class VaxRequirements:
     maximumAge: int = 0
     regions: list = field(default_factory=list) #list of Region objects, probably just with postal codes specified
     tags: list = field(default_factory=list)  # List of strings, specifying elgibility as tags (eg, "indigenous", "cancer")
+    requiredTags: list = field(default_factory=list) # Same as above, for necessary requirements
 
 
 class VaxAppointment():
@@ -64,7 +65,8 @@ class VaxAppointment():
                 raise MalformedAppointmentFile("Invalid date provided")
             req = appointment["requirements"]
             regions = [Region(postal=code) for code in req["postalCodes"]]
-            requirements = VaxRequirements(req["minimumAge"], req["maximumAge"], regions, req["tags"])
+            requirements = VaxRequirements(req["minimumAge"], req["maximumAge"], regions, req["tags"],
+                                           req["requiredTags"])
             loc = appointment["location"]
             location = Region(loc["line1"], loc["postal"], loc["city"], loc["province"], loc["line2"])
             return cls(name, location, vaccines, requirements)
