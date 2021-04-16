@@ -1,0 +1,19 @@
+{
+  "name": "vaxshack",
+  "vaccines": ["AZ"],
+  "month": 4,
+  "day": 13,
+  "requirements": {
+    "minimumAge": 0,
+    "maximumAge": 100,
+    "postalCodes": ["S61 2ZA"],
+    "tags": ["cancer", "racialized"]
+  },
+  "location": {
+    "line1": "33 Celestial Road",
+    "postal": "S61 2ZA",
+    "city": "Nanoose",
+    "province": "BC",
+    "line2": "Apt. 55A"
+  }
+ }
