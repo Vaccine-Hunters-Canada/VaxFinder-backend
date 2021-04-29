@@ -4,6 +4,9 @@ import json
 class MalformedAppointmentFile(Exception):
     pass
 
+class MalformedLocation(Exception):
+    pass
+
 @dataclass
 class Date:
     """Stores day and month as integers; months are 1-12."""
@@ -17,6 +20,24 @@ class Region:
     city: str = ""
     province: str = ""
     line2: str = ""
+
+    @classmethod
+    def from_json(cls, jsondata):
+        '''
+                :param jsondata: String with JSON data.
+                :return: Region object
+                '''
+        region = cls()
+        data = json.loads(jsondata)
+        try:
+            region.line1 = data['line1']
+            region.postal = data['postal']
+            region.city = data['city']
+            region.province = data['province']
+            region.line2 = data['line2']
+        except KeyError:
+            raise MalformedLocation
+        return region
 
 @dataclass
 class VaxRequirements:
