@@ -7,7 +7,7 @@ async def get_db():
     await db.connect()
     try:
         connection = db.connection()
-        await connection.acquire()
+        await connection.acquire(autocommit=True)
         yield connection
     finally:
         await connection.release()

@@ -45,10 +45,10 @@ class OrganizationService(BaseService):
     async def create_organization(
         self, full_name: str, short_name: str, description: str
     ) -> Union[OrganizationResponse, None]:
-        return await self._db.execute(
-            f"""EXEC dbo.organizations_Create
-                    @full_name = '{full_name}',
-                    @short_name = '{short_name}',
-                    @description = '{description}'
-            """
-        )
+        await self._db.execute_stored_procedure(query="""
+                EXEC [dbo].[organizations_Create]
+                    @full_name=?,
+                    @short_name=?,
+                    @description=?;
+            """, values=(full_name, short_name, description)
+            )

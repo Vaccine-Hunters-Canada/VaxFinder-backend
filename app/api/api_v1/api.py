@@ -11,24 +11,24 @@ api_router = APIRouter()
 
 api_router.include_router(
     entries.router,
-    prefix="/api/v1/entries",
+    prefix="/entries",
     tags=["Entries"],
 )
 
 api_router.include_router(
     locations.router,
-    prefix="/api/v1/locations",
+    prefix="/locations",
     tags=["Locations"],
 )
 
 api_router.include_router(
     organizations.router,
-    prefix="/api/v1/organizations",
+    prefix="/organizations",
     tags=["Organizations"],
 )
 
 api_router.include_router(
     addresses.router,
-    prefix="/api/v1/addresses",
+    prefix="/addresses",
     tags=["Addresses"],
 )

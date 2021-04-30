@@ -107,12 +107,13 @@ class MSSQLConnection(ConnectionBackend):
         self._dialect = dialect
         self._connection: Connection = None
 
-    async def acquire(self) -> None:
+    async def acquire(self, autocommit=False) -> None:
         assert self._connection is None, "Connection is already acquired"
         assert (
             self._database.pool is not None
         ), "DatabaseBackend is not running"
         self._connection = await self._database.pool.acquire()
+        self._connection._conn.autocommit = autocommit
 
     async def release(self) -> None:
         assert self._connection is not None, "Connection is not acquired"
@@ -167,6 +168,13 @@ class MSSQLConnection(ConnectionBackend):
                 await cursor.execute(query, *args)
             else:
                 await cursor.execute(query)
+            return cursor.rowcount
+    
+    async def execute_stored_procedure(self, query: ClauseElement, values: typing.Tuple[typing.Any, ...]) -> typing.Any:
+        assert self._connection is not None, 'Connection is not acquired'
+        query, _, _ = self._compile(query)
+        async with await self._connection.cursor() as cursor:
+            await cursor.execute(query, values)
             return cursor.rowcount
 
     async def execute_many(self, queries: typing.List[ClauseElement]) -> None:
