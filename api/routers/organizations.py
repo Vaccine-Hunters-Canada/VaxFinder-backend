@@ -8,6 +8,7 @@ from datetime import datetime
 from api.database.database import MSSQLConnection
 from api.database import crud_service
 from api.database.crud_service import (
+    General_Response,
     Organizations_Read_Procedure_Response,
     Organizations_Create_Procedure_Request
 )
@@ -47,33 +48,17 @@ async def get_organization(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-@router.post('/', response_model=Organizations_Read_Procedure_Response)
+@router.post('/', response_model=General_Response)
 async def create_organization(
     body: Organizations_Create_Procedure_Request,
     db: MSSQLConnection = Depends(get_db)
 ):
-    try:
-        ret = await crud_service.Organizations(db).create_organization(
-            full_name=body.full_name,
-            short_name=body.short_name,
-            description=body.description
-        )
+    await crud_service.Organizations(db).create_organization(
+        full_name=body.full_name,
+        short_name=body.short_name,
+        description=body.description
+    )
 
-        if ret is None:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
-        # return ret
-        return {
-            'id': 0,
-            'full_name': '',
-            'short_name': '',
-            'description': '',
-            'created_at': datetime.now()
-        }
-    except Exception as e:
-        logger.critical(traceback.format_exc())
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
+    return {
+        'success': True
+    }
