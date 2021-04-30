@@ -2,9 +2,8 @@
 Backend for the Vaccine Hunters Finder tool.
 
 ## Development
-------------
 ### Dependency Installation
-
+------------
 1. AIOODBC
 
     In a linux environment pyodbc_ (hence *aioodbc*) requires the unixODBC_ library.
@@ -42,6 +41,7 @@ Backend for the Vaccine Hunters Finder tool.
     in the root of the repo
 
 ### Running the Server
+------------
 
 Run
 
