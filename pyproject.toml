@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "app"
+version = "1.0.0"
+description = "The backend for the Vaccine Hunters Finder tool."
+authors = ["Alvin Tang <alvin.tang@mail.utoronto.ca>", "Sayon Bhattacharjee", "Evan Gamble"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.63.0"
+uvicorn = "^0.13.4"
+pydantic = "^1.8.1"
+aioodbc = "^0.3.3"
+databases = "^0.4.3"
+loguru = "^0.5.3"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.812"
+isort = "^5.8.0"
+black = "^21.4b2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

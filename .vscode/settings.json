@@ -1,3 +1,19 @@
 {
-    "python.pythonPath": "/home/sayon/Envs/vax/bin/python"
+    // PEP8: "Limit all lines to a maximum of 79 characters."
+    "editor.rulers": [79],
+    // Use black as the project's code formatter
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": ["--line-length", "79"],
+    // --- Imports Sorting (isort) ---
+    "python.sortImports.args": [],
+    "[python]": {
+        // black
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": false,
+        "editor.formatOnType": false,
+        // isort
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    }
 }
