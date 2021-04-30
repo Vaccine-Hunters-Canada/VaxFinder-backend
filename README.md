@@ -50,5 +50,4 @@ Run
 in the root of the repo. The backend will be served on [`localhost:8007`](http://localhost:8007)
 
 ## Production
-------------
 TBA
