@@ -8,38 +8,32 @@ from loguru import logger
 from pydantic import BaseModel
 
 from app.api.dependencies import get_db
-from app.services.addresses import AddressService
 from app.db.database import MSSQLConnection
 from app.schemas.addresses import AddressResponse
+from app.services.addresses import AddressService
 
 router = APIRouter()
 
 
 @router.get("", response_model=List[AddressResponse])
-async def get_addresses(
-    postalCode: str = "", db: MSSQLConnection = Depends(get_db)
-):
-    try:
-        ret = await AddressService(db).get_addresses(
-            postal_code=postalCode
-        )
-
-        return ret
-    except Exception as e:
-        logger.critical(traceback.format_exc())
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
+async def list(postalCode: str = "", db: MSSQLConnection = Depends(get_db)):
+    return await AddressService(db).get_all(
+        filters={"postalCode": ("exact", postalCode)}
+    )
 
 
-@router.get("/{address_id}", response_model=AddressResponse)
-async def get_address(address_id: int, db: MSSQLConnection = Depends(get_db)):
-    try:
-        ret = await AddressService(db).get_address_by_id(address_id)
+@router.get(
+    "/{address_id}",
+    response_model=AddressResponse,
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The address with the specified id could not be found."
+        }
+    },
+)
+async def retrieve(address_id: int, db: MSSQLConnection = Depends(get_db)):
+    address = await AddressService(db).get_by_id(address_id)
 
-        return ret
-    except Exception as e:
-        logger.critical(traceback.format_exc())
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
+    if address is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return address

@@ -16,28 +16,24 @@ router = APIRouter()
 
 
 @router.get("", response_model=List[EntryExpandedResponse])
-async def get_entries(
-    postalCode: str = "", db: MSSQLConnection = Depends(get_db)
-):
-    try:
-        ret = await EntryService(db).get_entries(postal_code=postalCode)
-
-        return ret
-    except Exception as e:
-        logger.critical(traceback.format_exc())
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
+async def list(postalCode: str = "", db: MSSQLConnection = Depends(get_db)):
+    return await EntryService(db).get_all(
+        filters={"postalCode": ("exact", postalCode)}
+    )
 
 
-@router.get("/{entry_id}", response_model=EntryExpandedResponse)
-async def get_entry(entry_id: int, db: MSSQLConnection = Depends(get_db)):
-    try:
-        ret = await EntryService(db).get_entry_by_id(entry_id)
+@router.get(
+    "/{entry_id}",
+    response_model=EntryExpandedResponse,
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The entry with the specified id could not be found."
+        }
+    },
+)
+async def retrieve(entry_id: int, db: MSSQLConnection = Depends(get_db)):
+    entry = await EntryService(db).get_by_id(entry_id)
 
-        return ret
-    except Exception as e:
-        logger.critical(traceback.format_exc())
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
+    if entry is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return entry
