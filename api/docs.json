@@ -1,0 +1,675 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "Vax UI",
+        "version": "0.1.0"
+    },
+    "paths": {
+        "/api/v1/entries/": {
+            "get": {
+                "tags": [
+                    "Entries"
+                ],
+                "summary": "Get Entries",
+                "operationId": "get_entries_api_v1_entries__get",
+                "parameters": [
+                    {
+                        "required": false,
+                        "schema": {
+                            "title": "Postalcode",
+                            "type": "string",
+                            "default": ""
+                        },
+                        "name": "postalCode",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response Get Entries Api V1 Entries  Get",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Entries_Response"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/entries/{entry_id}": {
+            "get": {
+                "tags": [
+                    "Entries"
+                ],
+                "summary": "Get Entry",
+                "operationId": "get_entry_api_v1_entries__entry_id__get",
+                "parameters": [
+                    {
+                        "required": true,
+                        "schema": {
+                            "title": "Entry Id",
+                            "type": "integer"
+                        },
+                        "name": "entry_id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Entries_Response"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/locations/": {
+            "get": {
+                "tags": [
+                    "Locations"
+                ],
+                "summary": "Get Locations",
+                "operationId": "get_locations_api_v1_locations__get",
+                "parameters": [
+                    {
+                        "required": false,
+                        "schema": {
+                            "title": "Postalcode",
+                            "type": "string",
+                            "default": ""
+                        },
+                        "name": "postalCode",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response Get Locations Api V1 Locations  Get",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Locations_Response"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/locations/{location_id}": {
+            "get": {
+                "tags": [
+                    "Locations"
+                ],
+                "summary": "Get Location",
+                "operationId": "get_location_api_v1_locations__location_id__get",
+                "parameters": [
+                    {
+                        "required": true,
+                        "schema": {
+                            "title": "Location Id",
+                            "type": "integer"
+                        },
+                        "name": "location_id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Locations_Response"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/organizations/": {
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Get Organizations",
+                "operationId": "get_organizations_api_v1_organizations__get",
+                "parameters": [
+                    {
+                        "required": false,
+                        "schema": {
+                            "title": "Name",
+                            "type": "string",
+                            "default": ""
+                        },
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response Get Organizations Api V1 Organizations  Get",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Organizations_Read_Procedure_Response"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Create Organization",
+                "operationId": "create_organization_api_v1_organizations__post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Organizations_Create_Procedure_Request"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Organizations_Read_Procedure_Response"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/organizations/{organization_id}": {
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Get Organization",
+                "operationId": "get_organization_api_v1_organizations__organization_id__get",
+                "parameters": [
+                    {
+                        "required": true,
+                        "schema": {
+                            "title": "Organization Id",
+                            "type": "integer"
+                        },
+                        "name": "organization_id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Organizations_Read_Procedure_Response"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/addresses/": {
+            "get": {
+                "tags": [
+                    "Addresses"
+                ],
+                "summary": "Get Addresses",
+                "operationId": "get_addresses_api_v1_addresses__get",
+                "parameters": [
+                    {
+                        "required": false,
+                        "schema": {
+                            "title": "Postalcode",
+                            "type": "string",
+                            "default": ""
+                        },
+                        "name": "postalCode",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response Get Addresses Api V1 Addresses  Get",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Address_Read_Procedure_Response"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/addresses/{address_id}": {
+            "get": {
+                "tags": [
+                    "Addresses"
+                ],
+                "summary": "Get Address",
+                "operationId": "get_address_api_v1_addresses__address_id__get",
+                "parameters": [
+                    {
+                        "required": true,
+                        "schema": {
+                            "title": "Address Id",
+                            "type": "integer"
+                        },
+                        "name": "address_id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Address_Read_Procedure_Response"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Address_Read_Procedure_Response": {
+                "title": "Address_Read_Procedure_Response",
+                "required": [
+                    "id",
+                    "line1",
+                    "line2",
+                    "city",
+                    "province",
+                    "postcode",
+                    "latitude",
+                    "longitude",
+                    "geohash",
+                    "created_at"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
+                    },
+                    "line1": {
+                        "title": "Line1",
+                        "type": "string"
+                    },
+                    "line2": {
+                        "title": "Line2",
+                        "type": "string"
+                    },
+                    "city": {
+                        "title": "City",
+                        "type": "string"
+                    },
+                    "province": {
+                        "title": "Province",
+                        "type": "string"
+                    },
+                    "postcode": {
+                        "title": "Postcode",
+                        "type": "string"
+                    },
+                    "latitude": {
+                        "title": "Latitude",
+                        "type": "number"
+                    },
+                    "longitude": {
+                        "title": "Longitude",
+                        "type": "number"
+                    },
+                    "geohash": {
+                        "title": "Geohash",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "title": "Created At",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "Entries_Response": {
+                "title": "Entries_Response",
+                "required": [
+                    "id",
+                    "numberAvaliable",
+                    "numberTotal",
+                    "date",
+                    "location",
+                    "vaccine",
+                    "inputType",
+                    "tags_optional",
+                    "tags_required",
+                    "created_at"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
+                    },
+                    "numberAvaliable": {
+                        "title": "Numberavaliable",
+                        "type": "integer"
+                    },
+                    "numberTotal": {
+                        "title": "Numbertotal",
+                        "type": "integer"
+                    },
+                    "date": {
+                        "title": "Date",
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "location": {
+                        "$ref": "#/components/schemas/Locations_Response"
+                    },
+                    "vaccine": {
+                        "title": "Vaccine",
+                        "type": "integer"
+                    },
+                    "inputType": {
+                        "title": "Inputtype",
+                        "type": "integer"
+                    },
+                    "tags_optional": {
+                        "title": "Tags Optional",
+                        "type": "string"
+                    },
+                    "tags_required": {
+                        "title": "Tags Required",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "title": "Created At",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "HTTPValidationError": {
+                "title": "HTTPValidationError",
+                "type": "object",
+                "properties": {
+                    "detail": {
+                        "title": "Detail",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        }
+                    }
+                }
+            },
+            "Locations_Response": {
+                "title": "Locations_Response",
+                "required": [
+                    "id",
+                    "name",
+                    "organization",
+                    "phone",
+                    "notes",
+                    "address",
+                    "active",
+                    "postcode",
+                    "created_at"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "title": "Name",
+                        "type": "string"
+                    },
+                    "organization": {
+                        "title": "Organization",
+                        "type": "string"
+                    },
+                    "phone": {
+                        "title": "Phone",
+                        "type": "string"
+                    },
+                    "notes": {
+                        "title": "Notes",
+                        "type": "string"
+                    },
+                    "address": {
+                        "$ref": "#/components/schemas/Address_Read_Procedure_Response"
+                    },
+                    "active": {
+                        "title": "Active",
+                        "type": "integer"
+                    },
+                    "postcode": {
+                        "title": "Postcode",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "title": "Created At",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "Organizations_Create_Procedure_Request": {
+                "title": "Organizations_Create_Procedure_Request",
+                "required": [
+                    "full_name",
+                    "short_name",
+                    "description"
+                ],
+                "type": "object",
+                "properties": {
+                    "full_name": {
+                        "title": "Full Name",
+                        "type": "string"
+                    },
+                    "short_name": {
+                        "title": "Short Name",
+                        "type": "string"
+                    },
+                    "description": {
+                        "title": "Description",
+                        "type": "string"
+                    }
+                }
+            },
+            "Organizations_Read_Procedure_Response": {
+                "title": "Organizations_Read_Procedure_Response",
+                "required": [
+                    "id",
+                    "full_name",
+                    "short_name",
+                    "description",
+                    "created_at"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
+                    },
+                    "full_name": {
+                        "title": "Full Name",
+                        "type": "string"
+                    },
+                    "short_name": {
+                        "title": "Short Name",
+                        "type": "string"
+                    },
+                    "description": {
+                        "title": "Description",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "title": "Created At",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ValidationError": {
+                "title": "ValidationError",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "type": "object",
+                "properties": {
+                    "loc": {
+                        "title": "Location",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "msg": {
+                        "title": "Message",
+                        "type": "string"
+                    },
+                    "type": {
+                        "title": "Error Type",
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}
