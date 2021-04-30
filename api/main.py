@@ -31,7 +31,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-parser = argparse.ArgumentParser(description='Process some integers.')
+parser = argparse.ArgumentParser()
 parser.add_argument('--database_url', type=str,
                     help='The database URL')
 args = parser.parse_args()
