@@ -1,11 +1,6 @@
-import time
-import traceback
-from datetime import datetime
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from loguru import logger
-from pydantic import BaseModel
 
 from app.api.dependencies import get_db
 from app.db.database import MSSQLConnection
@@ -16,7 +11,9 @@ router = APIRouter()
 
 
 @router.get("", response_model=List[AddressResponse])
-async def list(postalCode: str = "", db: MSSQLConnection = Depends(get_db)):
+async def list_addresses(
+    postalCode: str = "", db: MSSQLConnection = Depends(get_db)
+):
     return await AddressService(db).get_all(
         filters={"postalCode": ("exact", postalCode)}
     )
@@ -31,7 +28,9 @@ async def list(postalCode: str = "", db: MSSQLConnection = Depends(get_db)):
         }
     },
 )
-async def retrieve(address_id: int, db: MSSQLConnection = Depends(get_db)):
+async def retrieve_address_by_id(
+    address_id: int, db: MSSQLConnection = Depends(get_db)
+):
     address = await AddressService(db).get_by_id(address_id)
 
     if address is None:
