@@ -1,25 +1,34 @@
-from app.schemas.misc import FilterParamsBase
 from datetime import datetime
-from typing import Union
+from typing import Optional
 
 from pydantic import BaseModel
 
 from app.schemas.addresses import AddressResponse
+from app.schemas.misc import FilterParamsBase
+
 
 class LocationFilterParams(FilterParamsBase):
     postalCode: str
+
+
 class LocationResponseBase(BaseModel):
     id: int
     name: str
-    organization: str
-    phone: str
-    notes: str
+    phone: Optional[str]
+    notes: Optional[str]
     active: int
-    postcode: str
+    postcode: Optional[str]
+    url: Optional[str]
+    tags: Optional[str]
     created_at: datetime
 
+
 class LocationResponse(LocationResponseBase):
-    address: int
+    organization: Optional[int]
+    address: Optional[int]
+
 
 class LocationExpandedResponse(LocationResponseBase):
-    address: AddressResponse
+    # TODO: change to Optional[OrganizationResponse]
+    organization: Optional[int]
+    address: Optional[AddressResponse]

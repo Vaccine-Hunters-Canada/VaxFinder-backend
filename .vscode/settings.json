@@ -16,5 +16,5 @@
             "source.organizeImports": true
         }
     },
-    "python.pythonPath": ".venv/bin/python",
+    "python.pythonPath": "/Users/atang/Library/Caches/pypoetry/virtualenvs/app-C6BSsXQV-py3.8",
 }

@@ -1,10 +1,10 @@
-from app.schemas.misc import FilterParamsBase
-from typing import Generic, List, Optional, Type, TypeVar
 from abc import ABC, abstractmethod
+from typing import Generic, List, Optional, Type, TypeVar
 
 from pydantic import BaseModel
 
 from app.db.database import MSSQLConnection
+from app.schemas.misc import FilterParamsBase
 
 DBResponseSchemaType = TypeVar("DBResponseSchemaType", bound=BaseModel)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -17,7 +17,7 @@ class BaseService(
         DBResponseSchemaType,
         CreateSchemaType,
         UpdateSchemaType,
-    ]
+    ],
 ):
 
     read_procedure_name: Optional[str] = None
@@ -25,11 +25,13 @@ class BaseService(
 
     @property
     @abstractmethod
-    def table(self) -> str: pass
-    
+    def table(self) -> str:
+        pass
+
     @property
     @abstractmethod
-    def db_response_schema(self) -> Type[DBResponseSchemaType]: pass
+    def db_response_schema(self) -> Type[DBResponseSchemaType]:
+        pass
 
     def __init__(self, db: MSSQLConnection):
         self._db: MSSQLConnection = db
@@ -63,7 +65,9 @@ class BaseService(
 
         return self.db_response_schema(**db_row)
 
-    async def get_all(self, filters: Optional[FilterParamsBase] = None) -> List[DBResponseSchemaType]:
+    async def get_all(
+        self, filters: Optional[FilterParamsBase] = None
+    ) -> List[DBResponseSchemaType]:
         """
         List all instances from `self.table` from the database.
         """
