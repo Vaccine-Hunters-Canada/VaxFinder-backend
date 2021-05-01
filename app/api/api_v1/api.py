@@ -5,6 +5,7 @@ from app.api.api_v1.endpoints import (
     entries,
     locations,
     organizations,
+    requirements,
 )
 
 api_router = APIRouter()
@@ -31,4 +32,10 @@ api_router.include_router(
     addresses.router,
     prefix="/addresses",
     tags=["Addresses"],
+)
+
+api_router.include_router(
+    requirements.router,
+    prefix="/requirements",
+    tags=["Requirements"],
 )
