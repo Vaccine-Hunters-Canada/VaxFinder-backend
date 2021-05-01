@@ -5,19 +5,19 @@ from pydantic import BaseModel
 
 from app.schemas.locations import LocationExpandedResponse
 
-
-class EntryResponse(BaseModel):
+class EntryResponseBase(BaseModel):
     id: int
     numberAvaliable: int
     numberTotal: int
     date: date
-    location: int
     vaccine: int
     inputType: int
     tags_optional: str
     tags_required: str
     created_at: datetime
 
+class EntryResponse(EntryResponseBase):
+    location: int
 
-class EntryExpandedResponse(EntryResponse):
+class EntryExpandedResponse(EntryResponseBase):
     location: LocationExpandedResponse

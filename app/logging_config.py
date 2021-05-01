@@ -2,12 +2,21 @@ import logging
 import sys
 from pathlib import Path
 from loguru import logger
-from loguru import _Logger as Logger
+import loguru
 import json
 from datetime import timedelta
+from typing import Union, TypedDict, Optional, Callable
 import os
+from types import FrameType
 
-logging_config = {
+class Logging_Config_Data(TypedDict):
+    level: str
+    format: str
+    path: Union[Path, str]
+    retention: Optional[timedelta]
+    rotation: Optional[timedelta]
+
+config: Logging_Config_Data = {
     "level": "trace",
     "format": (
         "<level>{level:8}</level> | "
@@ -16,7 +25,8 @@ logging_config = {
         "<level>{message: <8}</level>"
     ),
     "path": os.environ.get('LOG_PATH', 'log.txt'),
-    "retention": timedelta(days=7)
+    "retention": timedelta(days=7),
+    'rotation': None
 }
 
 class InterceptHandler(logging.Handler):
@@ -29,7 +39,7 @@ class InterceptHandler(logging.Handler):
         0: 'NOTSET',
     }
 
-    def emit(self, record) -> None:
+    def emit(self, record: logging.LogRecord) -> None:
         try:
             level = logger.level(record.levelname).name
         except AttributeError:
@@ -37,7 +47,7 @@ class InterceptHandler(logging.Handler):
 
         frame, depth = logging.currentframe(), 2
         while frame.f_code.co_filename == logging.__file__:
-            frame = frame.f_back
+            frame = frame.f_back # type: ignore
             depth += 1
 
         log = logger.bind(request_id='app')
@@ -47,28 +57,28 @@ class InterceptHandler(logging.Handler):
         ).log(level,record.getMessage())
 
 
-def make_logger() -> Logger:
+def make_logger() -> 'loguru.Logger':
 
     logger = customize_logging(
-        logging_config.get('path'),
-        level=logging_config.get('level'),
-        retention=logging_config.get('retention'),
-        rotation=logging_config.get('rotation'),
-        format=logging_config.get('format')
+        config.get('path'),
+        level=config['level'],
+        retention=config.get('retention'),
+        rotation=config.get('rotation'),
+        format=config['format']
     )
     return logger
 
 def customize_logging(
-        filepath: Path,
+        filepath: Optional[Union[Path, str]],
         level: str,
-        rotation: str,
-        retention: str,
+        rotation: Optional[timedelta],
+        retention: Optional[timedelta],
         format: str
-) -> Logger:
+) -> 'loguru.Logger':
 
     logger.remove()
     logger.add(
-        sys.stdout,
+        sink=sys.stdout,
         enqueue=True,
         backtrace=True,
         level=level.upper(),
@@ -79,10 +89,7 @@ def customize_logging(
 
     logging.basicConfig(handlers=[InterceptHandler()], level=0)
     logging.getLogger("uvicorn.access").handlers = [InterceptHandler()]
-    for _log in ['uvicorn',
-                    'uvicorn.error',
-                    'fastapi'
-                    ]:
+    for _log in ['uvicorn', 'uvicorn.error', 'fastapi']:
         _logger = logging.getLogger(_log)
         _logger.handlers = [InterceptHandler()]
 

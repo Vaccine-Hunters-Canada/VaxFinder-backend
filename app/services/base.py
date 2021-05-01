@@ -3,7 +3,6 @@ from typing import Generic, List, Optional, Type, TypeVar
 from pydantic import BaseModel
 
 from app.db.database import MSSQLConnection
-from app.services.utils import convert_to_pydantic
 
 DBResponseSchemaType = TypeVar("DBResponseSchemaType", bound=BaseModel)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -25,7 +24,7 @@ class BaseService(
     def __init__(self, db: MSSQLConnection):
         self._db: MSSQLConnection = db
 
-    def _check_attributes_set(self):
+    def _check_attributes_set(self) -> None:
         assert (
             self.table is not None
         ), f"{self.__class__.__name__} should include a `table` attribute."
@@ -33,7 +32,7 @@ class BaseService(
             self.db_response_schema is not None
         ), f"{self.__class__.__name__} should include a `db_response_schema` attribute."
 
-    async def get_by_id(self, id) -> Type[DBResponseSchemaType]:
+    async def get_by_id(self, id: int) -> Optional[DBResponseSchemaType]:
         """
         Retrieve an instance from `self.table` from the database by id. None if
         the object can't be found.
@@ -61,9 +60,9 @@ class BaseService(
         if db_row is None:
             return db_row
 
-        return convert_to_pydantic(self.db_response_schema, [db_row])[0]
+        return self.db_response_schema(**db_row)
 
-    async def get_all(self, filters=None) -> Type[List[DBResponseSchemaType]]:
+    async def get_all(self, filters=None) -> List[DBResponseSchemaType]:
         """
         List all instances from `self.table` from the database.
         """
@@ -77,8 +76,4 @@ class BaseService(
             """
         )
 
-        pydantic_rows: List[DBResponseSchemaType] = convert_to_pydantic(
-            self.db_response_schema, db_rows
-        )
-
-        return pydantic_rows
+        return [self.db_response_schema(**r) for r in db_rows]

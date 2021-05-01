@@ -1,8 +1,9 @@
+from typing import AsyncGenerator
 from app.core.config import settings
-from app.db.database import MSSQLBackend
+from app.db.database import MSSQLBackend, MSSQLConnection
 
 
-async def get_db():
+async def get_db() -> AsyncGenerator[MSSQLConnection, None]:
     db = MSSQLBackend(settings.DB_URL)
     await db.connect()
     try:

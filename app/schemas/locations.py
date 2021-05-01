@@ -5,18 +5,18 @@ from pydantic import BaseModel
 
 from app.schemas.addresses import AddressResponse
 
-
-class LocationResponse(BaseModel):
+class LocationResponseBase(BaseModel):
     id: int
     name: str
     organization: str
     phone: str
     notes: str
-    address: int
     active: int
     postcode: str
     created_at: datetime
 
+class LocationResponse(LocationResponseBase):
+    address: int
 
-class LocationExpandedResponse(LocationResponse):
+class LocationExpandedResponse(LocationResponseBase):
     address: AddressResponse

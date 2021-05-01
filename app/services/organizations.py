@@ -1,11 +1,11 @@
-from typing import List, Union
+from typing import List, Union, Optional
 
 from app.schemas.organizations import (
     OrganizationCreateRequest,
     OrganizationResponse,
 )
 from app.services.base import BaseService
-from app.services.utils import convert_to_pydantic
+from loguru import logger
 
 
 class OrganizationService(

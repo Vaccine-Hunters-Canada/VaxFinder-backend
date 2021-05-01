@@ -16,7 +16,10 @@ router = APIRouter()
 
 
 @router.get("", response_model=List[EntryExpandedResponse])
-async def list(postalCode: str = "", db: MSSQLConnection = Depends(get_db)):
+async def list(
+    postalCode: str = "",
+    db: MSSQLConnection = Depends(get_db)
+) -> List[EntryExpandedResponse]:
     return await EntryService(db).get_all(
         filters={"postalCode": ("exact", postalCode)}
     )
@@ -31,7 +34,10 @@ async def list(postalCode: str = "", db: MSSQLConnection = Depends(get_db)):
         }
     },
 )
-async def retrieve(entry_id: int, db: MSSQLConnection = Depends(get_db)):
+async def retrieve(
+    entry_id: int,
+    db: MSSQLConnection = Depends(get_db)
+) -> EntryExpandedResponse:
     entry = await EntryService(db).get_by_id(entry_id)
 
     if entry is None:

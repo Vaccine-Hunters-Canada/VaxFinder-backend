@@ -1,5 +1,5 @@
 import importlib
-import typing
+from typing import Union, Any, Tuple, Dict, List, Mapping, Optional
 
 import aioodbc
 import sqlalchemy
@@ -11,13 +11,14 @@ from loguru import logger
 from sqlalchemy.engine.interfaces import Dialect, ExecutionContext
 from sqlalchemy.engine.result import ResultMetaData, RowProxy
 from sqlalchemy.sql import ClauseElement
+from sqlalchemy.sql.elements import TextClause
 
 
 class MSSQLBackend(DatabaseBackend):
     def __init__(
         self,
-        database_url: typing.Union[DatabaseURL, str],
-        **options: typing.Any,
+        database_url: str,
+        **options: Any,
     ) -> None:
         assert len(database_url) > 0, "Missing database URL"
         self._database_url = DatabaseURL(database_url)
@@ -25,7 +26,7 @@ class MSSQLBackend(DatabaseBackend):
         assert self._database_url.options.get(
             "driver"
         ), "driver parameter is not specified in database url"
-        pyodbc = importlib.import_module(
+        pyodbc: Any = importlib.import_module(
             f"sqlalchemy.dialects.{self._database_url.driver}.pyodbc"
         )
         assert (
@@ -46,7 +47,7 @@ class MSSQLBackend(DatabaseBackend):
         ).lower() in ("true", "yes", "1", "y", "t")
         self._pool: Pool = None
 
-    def _get_connection_kwargs(self) -> dict:
+    def _get_connection_kwargs(self) -> Dict[str, Any]:
         url_options = self._database_url.options
 
         kwargs = {}
@@ -107,7 +108,7 @@ class MSSQLConnection(ConnectionBackend):
         self._dialect = dialect
         self._connection: Connection = None
 
-    async def acquire(self, autocommit=False) -> None:
+    async def acquire(self, autocommit: bool =False) -> None:
         assert self._connection is None, "Connection is already acquired"
         assert (
             self._database.pool is not None
@@ -125,7 +126,7 @@ class MSSQLConnection(ConnectionBackend):
 
     async def fetch_all(
         self, query: ClauseElement
-    ) -> typing.List[typing.Mapping]:
+    ) -> List[RowProxy]:
         assert self._connection is not None, "Connection is not acquired"
         query, args, context = self._compile(query)
         async with self._connection.cursor() as cursor:
@@ -144,7 +145,7 @@ class MSSQLConnection(ConnectionBackend):
 
     async def fetch_one(
         self, query: ClauseElement
-    ) -> typing.Optional[typing.Mapping]:
+    ) -> Optional[RowProxy]:
         assert self._connection is not None, "Connection is not acquired"
         query, args, context = self._compile(query)
         async with await self._connection.cursor() as cursor:
@@ -160,7 +161,7 @@ class MSSQLConnection(ConnectionBackend):
                 metadata, row, metadata._processors, metadata._keymap
             )
 
-    async def execute(self, query: ClauseElement) -> typing.Any:
+    async def execute(self, query: ClauseElement) -> Any:
         assert self._connection is not None, "Connection is not acquired"
         query, args, context = self._compile(query)
         async with await self._connection.cursor() as cursor:
@@ -170,14 +171,14 @@ class MSSQLConnection(ConnectionBackend):
                 await cursor.execute(query)
             return cursor.rowcount
     
-    async def execute_stored_procedure(self, query: ClauseElement, values: typing.Tuple[typing.Any, ...]) -> typing.Any:
+    async def execute_stored_procedure(self, query: ClauseElement, values: Tuple[Any, ...]) -> Any:
         assert self._connection is not None, 'Connection is not acquired'
         query, _, _ = self._compile(query)
         async with await self._connection.cursor() as cursor:
             await cursor.execute(query, values)
             return cursor.rowcount
 
-    async def execute_many(self, queries: typing.List[ClauseElement]) -> None:
+    async def execute_many(self, queries: List[ClauseElement]) -> None:
         assert self._connection is not None, "Connection is not acquired"
         async with await self._connection.cursor() as cursor:
             for single_query in queries:
@@ -192,10 +193,10 @@ class MSSQLConnection(ConnectionBackend):
 
     def _compile(
         self, query: str
-    ) -> typing.Tuple[str, typing.List, CompilationContext]:
-        query = sqlalchemy.text(query)
-        compiled = query.compile(dialect=self._dialect)
-        args: dict = compiled.construct_params()
+    ) -> Tuple[str, List[Any], CompilationContext]:
+        sql_query: TextClause = sqlalchemy.text(query)
+        compiled = sql_query.compile(dialect=self._dialect)
+        args: Dict[str, Any] = compiled.construct_params()
         for key, val in args.items():
             if key in compiled._bind_processors:
                 args[key] = compiled._bind_processors[key](val)
@@ -208,9 +209,9 @@ class MSSQLConnection(ConnectionBackend):
             compiled._textual_ordered_columns,
         )
 
-        args: typing.List = args.values()
-        logger.debug(f"Query: {compiled.string}\nArgs: {args}")
-        return compiled.string, args, CompilationContext(execution_context)
+        args_values = list(args.values())
+        logger.debug(f"Query: {compiled.string}\nArgs: {args_values}")
+        return compiled.string, args_values, CompilationContext(execution_context)
 
     @property
     def raw_connection(self) -> Connection:
@@ -223,7 +224,9 @@ class MSSQLTransaction(TransactionBackend):
         self._connection: MSSQLConnection = connection
         self._original_autocommit = self._connection.raw_connection.autocommit
 
-    async def start(self, is_root: bool) -> None:
+    async def start(
+        self, is_root: bool, extra_options: Dict[Any, Any]
+    ) -> None:
         assert (
             self._connection.raw_connection is not None
         ), "Connection is not acquired"

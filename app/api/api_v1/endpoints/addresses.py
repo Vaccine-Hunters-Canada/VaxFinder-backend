@@ -16,7 +16,10 @@ router = APIRouter()
 
 
 @router.get("", response_model=List[AddressResponse])
-async def list(postalCode: str = "", db: MSSQLConnection = Depends(get_db)):
+async def list(
+    postalCode: str = "",
+    db: MSSQLConnection = Depends(get_db)
+) -> List[AddressResponse]:
     return await AddressService(db).get_all(
         filters={"postalCode": ("exact", postalCode)}
     )
@@ -31,7 +34,10 @@ async def list(postalCode: str = "", db: MSSQLConnection = Depends(get_db)):
         }
     },
 )
-async def retrieve(address_id: int, db: MSSQLConnection = Depends(get_db)):
+async def retrieve(
+    address_id: int,
+    db: MSSQLConnection = Depends(get_db)
+) -> AddressResponse:
     address = await AddressService(db).get_by_id(address_id)
 
     if address is None:

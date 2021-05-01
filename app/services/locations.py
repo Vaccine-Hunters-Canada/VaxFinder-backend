@@ -1,4 +1,5 @@
-from typing import List
+from typing import List, Optional
+from loguru import logger
 
 from app.schemas.locations import LocationExpandedResponse, LocationResponse
 from app.services.addresses import AddressService

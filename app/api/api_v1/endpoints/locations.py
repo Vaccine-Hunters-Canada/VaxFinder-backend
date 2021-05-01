@@ -16,7 +16,10 @@ router = APIRouter()
 
 
 @router.get("", response_model=List[LocationExpandedResponse])
-async def list(postalCode: str = "", db: MSSQLConnection = Depends(get_db)):
+async def list(
+    postalCode: str = "",
+    db: MSSQLConnection = Depends(get_db)
+) -> List[LocationExpandedResponse]:
     return await LocationService(db).get_all(
         filters={"postalCode": ("exact", postalCode)}
     )
@@ -31,8 +34,13 @@ async def list(postalCode: str = "", db: MSSQLConnection = Depends(get_db)):
         }
     },
 )
-async def retrieve(location_id: int, db: MSSQLConnection = Depends(get_db)):
+async def retrieve(
+    location_id: int,
+    db: MSSQLConnection = Depends(get_db)
+) -> LocationExpandedResponse:
     location = await LocationService(db).get_by_id(location_id)
+    
+    logger.critical(location)
 
     if location is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)

@@ -18,7 +18,10 @@ router = APIRouter()
 
 
 @router.get("", response_model=List[OrganizationResponse])
-async def list(name: str = "", db: MSSQLConnection = Depends(get_db)):
+async def list(
+    name: str = "",
+    db: MSSQLConnection = Depends(get_db)
+) -> List[OrganizationResponse]:
     return await OrganizationService(db).get_all(
         filters={"name": ("exact", name)}
     )
@@ -34,8 +37,9 @@ async def list(name: str = "", db: MSSQLConnection = Depends(get_db)):
     },
 )
 async def retrieve(
-    organization_id: int, db: MSSQLConnection = Depends(get_db)
-):
+    organization_id: int,
+    db: MSSQLConnection = Depends(get_db)
+) -> OrganizationResponse:
     organization = await OrganizationService(db).get_by_id(organization_id)
 
     if organization is None:
@@ -47,11 +51,11 @@ async def retrieve(
 async def create_organization(
     body: OrganizationCreateRequest,
     db: MSSQLConnection = Depends(get_db),
-):
+) -> General_Response:
     await OrganizationService(db).create(
         full_name=body.full_name,
         short_name=body.short_name,
         description=body.description,
     )
 
-    return {"success": True}
+    return General_Response(success=True)
