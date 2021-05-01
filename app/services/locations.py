@@ -53,17 +53,20 @@ class LocationService(
             organization = await OrganizationService(self._db).get_by_id(
                 location.organization
             )
-            
+
             assert (
                 organization is not None
             ), f'Could not find organization {location.organization} for location {location.id}'
+            
+            location_expanded = location.dict()
+            location_expanded.update({
+                'address': address,
+                'organization': organization
+            })
+            
+            logger.critical(location_expanded)
 
-            location_expanded = LocationExpandedResponse(
-                **location.dict(),
-                address=address,
-                organization=organization
-            )
-            return location_expanded
+            return LocationExpandedResponse(**location_expanded)
 
         return location
 
@@ -75,14 +78,28 @@ class LocationService(
         # TODO: should be done all at once instead of in a for loop
         locations_expanded: List[LocationExpandedResponse] = []
         for location in locations:
-            address = None
-            if location.address is not None:
-                address = await AddressService(self._db).get_by_id(
-                    location.address
-                )
-
-            locations_expanded.append(
-                LocationExpandedResponse(**location.dict(), address=address)
+            address = await AddressService(self._db).get_by_id(
+                location.address
             )
+
+            assert (
+                address is not None
+            ), f'Could not find address {location.address} for location {location.id}'
+            
+            organization = await OrganizationService(self._db).get_by_id(
+                location.organization
+            )
+
+            assert (
+                organization is not None
+            ), f'Could not find organization {location.organization} for location {location.id}'
+
+            location_expanded = location.dict()
+            location_expanded.update({
+                'address': address,
+                'organization': organization
+            })
+
+            locations_expanded.append(LocationExpandedResponse(**location_expanded))
 
         return locations_expanded

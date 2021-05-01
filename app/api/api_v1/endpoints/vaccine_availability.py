@@ -1,4 +1,5 @@
 from typing import List
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
@@ -34,7 +35,8 @@ async def list_vaccine_availability(
     },
 )
 async def retrieve_vaccine_availability_by_id(
-    entry_id: int, db: MSSQLConnection = Depends(get_db)
+    entry_id: UUID,
+    db: MSSQLConnection = Depends(get_db)
 ) -> VaccineAvailabilityExpandedResponse:
     entry = await VaccineAvailabilityService(db).get_by_id_expanded(entry_id)
 

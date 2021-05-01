@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Optional
+from typing import Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -14,22 +14,22 @@ class VaccineAvailabilityFilterParams(FilterParamsBase):
 
 
 class VaccineAvailabilityResponseBase(BaseModel):
-    numberAvaliable: int
+    numberAvaliable: Optional[int]
     numberTotal: Optional[int]
-    date: date
+    date: Optional[date]
     vaccine: Optional[int]
-    inputType: InputTypeEnum
+    inputType: Optional[InputTypeEnum]
     tags: Optional[str]
 
 
 class VaccineAvailabilityResponse(VaccineAvailabilityResponseBase):
-    id: UUID
+    id: Union[UUID, int]
     location: int
     created_at: datetime
 
 
 class VaccineAvailabilityExpandedResponse(VaccineAvailabilityResponseBase):
-    id: UUID
+    id: Union[UUID, int]
     location: LocationExpandedResponse
     created_at: datetime
 
@@ -38,7 +38,7 @@ class VaccineAvailabilityCreateRequest(VaccineAvailabilityResponseBase):
     auth: str
 
 class VaccineAvailabilityUpdateRequest(VaccineAvailabilityResponseBase):
-    id: UUID
+    id: Union[UUID, int]
     location: int
     auth: str
 

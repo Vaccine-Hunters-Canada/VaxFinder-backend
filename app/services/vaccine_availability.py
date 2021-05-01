@@ -1,4 +1,5 @@
 from typing import List, Optional, Type
+from uuid import UUID
 
 from app.schemas.misc import FilterParamsBase
 from app.schemas.vaccine_availability import (
@@ -10,6 +11,7 @@ from app.schemas.vaccine_availability import (
 from app.services.base import BaseService
 from app.services.locations import LocationService
 from app.services.organizations import OrganizationService
+from loguru import logger
 
 
 class VaccineAvailabilityService(
@@ -38,7 +40,7 @@ class VaccineAvailabilityService(
         return VaccineAvailabilityUpdateRequest
 
     async def get_by_id_expanded(
-        self, id: int
+        self, id: UUID
     ) -> Optional[VaccineAvailabilityExpandedResponse]:
         entry = await super().get_by_id(id)
 
@@ -49,11 +51,17 @@ class VaccineAvailabilityService(
             assert (
                 location is not None
             ), f"Could not find location {entry.location} for entry {entry.id}"
-            if location is not None:
-                entry_expanded = VaccineAvailabilityExpandedResponse(
-                    **entry.dict(), location=location
-                )
-                return entry_expanded
+            
+            entry_expanded = location.dict()
+            entry_expanded.update({
+                'location': location,
+            })
+            
+            logger.critical(entry_expanded)
+
+            return VaccineAvailabilityExpandedResponse(
+                **entry_expanded
+            )
 
         return entry
 
@@ -71,9 +79,15 @@ class VaccineAvailabilityService(
             assert (
                 location is not None
             ), f"Could not find location {entry.location} for entry {entry.id}"
+            
+            entry_expanded = location.dict()
+            entry_expanded.update({
+                'location': location.dict(),
+            })
+
             entries_expanded.append(
                 VaccineAvailabilityExpandedResponse(
-                    **entry.dict(), location=location
+                    **entry_expanded
                 )
             )
 

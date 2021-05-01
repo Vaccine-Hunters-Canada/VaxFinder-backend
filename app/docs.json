@@ -65,7 +65,8 @@
                         "required": true,
                         "schema": {
                             "title": "Entry Id",
-                            "type": "integer"
+                            "type": "string",
+                            "format": "uuid"
                         },
                         "name": "entry_id",
                         "in": "path"
@@ -668,8 +669,7 @@
                         "format": "date-time"
                     },
                     "organization": {
-                        "title": "Organization",
-                        "type": "integer"
+                        "$ref": "#/components/schemas/OrganizationResponse"
                     },
                     "address": {
                         "$ref": "#/components/schemas/AddressResponse"
@@ -680,7 +680,6 @@
                 "title": "OrganizationCreateRequest",
                 "required": [
                     "short_name",
-                    "url",
                     "auth"
                 ],
                 "type": "object",
@@ -699,10 +698,7 @@
                     },
                     "url": {
                         "title": "Url",
-                        "maxLength": 65536,
-                        "minLength": 1,
-                        "type": "string",
-                        "format": "uri"
+                        "type": "string"
                     },
                     "auth": {
                         "title": "Auth",
@@ -713,16 +709,12 @@
             "OrganizationResponse": {
                 "title": "OrganizationResponse",
                 "required": [
-                    "id",
                     "short_name",
+                    "id",
                     "created_at"
                 ],
                 "type": "object",
                 "properties": {
-                    "id": {
-                        "title": "Id",
-                        "type": "integer"
-                    },
                     "full_name": {
                         "title": "Full Name",
                         "type": "string"
@@ -738,6 +730,10 @@
                     "url": {
                         "title": "Url",
                         "type": "string"
+                    },
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
                     },
                     "created_at": {
                         "title": "Created At",
@@ -749,10 +745,8 @@
             "OrganizationUpdateRequest": {
                 "title": "OrganizationUpdateRequest",
                 "required": [
-                    "full_name",
                     "short_name",
-                    "description",
-                    "url",
+                    "id",
                     "auth"
                 ],
                 "type": "object",
@@ -771,10 +765,11 @@
                     },
                     "url": {
                         "title": "Url",
-                        "maxLength": 65536,
-                        "minLength": 1,
-                        "type": "string",
-                        "format": "uri"
+                        "type": "string"
+                    },
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
                     },
                     "auth": {
                         "title": "Auth",
@@ -814,20 +809,15 @@
             "VaccineAvailabilityExpandedResponse": {
                 "title": "VaccineAvailabilityExpandedResponse",
                 "required": [
-                    "id",
                     "numberAvaliable",
                     "date",
                     "inputType",
-                    "created_at",
-                    "location"
+                    "id",
+                    "location",
+                    "created_at"
                 ],
                 "type": "object",
                 "properties": {
-                    "id": {
-                        "title": "Id",
-                        "type": "string",
-                        "format": "uuid"
-                    },
                     "numberAvaliable": {
                         "title": "Numberavaliable",
                         "type": "integer"
@@ -852,13 +842,18 @@
                         "title": "Tags",
                         "type": "string"
                     },
+                    "id": {
+                        "title": "Id",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "location": {
+                        "$ref": "#/components/schemas/LocationExpandedResponse"
+                    },
                     "created_at": {
                         "title": "Created At",
                         "type": "string",
                         "format": "date-time"
-                    },
-                    "location": {
-                        "$ref": "#/components/schemas/LocationExpandedResponse"
                     }
                 }
             },
