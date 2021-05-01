@@ -1,3 +1,7 @@
+from app.services.addresses import AddressService
+from app.services.locations import LocationService
+from app.schemas.locations import LocationCreateRequest, LocationUpdateRequest
+from app.schemas.misc import GeneralResponse
 from typing import List
 from uuid import UUID
 
@@ -6,8 +10,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.api.dependencies import get_db
 from app.db.database import MSSQLConnection
 from app.schemas.vaccine_availability import (
+    VaccineAvailabilityCreateRequest,
     VaccineAvailabilityExpandedResponse,
     VaccineAvailabilityFilterParams,
+    VaccineAvailabilityUpdateRequest,
 )
 from app.services.vaccine_availability import VaccineAvailabilityService
 
@@ -43,3 +49,34 @@ async def retrieve_vaccine_availability_by_id(
     if entry is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return entry
+
+@router.post("", response_model=GeneralResponse)
+async def create_vaccine_availability(
+    body: VaccineAvailabilityCreateRequest,
+    db: MSSQLConnection = Depends(get_db),
+) -> GeneralResponse:
+    await VaccineAvailabilityService(db).create(body)
+
+    return GeneralResponse(success=True)
+
+@router.put(
+    "/{requirement_id}",
+    response_model=GeneralResponse,
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The location with the specified id could not be found."
+        }
+    },
+)
+async def update_vaccine_availability(
+    requirement_id: int,
+    body: VaccineAvailabilityUpdateRequest,
+    db: MSSQLConnection = Depends(get_db)
+) -> GeneralResponse:
+    requirement = await VaccineAvailabilityService(db).update(
+        id=requirement_id,
+        params=body)
+
+    if requirement is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return GeneralResponse(success=True)

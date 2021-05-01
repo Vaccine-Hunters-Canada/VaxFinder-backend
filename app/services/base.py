@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Generic, List, Optional, Type, TypeVar
+from typing import Generic, List, Optional, Type, TypeVar, Union
+from uuid import UUID
 
 from pydantic import BaseModel
 from loguru import logger
@@ -47,7 +48,7 @@ class BaseService(
     def __init__(self, db: MSSQLConnection):
         self._db: MSSQLConnection = db
 
-    async def get_by_id(self, id: int) -> Optional[DBResponseSchemaType]:
+    async def get_by_id(self, id: Union[UUID, int]) -> Optional[DBResponseSchemaType]:
         """
         Retrieve an instance from `self.table` from the database by id. None if
         the object can't be found.
@@ -114,7 +115,7 @@ class BaseService(
             values=(tuple(params.dict().values())),
         )
     
-    async def update(self, id: int, params: UpdateSchemaType) -> Optional[int]:
+    async def update(self, id: Union[UUID, int], params: UpdateSchemaType) -> Optional[int]:
         exists = await self.get_by_id(id)
         
         if exists is None:

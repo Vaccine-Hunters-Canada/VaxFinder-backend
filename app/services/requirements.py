@@ -1,14 +1,18 @@
 from typing import Type
 
-from app.schemas.requirements import RequirementResponse
+from app.schemas.requirements import (
+    RequirementResponse,
+    RequirementsCreateRequest,
+    RequirementsUpdateRequest,
+)
 from app.services.base import BaseService
 
 
 class RequirementService(
-    BaseService[RequirementResponse, RequirementResponse, RequirementResponse]
+    BaseService[RequirementResponse, RequirementsCreateRequest, RequirementsUpdateRequest]
 ):
     read_procedure_id_parameter = "requirementID"
-    
+
     @property
     def table(self) -> str:
         return 'requirements'
@@ -16,3 +20,11 @@ class RequirementService(
     @property
     def db_response_schema(self) -> Type[RequirementResponse]:
         return RequirementResponse
+
+    @property
+    def create_response_schema(self) -> Type[RequirementsCreateRequest]:
+        return RequirementsCreateRequest
+
+    @property
+    def update_response_schema(self) -> Type[RequirementsUpdateRequest]:
+        return RequirementsUpdateRequest

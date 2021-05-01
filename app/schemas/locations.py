@@ -13,7 +13,6 @@ class LocationFilterParams(FilterParamsBase):
 
 
 class LocationResponseBase(BaseModel):
-    id: int
     name: str
     phone: Optional[str]
     notes: Optional[str]
@@ -25,17 +24,23 @@ class LocationResponseBase(BaseModel):
 
 
 class LocationResponse(LocationResponseBase):
+    id: int
     organization: Optional[int]
     address: Optional[int]
 
 
 class LocationExpandedResponse(LocationResponseBase):
+    id: int
     organization: Optional[OrganizationResponse]
     address: Optional[AddressResponse]
 
 class LocationCreateRequest(LocationResponseBase):
+    organization: Optional[int]
+    address: Optional[int]
     auth: str
 
 class LocationUpdateRequest(LocationResponseBase):
     id: int
     auth: str
+    address: Optional[int]
+    organization: Optional[int]
