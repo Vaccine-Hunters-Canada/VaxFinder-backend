@@ -22,6 +22,8 @@ class BaseService(
 
     read_procedure_name: Optional[str] = None
     read_procedure_id_parameter: Optional[str] = None
+    create_procedure_name: Optional[str] = None
+    update_procedure_name: Optional[str] = None
 
     @property
     @abstractmethod
@@ -32,6 +34,14 @@ class BaseService(
     @abstractmethod
     def db_response_schema(self) -> Type[DBResponseSchemaType]:
         pass
+
+    @property
+    @abstractmethod
+    def create_response_schema(self) -> Type[CreateSchemaType]: pass
+    
+    @property
+    @abstractmethod
+    def update_response_schema(self) -> Type[UpdateSchemaType]: pass
 
     def __init__(self, db: MSSQLConnection):
         self._db: MSSQLConnection = db
@@ -81,3 +91,53 @@ class BaseService(
         )
 
         return [self.db_response_schema(**r) for r in db_rows]
+
+    async def create(self, params: CreateSchemaType) -> None:
+        procedure_name = (
+            f"{self.table}_Create"
+            if self.create_procedure_name is None
+            else self.create_procedure_name
+        )
+
+        db_params = [
+            f'@{k}=?'
+            for k in
+            self.create_response_schema.__fields__.keys()
+        ]
+
+        await self._db.execute_stored_procedure(
+            query=f"""
+                EXEC dbo.{procedure_name}
+                    {','.join(db_params)}
+            """,
+            values=(tuple(params.dict().values())),
+        )
+    
+    async def update(self, id: int, params: UpdateSchemaType) -> None:
+        procedure_name = (
+            f"{self.table}_Update"
+            if self.update_procedure_name is None
+            else self.update_procedure_name
+        )
+        
+        procedure_id_param = (
+            f"{self.table}ID"
+            if self.read_procedure_id_parameter is None
+            else self.read_procedure_id_parameter
+        )
+
+        db_params = [
+            f'@{k}=?'
+            for k in
+            self.update_response_schema.__fields__.keys()
+        ]
+
+        db_params.append(f'@{procedure_id_param}={id}')
+
+        await self._db.execute_stored_procedure(
+            query=f"""
+                EXEC dbo.{procedure_name}
+                    {','.join(db_params)}
+            """,
+            values=(tuple(params.dict().values())),
+        )

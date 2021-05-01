@@ -20,6 +20,8 @@ class LocationService(
     def db_response_schema(self) -> Type[LocationResponse]:
         return LocationResponse
 
+    
+
     async def get_by_id_expanded(self, id: int) -> Optional[LocationExpandedResponse]:
         location = await super().get_by_id(id)
 

@@ -16,3 +16,11 @@ class AddressService(
     @property
     def db_response_schema(self) -> Type[AddressResponse]:
         return AddressResponse
+
+    @property
+    def create_response_schema(self) -> Type[AddressResponse]:
+        return AddressResponse
+
+    @property
+    def update_response_schema(self) -> Type[AddressResponse]:
+        return AddressResponse
