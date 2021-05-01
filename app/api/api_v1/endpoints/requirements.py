@@ -13,7 +13,9 @@ router = APIRouter()
 @router.get(
     "", response_model=List[RequirementResponse]
 )
-async def list_requirements(db: MSSQLConnection = Depends(get_db)):
+async def list_requirements(
+    db: MSSQLConnection = Depends(get_db)
+) -> List[RequirementResponse]:
     return await RequirementService(db).get_all()
 
 
@@ -26,7 +28,10 @@ async def list_requirements(db: MSSQLConnection = Depends(get_db)):
         }
     },
 )
-async def retrieve_requirement_by_id(requirement_id: int, db: MSSQLConnection = Depends(get_db)):
+async def retrieve_requirement_by_id(
+    requirement_id: int,
+    db: MSSQLConnection = Depends(get_db)
+) -> RequirementResponse:
     requirement = await RequirementService(db).get_by_id(requirement_id)
 
     if requirement is None:
