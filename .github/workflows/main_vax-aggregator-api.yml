@@ -31,7 +31,8 @@ jobs:
       uses: abatilo/actions-poetry@v2.0.0
       
     - name: Install dependencies
-      run: poetry install
+      run: |
+        poetry install --extras "uvicorn"
       
     # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
     
