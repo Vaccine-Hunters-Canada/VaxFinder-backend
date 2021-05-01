@@ -51,7 +51,7 @@
 4. Install all python dependencies with [Poetry](https://python-poetry.org/).
 
     ```
-    poetry install
+    $ poetry install
     ```
 
 ### Running the Server
@@ -59,15 +59,15 @@
 1. Spawn a shell within a virtual environment.
 
     ```
-    poetry shell
+    $ poetry shell
     ```
 
     All python dependencies should be installed within the virtual environment from the previous step.
 
-2. Run the server on port `8007` from the root of the project.
+2. Run the server on port `8007` from the root of the project within the shell.
 
     ```
-    DB_URL={DATABASE_URL} python -m app.main
+    $ DB_URL={DATABASE_URL} python -m app.main
     ```
 
     - Swagger: [http://localhost:8007/swagger](http://localhost:8007/swagger)

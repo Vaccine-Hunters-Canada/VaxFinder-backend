@@ -1,11 +1,6 @@
-import time
-import traceback
-from datetime import datetime
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from loguru import logger
-from pydantic import BaseModel
 
 from app.api.dependencies import get_db
 from app.db.database import MSSQLConnection
@@ -16,7 +11,7 @@ router = APIRouter()
 
 
 @router.get("", response_model=List[LocationExpandedResponse])
-async def list(
+async def list_locations(
     postalCode: str = "",
     db: MSSQLConnection = Depends(get_db)
 ) -> List[LocationExpandedResponse]:
@@ -34,13 +29,11 @@ async def list(
         }
     },
 )
-async def retrieve(
+async def retrieve_location_by_id(
     location_id: int,
     db: MSSQLConnection = Depends(get_db)
 ) -> LocationExpandedResponse:
     location = await LocationService(db).get_by_id(location_id)
-    
-    logger.critical(location)
 
     if location is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)

@@ -1,9 +1,6 @@
-import traceback
-from datetime import datetime
-from typing import List, Union
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from loguru import logger
 
 from app.api.dependencies import get_db
 from app.db.database import MSSQLConnection
@@ -18,7 +15,7 @@ router = APIRouter()
 
 
 @router.get("", response_model=List[OrganizationResponse])
-async def list(
+async def list_organizations(
     name: str = "",
     db: MSSQLConnection = Depends(get_db)
 ) -> List[OrganizationResponse]:
@@ -36,7 +33,7 @@ async def list(
         }
     },
 )
-async def retrieve(
+async def retrieve_organization_by_id(
     organization_id: int,
     db: MSSQLConnection = Depends(get_db)
 ) -> OrganizationResponse:
