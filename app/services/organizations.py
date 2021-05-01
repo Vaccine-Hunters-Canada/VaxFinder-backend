@@ -1,4 +1,4 @@
-from typing import List, Union, Optional
+from typing import Type
 
 from app.schemas.organizations import (
     OrganizationCreateRequest,
@@ -13,13 +13,19 @@ class OrganizationService(
         OrganizationResponse, OrganizationCreateRequest, OrganizationResponse
     ]
 ):
-    table = "organizations"
-    db_response_schema = OrganizationResponse
     read_procedure_id_parameter = "organizationID"
+    
+    @property
+    def table(self) -> str:
+        return 'organizations'
+
+    @property
+    def db_response_schema(self) -> Type[OrganizationResponse]:
+        return OrganizationResponse
 
     async def create(
         self, full_name: str, short_name: str, description: str
-    ) -> Union[OrganizationResponse, None]:
+    ) -> None:
         await self._db.execute_stored_procedure(
             query="""
                 EXEC [dbo].[organizations_Create]

@@ -1,7 +1,10 @@
+from app.schemas.misc import FilterParamsBase
 from datetime import datetime
 
 from pydantic import BaseModel
 
+class AddressFilterParams(FilterParamsBase):
+    postalCode: str
 
 class AddressResponse(BaseModel):
     id: int

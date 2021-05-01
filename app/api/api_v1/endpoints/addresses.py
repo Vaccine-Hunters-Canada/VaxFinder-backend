@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.dependencies import get_db
 from app.db.database import MSSQLConnection
-from app.schemas.addresses import AddressResponse
+from app.schemas.addresses import AddressResponse, AddressFilterParams
 from app.services.addresses import AddressService
 
 router = APIRouter()
@@ -16,7 +16,7 @@ async def list_addresses(
     db: MSSQLConnection = Depends(get_db)
 ) -> List[AddressResponse]:
     return await AddressService(db).get_all(
-        filters={"postalCode": ("exact", postalCode)}
+        filters=AddressFilterParams(postalCode=postalCode, match_type='exact')
     )
 
 

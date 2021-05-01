@@ -1,9 +1,13 @@
+from app.schemas.misc import FilterParamsBase
 from datetime import date, datetime
 from typing import Union
 
 from pydantic import BaseModel
 
 from app.schemas.locations import LocationExpandedResponse
+
+class EntryFilterParams(FilterParamsBase):
+    postalCode: str
 
 class EntryResponseBase(BaseModel):
     id: int

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.dependencies import get_db
 from app.db.database import MSSQLConnection
-from app.schemas.locations import LocationExpandedResponse
+from app.schemas.locations import LocationExpandedResponse, LocationFilterParams
 from app.services.locations import LocationService
 
 router = APIRouter()
@@ -15,8 +15,8 @@ async def list_locations(
     postalCode: str = "",
     db: MSSQLConnection = Depends(get_db)
 ) -> List[LocationExpandedResponse]:
-    return await LocationService(db).get_all(
-        filters={"postalCode": ("exact", postalCode)}
+    return await LocationService(db).get_all_expanded(
+        filters=LocationFilterParams(postalCode=postalCode, match_type='exact')
     )
 
 
@@ -33,7 +33,7 @@ async def retrieve_location_by_id(
     location_id: int,
     db: MSSQLConnection = Depends(get_db)
 ) -> LocationExpandedResponse:
-    location = await LocationService(db).get_by_id(location_id)
+    location = await LocationService(db).get_by_id_expanded(location_id)
 
     if location is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)

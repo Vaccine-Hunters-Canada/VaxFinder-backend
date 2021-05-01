@@ -1,4 +1,6 @@
+from app.schemas.misc import FilterParamsBase
 from typing import Generic, List, Optional, Type, TypeVar
+from abc import ABC, abstractmethod
 
 from pydantic import BaseModel
 
@@ -10,34 +12,33 @@ UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
 class BaseService(
+    ABC,
     Generic[
         DBResponseSchemaType,
         CreateSchemaType,
         UpdateSchemaType,
     ]
 ):
-    table: Optional[str] = None
-    db_response_schema: Optional[DBResponseSchemaType] = None
+
     read_procedure_name: Optional[str] = None
     read_procedure_id_parameter: Optional[str] = None
 
+    @property
+    @abstractmethod
+    def table(self) -> str: pass
+    
+    @property
+    @abstractmethod
+    def db_response_schema(self) -> Type[DBResponseSchemaType]: pass
+
     def __init__(self, db: MSSQLConnection):
         self._db: MSSQLConnection = db
-
-    def _check_attributes_set(self) -> None:
-        assert (
-            self.table is not None
-        ), f"{self.__class__.__name__} should include a `table` attribute."
-        assert (
-            self.db_response_schema is not None
-        ), f"{self.__class__.__name__} should include a `db_response_schema` attribute."
 
     async def get_by_id(self, id: int) -> Optional[DBResponseSchemaType]:
         """
         Retrieve an instance from `self.table` from the database by id. None if
         the object can't be found.
         """
-        self._check_attributes_set()
 
         procedure_name = (
             f"{self.table}_Read"
@@ -62,11 +63,10 @@ class BaseService(
 
         return self.db_response_schema(**db_row)
 
-    async def get_all(self, filters=None) -> List[DBResponseSchemaType]:
+    async def get_all(self, filters: Optional[FilterParamsBase] = None) -> List[DBResponseSchemaType]:
         """
         List all instances from `self.table` from the database.
         """
-        self._check_attributes_set()
 
         db_rows = await self._db.fetch_all(
             f"""

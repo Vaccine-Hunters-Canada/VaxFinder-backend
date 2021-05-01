@@ -1,7 +1,10 @@
+from app.schemas.misc import FilterParamsBase
 from datetime import date, datetime
 
 from pydantic import BaseModel
 
+class OrganizationFilterParams(FilterParamsBase):
+    name: str
 
 class OrganizationResponse(BaseModel):
     id: int

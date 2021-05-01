@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.dependencies import get_db
 from app.db.database import MSSQLConnection
-from app.schemas.entries import EntryExpandedResponse
+from app.schemas.entries import EntryExpandedResponse, EntryFilterParams
 from app.services.entries import EntryService
 
 router = APIRouter()
@@ -15,8 +15,8 @@ async def list_entries(
     postalCode: str = "",
     db: MSSQLConnection = Depends(get_db)
 ) -> List[EntryExpandedResponse]:
-    return await EntryService(db).get_all(
-        filters={"postalCode": ("exact", postalCode)}
+    return await EntryService(db).get_all_expanded(
+        filters=EntryFilterParams(postalCode=postalCode, match_type='exact')
     )
 
 
@@ -33,7 +33,7 @@ async def retrieve_entry_by_id(
     entry_id: int,
     db: MSSQLConnection = Depends(get_db)
 ) -> EntryExpandedResponse:
-    entry = await EntryService(db).get_by_id(entry_id)
+    entry = await EntryService(db).get_by_id_expanded(entry_id)
 
     if entry is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)

@@ -4,9 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.dependencies import get_db
 from app.db.database import MSSQLConnection
-from app.schemas.misc import General_Response
+from app.schemas.misc import GeneralResponse
 from app.schemas.organizations import (
     OrganizationCreateRequest,
+    OrganizationFilterParams,
     OrganizationResponse,
 )
 from app.services.organizations import OrganizationService
@@ -20,7 +21,7 @@ async def list_organizations(
     db: MSSQLConnection = Depends(get_db)
 ) -> List[OrganizationResponse]:
     return await OrganizationService(db).get_all(
-        filters={"name": ("exact", name)}
+        filters=OrganizationFilterParams(name=name, match_type='exact')
     )
 
 
@@ -44,15 +45,15 @@ async def retrieve_organization_by_id(
     return organization
 
 
-@router.post("", response_model=General_Response)
+@router.post("", response_model=GeneralResponse)
 async def create_organization(
     body: OrganizationCreateRequest,
     db: MSSQLConnection = Depends(get_db),
-) -> General_Response:
+) -> GeneralResponse:
     await OrganizationService(db).create(
         full_name=body.full_name,
         short_name=body.short_name,
         description=body.description,
     )
 
-    return General_Response(success=True)
+    return GeneralResponse(success=True)
