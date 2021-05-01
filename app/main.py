@@ -8,6 +8,7 @@ from loguru import logger
 
 from app import logging_config
 from app.api.api_v1.api import api_router
+from app.api.openapi_tags import openapi_tags
 from app.core.config import settings
 from app.db.database import MSSQLBackend
 
@@ -18,6 +19,7 @@ app = FastAPI(
     openapi_url=settings.OPENAPI_URL,
     docs_url=settings.SWAGGER_URL,
     redoc_url=settings.REDOC_URL,
+    openapi_tags=openapi_tags,
 )
 
 fastapi_logger = logging_config.make_logger()
