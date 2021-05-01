@@ -1,3 +1,4 @@
+from app.schemas.organizations import OrganizationResponse
 from datetime import datetime
 from typing import Optional
 
@@ -29,6 +30,12 @@ class LocationResponse(LocationResponseBase):
 
 
 class LocationExpandedResponse(LocationResponseBase):
-    # TODO: change to Optional[OrganizationResponse]
-    organization: Optional[int]
+    organization: Optional[OrganizationResponse]
     address: Optional[AddressResponse]
+
+class LocationCreateRequest(LocationResponseBase):
+    auth: str
+
+class LocationUpdateRequest(LocationResponseBase):
+    id: int
+    auth: str

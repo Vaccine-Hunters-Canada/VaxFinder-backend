@@ -14,19 +14,31 @@ class VaccineAvailabilityFilterParams(FilterParamsBase):
 
 
 class VaccineAvailabilityResponseBase(BaseModel):
-    id: UUID
     numberAvaliable: int
     numberTotal: Optional[int]
     date: date
     vaccine: Optional[int]
     inputType: InputTypeEnum
     tags: Optional[str]
-    created_at: datetime
 
 
 class VaccineAvailabilityResponse(VaccineAvailabilityResponseBase):
+    id: UUID
     location: int
+    created_at: datetime
 
 
 class VaccineAvailabilityExpandedResponse(VaccineAvailabilityResponseBase):
+    id: UUID
     location: LocationExpandedResponse
+    created_at: datetime
+
+class VaccineAvailabilityCreateRequest(VaccineAvailabilityResponseBase):
+    location: int
+    auth: str
+
+class VaccineAvailabilityUpdateRequest(VaccineAvailabilityResponseBase):
+    id: UUID
+    location: int
+    auth: str
+

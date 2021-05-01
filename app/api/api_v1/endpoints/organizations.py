@@ -68,11 +68,11 @@ async def update_organization(
     organization_id: int,
     body: OrganizationUpdateRequest,
     db: MSSQLConnection = Depends(get_db)
-) -> OrganizationResponse:
+) -> GeneralResponse:
     organization = await OrganizationService(db).update(
         id=organization_id,
         params=body)
 
     if organization is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    return organization
+    return GeneralResponse(success=True)

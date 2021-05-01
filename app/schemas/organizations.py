@@ -9,26 +9,19 @@ from app.schemas.misc import FilterParamsBase
 class OrganizationFilterParams(FilterParamsBase):
     name: str
 
-
-class OrganizationResponse(BaseModel):
-    id: int
+class OrganizationBase(BaseModel):
     full_name: Optional[str]
     short_name: str
     description: Optional[str]
     url: Optional[str]
+
+class OrganizationResponse(OrganizationBase):
+    id: int
     created_at: datetime
 
-
-class OrganizationCreateRequest(BaseModel):
-    full_name: Optional[str]
-    short_name: str
-    description: Optional[str]
-    url: AnyUrl
+class OrganizationCreateRequest(OrganizationBase):
     auth: str
 
-class OrganizationUpdateRequest(BaseModel):
-    full_name: str
-    short_name: str
-    description: str
-    url: AnyUrl
+class OrganizationUpdateRequest(OrganizationBase):
+    id: int
     auth: str

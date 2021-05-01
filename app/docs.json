@@ -1,17 +1,18 @@
 {
     "openapi": "3.0.2",
     "info": {
-        "title": "Vax UI",
-        "version": "0.1.0"
+        "title": "VaxFinder",
+        "description": "RESTful APIs for VaxFinder.",
+        "version": "1.0.0"
     },
     "paths": {
-        "/api/v1/entries/": {
+        "/api/v1/vaccine-availability": {
             "get": {
                 "tags": [
-                    "Entries"
+                    "Vaccine Availability"
                 ],
-                "summary": "Get Entries",
-                "operationId": "get_entries_api_v1_entries__get",
+                "summary": "List Vaccine Availability",
+                "operationId": "list_vaccine_availability_api_v1_vaccine_availability_get",
                 "parameters": [
                     {
                         "required": false,
@@ -30,10 +31,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "title": "Response Get Entries Api V1 Entries  Get",
+                                    "title": "Response List Vaccine Availability Api V1 Vaccine Availability Get",
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/Entries_Response"
+                                        "$ref": "#/components/schemas/VaccineAvailabilityExpandedResponse"
                                     }
                                 }
                             }
@@ -52,13 +53,13 @@
                 }
             }
         },
-        "/api/v1/entries/{entry_id}": {
+        "/api/v1/vaccine-availability/{entry_id}": {
             "get": {
                 "tags": [
-                    "Entries"
+                    "Vaccine Availability"
                 ],
-                "summary": "Get Entry",
-                "operationId": "get_entry_api_v1_entries__entry_id__get",
+                "summary": "Retrieve Vaccine Availability By Id",
+                "operationId": "retrieve_vaccine_availability_by_id_api_v1_vaccine_availability__entry_id__get",
                 "parameters": [
                     {
                         "required": true,
@@ -76,10 +77,13 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Entries_Response"
+                                    "$ref": "#/components/schemas/VaccineAvailabilityExpandedResponse"
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "The vaccine availability with the specified id could not be found."
                     },
                     "422": {
                         "description": "Validation Error",
@@ -94,13 +98,13 @@
                 }
             }
         },
-        "/api/v1/locations/": {
+        "/api/v1/locations": {
             "get": {
                 "tags": [
                     "Locations"
                 ],
-                "summary": "Get Locations",
-                "operationId": "get_locations_api_v1_locations__get",
+                "summary": "List Locations",
+                "operationId": "list_locations_api_v1_locations_get",
                 "parameters": [
                     {
                         "required": false,
@@ -119,10 +123,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "title": "Response Get Locations Api V1 Locations  Get",
+                                    "title": "Response List Locations Api V1 Locations Get",
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/Locations_Response"
+                                        "$ref": "#/components/schemas/LocationExpandedResponse"
                                     }
                                 }
                             }
@@ -146,8 +150,8 @@
                 "tags": [
                     "Locations"
                 ],
-                "summary": "Get Location",
-                "operationId": "get_location_api_v1_locations__location_id__get",
+                "summary": "Retrieve Location By Id",
+                "operationId": "retrieve_location_by_id_api_v1_locations__location_id__get",
                 "parameters": [
                     {
                         "required": true,
@@ -165,10 +169,13 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Locations_Response"
+                                    "$ref": "#/components/schemas/LocationExpandedResponse"
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "The location with the specified id could not be found."
                     },
                     "422": {
                         "description": "Validation Error",
@@ -183,13 +190,13 @@
                 }
             }
         },
-        "/api/v1/organizations/": {
+        "/api/v1/organizations": {
             "get": {
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Get Organizations",
-                "operationId": "get_organizations_api_v1_organizations__get",
+                "summary": "List Organizations",
+                "operationId": "list_organizations_api_v1_organizations_get",
                 "parameters": [
                     {
                         "required": false,
@@ -208,10 +215,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "title": "Response Get Organizations Api V1 Organizations  Get",
+                                    "title": "Response List Organizations Api V1 Organizations Get",
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/Organizations_Read_Procedure_Response"
+                                        "$ref": "#/components/schemas/OrganizationResponse"
                                     }
                                 }
                             }
@@ -234,12 +241,12 @@
                     "Organizations"
                 ],
                 "summary": "Create Organization",
-                "operationId": "create_organization_api_v1_organizations__post",
+                "operationId": "create_organization_api_v1_organizations_post",
                 "requestBody": {
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Organizations_Create_Procedure_Request"
+                                "$ref": "#/components/schemas/OrganizationCreateRequest"
                             }
                         }
                     },
@@ -251,7 +258,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Organizations_Read_Procedure_Response"
+                                    "$ref": "#/components/schemas/GeneralResponse"
                                 }
                             }
                         }
@@ -274,8 +281,8 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Get Organization",
-                "operationId": "get_organization_api_v1_organizations__organization_id__get",
+                "summary": "Retrieve Organization By Id",
+                "operationId": "retrieve_organization_by_id_api_v1_organizations__organization_id__get",
                 "parameters": [
                     {
                         "required": true,
@@ -293,10 +300,66 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Organizations_Read_Procedure_Response"
+                                    "$ref": "#/components/schemas/OrganizationResponse"
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "The location with the specified id could not be found."
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Update Organization",
+                "operationId": "update_organization_api_v1_organizations__organization_id__put",
+                "parameters": [
+                    {
+                        "required": true,
+                        "schema": {
+                            "title": "Organization Id",
+                            "type": "integer"
+                        },
+                        "name": "organization_id",
+                        "in": "path"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OrganizationUpdateRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The location with the specified id could not be found."
                     },
                     "422": {
                         "description": "Validation Error",
@@ -311,13 +374,13 @@
                 }
             }
         },
-        "/api/v1/addresses/": {
+        "/api/v1/addresses": {
             "get": {
                 "tags": [
                     "Addresses"
                 ],
-                "summary": "Get Addresses",
-                "operationId": "get_addresses_api_v1_addresses__get",
+                "summary": "List Addresses",
+                "operationId": "list_addresses_api_v1_addresses_get",
                 "parameters": [
                     {
                         "required": false,
@@ -336,10 +399,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "title": "Response Get Addresses Api V1 Addresses  Get",
+                                    "title": "Response List Addresses Api V1 Addresses Get",
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/Address_Read_Procedure_Response"
+                                        "$ref": "#/components/schemas/AddressResponse"
                                     }
                                 }
                             }
@@ -363,8 +426,8 @@
                 "tags": [
                     "Addresses"
                 ],
-                "summary": "Get Address",
-                "operationId": "get_address_api_v1_addresses__address_id__get",
+                "summary": "Retrieve Address By Id",
+                "operationId": "retrieve_address_by_id_api_v1_addresses__address_id__get",
                 "parameters": [
                     {
                         "required": true,
@@ -382,10 +445,83 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Address_Read_Procedure_Response"
+                                    "$ref": "#/components/schemas/AddressResponse"
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "The address with the specified id could not be found."
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/requirements": {
+            "get": {
+                "tags": [
+                    "Requirements"
+                ],
+                "summary": "List Requirements",
+                "operationId": "list_requirements_api_v1_requirements_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response List Requirements Api V1 Requirements Get",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/RequirementResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/requirements/{requirement_id}": {
+            "get": {
+                "tags": [
+                    "Requirements"
+                ],
+                "summary": "Retrieve Requirement By Id",
+                "operationId": "retrieve_requirement_by_id_api_v1_requirements__requirement_id__get",
+                "parameters": [
+                    {
+                        "required": true,
+                        "schema": {
+                            "title": "Requirement Id",
+                            "type": "integer"
+                        },
+                        "name": "requirement_id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RequirementResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The requirement with the specified id could not be found."
                     },
                     "422": {
                         "description": "Validation Error",
@@ -403,18 +539,12 @@
     },
     "components": {
         "schemas": {
-            "Address_Read_Procedure_Response": {
-                "title": "Address_Read_Procedure_Response",
+            "AddressResponse": {
+                "title": "AddressResponse",
                 "required": [
                     "id",
-                    "line1",
-                    "line2",
-                    "city",
                     "province",
                     "postcode",
-                    "latitude",
-                    "longitude",
-                    "geohash",
                     "created_at"
                 ],
                 "type": "object",
@@ -443,18 +573,6 @@
                         "title": "Postcode",
                         "type": "string"
                     },
-                    "latitude": {
-                        "title": "Latitude",
-                        "type": "number"
-                    },
-                    "longitude": {
-                        "title": "Longitude",
-                        "type": "number"
-                    },
-                    "geohash": {
-                        "title": "Geohash",
-                        "type": "string"
-                    },
                     "created_at": {
                         "title": "Created At",
                         "type": "string",
@@ -462,62 +580,20 @@
                     }
                 }
             },
-            "Entries_Response": {
-                "title": "Entries_Response",
+            "GeneralResponse": {
+                "title": "GeneralResponse",
                 "required": [
-                    "id",
-                    "numberAvaliable",
-                    "numberTotal",
-                    "date",
-                    "location",
-                    "vaccine",
-                    "inputType",
-                    "tags_optional",
-                    "tags_required",
-                    "created_at"
+                    "success"
                 ],
                 "type": "object",
                 "properties": {
-                    "id": {
-                        "title": "Id",
-                        "type": "integer"
+                    "success": {
+                        "title": "Success",
+                        "type": "boolean"
                     },
-                    "numberAvaliable": {
-                        "title": "Numberavaliable",
-                        "type": "integer"
-                    },
-                    "numberTotal": {
-                        "title": "Numbertotal",
-                        "type": "integer"
-                    },
-                    "date": {
-                        "title": "Date",
-                        "type": "string",
-                        "format": "date"
-                    },
-                    "location": {
-                        "$ref": "#/components/schemas/Locations_Response"
-                    },
-                    "vaccine": {
-                        "title": "Vaccine",
-                        "type": "integer"
-                    },
-                    "inputType": {
-                        "title": "Inputtype",
-                        "type": "integer"
-                    },
-                    "tags_optional": {
-                        "title": "Tags Optional",
+                    "data": {
+                        "title": "Data",
                         "type": "string"
-                    },
-                    "tags_required": {
-                        "title": "Tags Required",
-                        "type": "string"
-                    },
-                    "created_at": {
-                        "title": "Created At",
-                        "type": "string",
-                        "format": "date-time"
                     }
                 }
             },
@@ -534,17 +610,22 @@
                     }
                 }
             },
-            "Locations_Response": {
-                "title": "Locations_Response",
+            "InputTypeEnum": {
+                "title": "InputTypeEnum",
+                "enum": [
+                    1,
+                    2,
+                    3
+                ],
+                "type": "integer",
+                "description": "An enumeration."
+            },
+            "LocationExpandedResponse": {
+                "title": "LocationExpandedResponse",
                 "required": [
                     "id",
                     "name",
-                    "organization",
-                    "phone",
-                    "notes",
-                    "address",
                     "active",
-                    "postcode",
                     "created_at"
                 ],
                 "type": "object",
@@ -557,10 +638,6 @@
                         "title": "Name",
                         "type": "string"
                     },
-                    "organization": {
-                        "title": "Organization",
-                        "type": "string"
-                    },
                     "phone": {
                         "title": "Phone",
                         "type": "string"
@@ -568,9 +645,6 @@
                     "notes": {
                         "title": "Notes",
                         "type": "string"
-                    },
-                    "address": {
-                        "$ref": "#/components/schemas/Address_Read_Procedure_Response"
                     },
                     "active": {
                         "title": "Active",
@@ -580,19 +654,34 @@
                         "title": "Postcode",
                         "type": "string"
                     },
+                    "url": {
+                        "title": "Url",
+                        "type": "string"
+                    },
+                    "tags": {
+                        "title": "Tags",
+                        "type": "string"
+                    },
                     "created_at": {
                         "title": "Created At",
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "organization": {
+                        "title": "Organization",
+                        "type": "integer"
+                    },
+                    "address": {
+                        "$ref": "#/components/schemas/AddressResponse"
                     }
                 }
             },
-            "Organizations_Create_Procedure_Request": {
-                "title": "Organizations_Create_Procedure_Request",
+            "OrganizationCreateRequest": {
+                "title": "OrganizationCreateRequest",
                 "required": [
-                    "full_name",
                     "short_name",
-                    "description"
+                    "url",
+                    "auth"
                 ],
                 "type": "object",
                 "properties": {
@@ -607,16 +696,25 @@
                     "description": {
                         "title": "Description",
                         "type": "string"
+                    },
+                    "url": {
+                        "title": "Url",
+                        "maxLength": 65536,
+                        "minLength": 1,
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "auth": {
+                        "title": "Auth",
+                        "type": "string"
                     }
                 }
             },
-            "Organizations_Read_Procedure_Response": {
-                "title": "Organizations_Read_Procedure_Response",
+            "OrganizationResponse": {
+                "title": "OrganizationResponse",
                 "required": [
                     "id",
-                    "full_name",
                     "short_name",
-                    "description",
                     "created_at"
                 ],
                 "type": "object",
@@ -637,10 +735,130 @@
                         "title": "Description",
                         "type": "string"
                     },
+                    "url": {
+                        "title": "Url",
+                        "type": "string"
+                    },
                     "created_at": {
                         "title": "Created At",
                         "type": "string",
                         "format": "date-time"
+                    }
+                }
+            },
+            "OrganizationUpdateRequest": {
+                "title": "OrganizationUpdateRequest",
+                "required": [
+                    "full_name",
+                    "short_name",
+                    "description",
+                    "url",
+                    "auth"
+                ],
+                "type": "object",
+                "properties": {
+                    "full_name": {
+                        "title": "Full Name",
+                        "type": "string"
+                    },
+                    "short_name": {
+                        "title": "Short Name",
+                        "type": "string"
+                    },
+                    "description": {
+                        "title": "Description",
+                        "type": "string"
+                    },
+                    "url": {
+                        "title": "Url",
+                        "maxLength": 65536,
+                        "minLength": 1,
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "auth": {
+                        "title": "Auth",
+                        "type": "string"
+                    }
+                }
+            },
+            "RequirementResponse": {
+                "title": "RequirementResponse",
+                "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "created_at"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "title": "Name",
+                        "type": "string"
+                    },
+                    "description": {
+                        "title": "Description",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "title": "Created At",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "VaccineAvailabilityExpandedResponse": {
+                "title": "VaccineAvailabilityExpandedResponse",
+                "required": [
+                    "id",
+                    "numberAvaliable",
+                    "date",
+                    "inputType",
+                    "created_at",
+                    "location"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "numberAvaliable": {
+                        "title": "Numberavaliable",
+                        "type": "integer"
+                    },
+                    "numberTotal": {
+                        "title": "Numbertotal",
+                        "type": "integer"
+                    },
+                    "date": {
+                        "title": "Date",
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "vaccine": {
+                        "title": "Vaccine",
+                        "type": "integer"
+                    },
+                    "inputType": {
+                        "$ref": "#/components/schemas/InputTypeEnum"
+                    },
+                    "tags": {
+                        "title": "Tags",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "title": "Created At",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "location": {
+                        "$ref": "#/components/schemas/LocationExpandedResponse"
                     }
                 }
             },
@@ -671,5 +889,27 @@
                 }
             }
         }
-    }
+    },
+    "tags": [
+        {
+            "name": "Vaccine Availability",
+            "description": "Operations about vaccine availability. _Vaccine availability should include a certain date and location._"
+        },
+        {
+            "name": "Locations",
+            "description": "Operations about locations. _Each location should correspond to a place where vaccine shots are administered._"
+        },
+        {
+            "name": "Addresses",
+            "description": "Operations about addresses. _A location has a one-to-one relationship with an address._"
+        },
+        {
+            "name": "Organizations",
+            "description": "Operations about organizations. _Each organization is responsible for administering vaccines._"
+        },
+        {
+            "name": "Requirements",
+            "description": "Operations about eligibility requirements. _An eligibility requirement must be met in order for one to receive a vaccine._"
+        }
+    ]
 }

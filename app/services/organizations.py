@@ -31,16 +31,3 @@ class OrganizationService(
     @property
     def update_response_schema(self) -> Type[OrganizationUpdateRequest]:
         return OrganizationUpdateRequest
-
-    # async def create(
-    #     self, full_name: str, short_name: str, description: str
-    # ) -> None:
-    #     await self._db.execute_stored_procedure(
-    #         query="""
-    #             EXEC [dbo].[organizations_Create]
-    #                 @full_name=?,
-    #                 @short_name=?,
-    #                 @description=?;
-    #         """,
-    #         values=(full_name, short_name, description),
-    #     )

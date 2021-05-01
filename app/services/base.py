@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Generic, List, Optional, Type, TypeVar
 
 from pydantic import BaseModel
+from loguru import logger
 
 from app.db.database import MSSQLConnection
 from app.schemas.misc import FilterParamsBase
@@ -113,7 +114,12 @@ class BaseService(
             values=(tuple(params.dict().values())),
         )
     
-    async def update(self, id: int, params: UpdateSchemaType) -> None:
+    async def update(self, id: int, params: UpdateSchemaType) -> Optional[int]:
+        exists = await self.get_by_id(id)
+        
+        if exists is None:
+            return None
+
         procedure_name = (
             f"{self.table}_Update"
             if self.update_procedure_name is None
@@ -134,10 +140,12 @@ class BaseService(
 
         db_params.append(f'@{procedure_id_param}={id}')
 
-        await self._db.execute_stored_procedure(
+        resp: int = await self._db.execute_stored_procedure(
             query=f"""
                 EXEC dbo.{procedure_name}
                     {','.join(db_params)}
             """,
             values=(tuple(params.dict().values())),
         )
+
+        return resp

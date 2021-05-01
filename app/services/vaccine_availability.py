@@ -2,16 +2,21 @@ from typing import List, Optional, Type
 
 from app.schemas.misc import FilterParamsBase
 from app.schemas.vaccine_availability import (
-    VaccineAvailabilityExpandedResponse, VaccineAvailabilityResponse)
+    VaccineAvailabilityExpandedResponse,
+    VaccineAvailabilityResponse,
+    VaccineAvailabilityCreateRequest,
+    VaccineAvailabilityUpdateRequest,
+)
 from app.services.base import BaseService
 from app.services.locations import LocationService
+from app.services.organizations import OrganizationService
 
 
 class VaccineAvailabilityService(
     BaseService[
         VaccineAvailabilityResponse,
-        VaccineAvailabilityResponse,
-        VaccineAvailabilityResponse,
+        VaccineAvailabilityCreateRequest,
+        VaccineAvailabilityUpdateRequest,
     ]
 ):
     read_procedure_id_parameter = "availabilityID"
@@ -23,6 +28,14 @@ class VaccineAvailabilityService(
     @property
     def db_response_schema(self) -> Type[VaccineAvailabilityResponse]:
         return VaccineAvailabilityResponse
+
+    @property
+    def create_response_schema(self) -> Type[VaccineAvailabilityCreateRequest]:
+        return VaccineAvailabilityCreateRequest
+
+    @property
+    def update_response_schema(self) -> Type[VaccineAvailabilityUpdateRequest]:
+        return VaccineAvailabilityUpdateRequest
 
     async def get_by_id_expanded(
         self, id: int
