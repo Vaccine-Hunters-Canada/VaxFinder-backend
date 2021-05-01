@@ -1,19 +1,14 @@
 from fastapi import APIRouter
 
-from app.api.api_v1.endpoints import (
-    addresses,
-    entries,
-    locations,
-    organizations,
-    requirements,
-)
+from app.api.api_v1.endpoints import (addresses, locations, organizations,
+                                      requirements, vaccine_availability)
 
 api_router = APIRouter()
 
 api_router.include_router(
-    entries.router,
-    prefix="/entries",
-    tags=["Entries"],
+    vaccine_availability.router,
+    prefix="/vaccine-availability",
+    tags=["Vaccine Availability"],
 )
 
 api_router.include_router(

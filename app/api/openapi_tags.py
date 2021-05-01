@@ -1,7 +1,7 @@
 openapi_tags = [
     {
-        "name": "Entries",
-        "description": "Operations about entries. _Each entry describes vaccine availability at a certain date and location._",
+        "name": "Vaccine Availability",
+        "description": "Operations about vaccine availability. _Vaccine availability should include a certain date and location._",
     },
     {
         "name": "Locations",
