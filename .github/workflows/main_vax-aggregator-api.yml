@@ -32,7 +32,8 @@ jobs:
       
     - name: Install dependencies
       run: |
-        poetry install --extras "uvicorn"
+        poetry add uvicorn
+        poetry install
       
     # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
     
