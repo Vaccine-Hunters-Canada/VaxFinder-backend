@@ -1,4 +1,6 @@
-from typing import Type
+from typing import Optional, Type
+
+from loguru import logger
 
 from app.schemas.organizations import (
     OrganizationCreateRequest,
@@ -6,7 +8,6 @@ from app.schemas.organizations import (
     OrganizationUpdateRequest
 )
 from app.services.base import BaseService
-from loguru import logger
 
 
 class OrganizationService(
@@ -18,7 +19,7 @@ class OrganizationService(
 
     @property
     def table(self) -> str:
-        return 'organizations'
+        return "organizations"
 
     @property
     def db_response_schema(self) -> Type[OrganizationResponse]:
