@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Optional, Union
+from typing import Optional, Union, List
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -12,9 +12,8 @@ from app.schemas.misc import FilterParamsBase
 class VaccineAvailabilityFilterParams(FilterParamsBase):
     postalCode: str
 
-
 class VaccineAvailabilityResponseBase(BaseModel):
-    numberAvaliable: Optional[int]
+    numberAvailable: Optional[int]
     numberTotal: Optional[int]
     date: Optional[date]
     vaccine: Optional[int]
@@ -62,5 +61,25 @@ class VaccineAvailabilityTimeslotUpdateRequest(BaseModel):
     taken_at: Optional[datetime]
 
 class VaccineAvailabilityTimeslotFilterParams(FilterParamsBase):
+    vaccine_availability: UUID
+#endregion
+
+# ------------------------- Requirements -------------------------
+#region
+
+class VaccineAvailabilityRequirementsResponse(BaseModel):
+    id: int
+    vaccine_availability: UUID
+    requirement: int
+    active: bool
+    created_at: datetime
+
+class VaccineAvailabilityRequirementsCreateRequest(BaseModel):
+    requirements: List[int]
+
+class VaccineAvailabilityRequirementsUpdateRequest(BaseModel):
+    active: bool
+
+class VaccineAvailabilityRequirementsFilterParams(FilterParamsBase):
     vaccine_availability: UUID
 #endregion
