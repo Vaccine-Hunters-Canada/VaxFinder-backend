@@ -5,13 +5,14 @@ from loguru import logger
 from app.schemas.organizations import (
     OrganizationCreateRequest,
     OrganizationResponse,
+    OrganizationUpdateRequest
 )
 from app.services.base import BaseService
 
 
 class OrganizationService(
     BaseService[
-        OrganizationResponse, OrganizationCreateRequest, OrganizationResponse
+        OrganizationResponse, OrganizationCreateRequest, OrganizationUpdateRequest
     ]
 ):
     read_procedure_id_parameter = "organizationID"
@@ -24,18 +25,10 @@ class OrganizationService(
     def db_response_schema(self) -> Type[OrganizationResponse]:
         return OrganizationResponse
 
-    async def create(
-        self,
-        full_name: Optional[str],
-        short_name: str,
-        description: Optional[str],
-    ) -> None:
-        await self._db.execute_stored_procedure(
-            query="""
-                EXEC [dbo].[organizations_Create]
-                    @full_name=?,
-                    @short_name=?,
-                    @description=?;
-            """,
-            values=(full_name, short_name, description),
-        )
+    @property
+    def create_response_schema(self) -> Type[OrganizationCreateRequest]:
+        return OrganizationCreateRequest
+
+    @property
+    def update_response_schema(self) -> Type[OrganizationUpdateRequest]:
+        return OrganizationUpdateRequest

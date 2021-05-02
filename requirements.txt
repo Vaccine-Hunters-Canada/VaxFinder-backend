@@ -1,0 +1,22 @@
+aioodbc @ file:///home/sayon/.cache/pypoetry/artifacts/89/be/dc/f0109ee91879f5e228b1e36133654031a9ec236fe5b4378fbe78d3f843/aioodbc-0.3.3.tar.gz
+app==1.0.0
+appdirs @ file:///home/sayon/.cache/pypoetry/artifacts/68/c7/33/ef0f6af8d1aa906f1a5641762fe5d6f47d565c5a4b3482f1c6fb0f5f20/appdirs-1.4.4-py2.py3-none-any.whl
+black @ file:///home/sayon/.cache/pypoetry/artifacts/e4/34/28/496f95465428a64822b8b93b001526a639a045298936d07f6cdbcbbfc1/black-21.4b2-py3-none-any.whl
+click @ file:///home/sayon/.cache/pypoetry/artifacts/30/bc/bf/e00ffd8f0edf0294942e70e80e42a839bd2649d2c5b864e6389e526d2a/click-7.1.2-py2.py3-none-any.whl
+databases @ file:///home/sayon/.cache/pypoetry/artifacts/15/a8/fd/7b17dbf9231eff892ef49b0610d0eb317bae89a3c07d9dbecbfd996a9a/databases-0.4.3-py3-none-any.whl
+fastapi @ file:///home/sayon/.cache/pypoetry/artifacts/3b/bb/c7/c7f39c78da6bc430aba8ac0b92fc5d0511f55e0e9166c45b08f0e1dc6e/fastapi-0.63.0-py3-none-any.whl
+h11 @ file:///home/sayon/.cache/pypoetry/artifacts/6f/50/9d/65e5b4940425051d03fab25052973dcf80bbe2f00676b117d40996e468/h11-0.12.0-py3-none-any.whl
+isort @ file:///home/sayon/.cache/pypoetry/artifacts/09/65/5c/61fbec28602b443215d7bc6d77eb4686aa6d10794a246e86f47c38c39c/isort-5.8.0-py3-none-any.whl
+loguru @ file:///home/sayon/.cache/pypoetry/artifacts/d0/16/90/b85b179e5e32051e734faa1aea1335c15d5c74447de12006487c70f02d/loguru-0.5.3-py3-none-any.whl
+mypy @ file:///home/sayon/.cache/pypoetry/artifacts/7c/55/e2/ce72bf611f37fab12327df8794fe525fb7449d915554f9df4d3a3e30f3/mypy-0.812-cp38-cp38-manylinux2010_x86_64.whl
+mypy-extensions @ file:///home/sayon/.cache/pypoetry/artifacts/b6/a0/b0/a5dc9acd6fd12aba308634f21bb7cf0571448f20848797d7ecb327aa12/mypy_extensions-0.4.3-py2.py3-none-any.whl
+pathspec @ file:///home/sayon/.cache/pypoetry/artifacts/5d/98/c8/c7cd4decd7943aa5647824d8553b40e86f4e2ef814ca2a4e73ee708f7f/pathspec-0.8.1-py2.py3-none-any.whl
+pydantic @ file:///home/sayon/.cache/pypoetry/artifacts/45/d2/89/a97eb3744741c9155c2b20f1a5a1bb8ed9de8fb162730d714a27cdbb14/pydantic-1.8.1-cp38-cp38-manylinux2014_x86_64.whl
+pyodbc @ file:///home/sayon/.cache/pypoetry/artifacts/83/53/55/7be457a55310ef72ecd4b8804b083ab5cea9e831b68b01de926d8eaae6/pyodbc-4.0.30.tar.gz
+regex @ file:///home/sayon/.cache/pypoetry/artifacts/15/00/04/5115ac21091b41f86b542dc12682001c0cddfbadc82b17ecd182409e3c/regex-2021.4.4-cp38-cp38-manylinux2014_x86_64.whl
+SQLAlchemy @ file:///home/sayon/.cache/pypoetry/artifacts/87/89/61/bd5c84081c9a69a763f109bd41e59f0f19183646d58ef4b9d48595d02d/SQLAlchemy-1.3.24-cp38-cp38-manylinux2010_x86_64.whl
+starlette @ file:///home/sayon/.cache/pypoetry/artifacts/64/44/19/ddfa154bd917148cb72d6cb3d86a16bc3fa7c2c7cc7786898aee24c8b0/starlette-0.13.6-py3-none-any.whl
+toml @ file:///home/sayon/.cache/pypoetry/artifacts/9f/8c/c3/7b4f6778d60f3c9fa11f8fd0e48243bbad25a04975e0a01006b6350594/toml-0.10.2-py2.py3-none-any.whl
+typed-ast @ file:///home/sayon/.cache/pypoetry/artifacts/bb/fc/5d/cae6191c2d3e099aaa47e50a4ee4f43b7157b381e143bb38b1827f54f7/typed_ast-1.4.3-cp38-cp38-manylinux1_x86_64.whl
+typing-extensions @ file:///home/sayon/.cache/pypoetry/artifacts/ac/8f/3a/97dfae6ca13a6e156f19a5e8aa95fc250129d7e5e6cd0f7c76a1d45b4f/typing_extensions-3.7.4.3-py3-none-any.whl
+uvicorn @ file:///home/sayon/.cache/pypoetry/artifacts/1d/0a/24/4866f58eb94ae161513ad8eb253f426f177c3695de6305af006853f27d/uvicorn-0.13.4-py3-none-any.whl

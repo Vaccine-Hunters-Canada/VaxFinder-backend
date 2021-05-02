@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Optional
+from typing import Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -14,19 +14,53 @@ class VaccineAvailabilityFilterParams(FilterParamsBase):
 
 
 class VaccineAvailabilityResponseBase(BaseModel):
-    id: UUID
-    numberAvaliable: int
+    numberAvaliable: Optional[int]
     numberTotal: Optional[int]
-    date: date
+    date: Optional[date]
     vaccine: Optional[int]
-    inputType: InputTypeEnum
+    inputType: Optional[InputTypeEnum]
     tags: Optional[str]
-    created_at: datetime
 
 
 class VaccineAvailabilityResponse(VaccineAvailabilityResponseBase):
+    id: Union[UUID, int]
     location: int
+    created_at: datetime
 
 
 class VaccineAvailabilityExpandedResponse(VaccineAvailabilityResponseBase):
+    id: Union[UUID, int]
     location: LocationExpandedResponse
+    created_at: datetime
+
+class VaccineAvailabilityCreateRequest(VaccineAvailabilityResponseBase):
+    location: int
+    auth: str
+
+class VaccineAvailabilityUpdateRequest(VaccineAvailabilityResponseBase):
+    id: Union[UUID, int]
+    location: int
+    auth: str
+
+# ------------------------- Timeslots -------------------------
+#region 
+class VaccineAvailabilityTimeslotResponse(BaseModel):
+    id: UUID
+    vaccine_availability: UUID
+    active: bool
+    taken_at: Optional[datetime]
+    created_at: datetime
+    time: datetime
+
+class VaccineAvailabilityTimeslotCreateRequest(BaseModel):
+    parentID: UUID
+    auth: str
+    time: datetime
+
+class VaccineAvailabilityTimeslotUpdateRequest(BaseModel):
+    # auth: str
+    taken_at: Optional[datetime]
+
+class VaccineAvailabilityTimeslotFilterParams(FilterParamsBase):
+    vaccine_availability: UUID
+#endregion

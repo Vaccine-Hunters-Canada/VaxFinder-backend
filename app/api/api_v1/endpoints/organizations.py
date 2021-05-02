@@ -9,6 +9,7 @@ from app.schemas.organizations import (
     OrganizationCreateRequest,
     OrganizationFilterParams,
     OrganizationResponse,
+    OrganizationUpdateRequest,
 )
 from app.services.organizations import OrganizationService
 
@@ -50,10 +51,28 @@ async def create_organization(
     body: OrganizationCreateRequest,
     db: MSSQLConnection = Depends(get_db),
 ) -> GeneralResponse:
-    await OrganizationService(db).create(
-        full_name=body.full_name,
-        short_name=body.short_name,
-        description=body.description,
-    )
+    await OrganizationService(db).create(body)
 
+    return GeneralResponse(success=True)
+
+@router.put(
+    "/{organization_id}",
+    response_model=GeneralResponse,
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The location with the specified id could not be found."
+        }
+    },
+)
+async def update_organization(
+    organization_id: int,
+    body: OrganizationUpdateRequest,
+    db: MSSQLConnection = Depends(get_db)
+) -> GeneralResponse:
+    organization = await OrganizationService(db).update(
+        id=organization_id,
+        params=body)
+
+    if organization is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return GeneralResponse(success=True)
