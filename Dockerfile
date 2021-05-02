@@ -26,6 +26,6 @@ COPY ./pyproject.toml ./poetry.lock* /app/
 
 RUN poetry install --no-root --no-dev
 
-RUN echo ls
-
 ENV MODULE_NAME=app.main
+
+EXPOSE 80 2222
