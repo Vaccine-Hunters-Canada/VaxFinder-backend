@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Generic, List, Optional, Type, TypeVar, Union
+from typing import Generic, List, Optional, Type, TypeVar, Union, Tuple
 from uuid import UUID
+from pyodbc import Row
 
 from pydantic import BaseModel
 from loguru import logger
@@ -91,16 +92,19 @@ class BaseService(
 
         filter_query = ''
         if filters is not None:
-            filters_dict = filters.dict()
-            filter_match_type = filters_dict.pop('match_type')
-            filters_no_blank = { k: v for k, v in filters_dict.items() if v }
-            if filters_no_blank:
-                db_filters = []
-                for k, v in filters_dict.items():
-                    if isinstance(v, UUID) or isinstance(v, str):
-                        v = f"'{v}'"
-                    db_filters.append(f'{k}={v}')
-                filter_query = f" WHERE {' AND '.join(db_filters)}"
+            if filters.match_type == 'exact':
+                filters_dict = filters.dict()
+                filter_match_type = filters_dict.pop('match_type')
+                filters_no_blank = { k: v for k, v in filters_dict.items() if v }
+                if filters_no_blank:
+                    db_filters = []
+                    for k, v in filters_dict.items():
+                        if isinstance(v, UUID) or isinstance(v, str):
+                            v = f"'{v}'"
+                        db_filters.append(f'{k}={v}')
+                    filter_query = f" WHERE {' AND '.join(db_filters)}"
+            elif filters.match_type == 'list':
+                pass
 
         db_rows = await self._db.fetch_all(
             f"""
@@ -128,8 +132,10 @@ class BaseService(
 
         await self._db.execute_stored_procedure(
             query=f"""
+                DECLARE @rc int
                 EXEC dbo.{procedure_name}
                     {','.join(db_params)}
+                SELECT @rc
             """,
             values=(tuple(params.dict().values())),
         )
@@ -163,12 +169,14 @@ class BaseService(
 
         db_params.append(f'@{procedure_id_param}={id}')
 
-        resp: int = await self._db.execute_stored_procedure(
+        resp = await self._db.execute_stored_procedure(
             query=f"""
-                EXEC dbo.{procedure_name}
-                    {','.join(db_params)}
+                DECLARE @rc int
+                EXEC @rc = dbo.{procedure_name}
+                    {','.join(db_params)};
+                SELECT @rc
             """,
             values=(tuple(params.dict().values())),
         )
 
-        return resp
+        return resp[0]

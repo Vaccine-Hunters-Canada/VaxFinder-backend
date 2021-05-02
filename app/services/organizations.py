@@ -16,6 +16,7 @@ class OrganizationService(
     ]
 ):
     read_procedure_id_parameter = "organizationID"
+    update_procedure_id_parameter = "organizationID"
 
     @property
     def table(self) -> str:

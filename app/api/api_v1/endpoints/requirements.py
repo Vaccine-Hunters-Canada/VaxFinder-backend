@@ -45,7 +45,10 @@ async def create_requirement(
     body: RequirementsCreateRequest,
     db: MSSQLConnection = Depends(get_db),
 ) -> GeneralResponse:
-    await RequirementService(db).create(body)
+    requirement = await RequirementService(db).create(body)
+    
+    if requirement is -1:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return GeneralResponse(success=True)
 
@@ -69,4 +72,6 @@ async def update_requirement(
 
     if requirement is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    if requirement is -1:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return GeneralResponse(success=True)

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel
 
@@ -7,7 +7,8 @@ from app.schemas.misc import FilterParamsBase
 
 
 class AddressFilterParams(FilterParamsBase):
-    postalCode: str
+    postalCode: Optional[str]
+    ids: List[int]
 
 class AddressResponseBase(BaseModel):
     line1: Optional[str]

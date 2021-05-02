@@ -45,7 +45,10 @@ async def create_location(
     body: LocationCreateRequest,
     db: MSSQLConnection = Depends(get_db),
 ) -> GeneralResponse:
-    await LocationService(db).create(body)
+    location = await LocationService(db).create(body)
+    
+    if location == -1:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return GeneralResponse(success=True)
 
@@ -63,10 +66,13 @@ async def update_location(
     body: LocationUpdateRequest,
     db: MSSQLConnection = Depends(get_db)
 ) -> GeneralResponse:
-    requirement = await LocationService(db).update(
+    location = await LocationService(db).update(
         id=location_id,
         params=body)
 
-    if requirement is None:
+    if location is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    if location == -1:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     return GeneralResponse(success=True)

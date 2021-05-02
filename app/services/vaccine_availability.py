@@ -38,57 +38,51 @@ class VaccineAvailabilityService(
     @property
     def update_response_schema(self) -> Type[VaccineAvailabilityUpdateRequest]:
         return VaccineAvailabilityUpdateRequest
+    
+    async def _expand(
+        self,
+        vaccine_availability: VaccineAvailabilityResponse
+    ) -> VaccineAvailabilityExpandedResponse:
+        location = await LocationService(self._db).get_by_id_expanded(
+            vaccine_availability.location
+        )
+        assert (
+            location is not None
+        ), f"""
+            Could not find location {vaccine_availability.location}
+            for vaccine_availability {vaccine_availability.id}
+            """
+
+        vaccine_availability_expanded = vaccine_availability.dict()
+        vaccine_availability_expanded.update({
+            'location': location,
+        })
+        
+        # logger.critical(vaccine_availability_expanded)
+
+        return VaccineAvailabilityExpandedResponse(
+            **vaccine_availability_expanded
+        )
+        
 
     async def get_by_id_expanded(
         self, id: UUID
     ) -> Optional[VaccineAvailabilityExpandedResponse]:
-        entry = await super().get_by_id(id)
+        vaccine_availability = await super().get_by_id(id)
 
-        if entry is not None:
-            location = await LocationService(self._db).get_by_id_expanded(
-                entry.location
-            )
-            assert (
-                location is not None
-            ), f"Could not find location {entry.location} for entry {entry.id}"
-            
-            entry_expanded = entry.dict()
-            entry_expanded.update({
-                'location': location,
-            })
-            
-            logger.critical(entry_expanded)
+        if vaccine_availability is not None:
+            return await self._expand(vaccine_availability=vaccine_availability)
 
-            return VaccineAvailabilityExpandedResponse(
-                **entry_expanded
-            )
-
-        return entry
+        return vaccine_availability
 
     async def get_all_expanded(
         self, filters: Optional[FilterParamsBase] = None
     ) -> List[VaccineAvailabilityExpandedResponse]:
-        entries = await super().get_all(filters=filters)
+        vaccine_availabilities = await super().get_all(filters=filters)
 
         # TODO: should be done all at once instead of in a for loop
-        entries_expanded: List[VaccineAvailabilityExpandedResponse] = []
-        for entry in entries:
-            location = await LocationService(self._db).get_by_id_expanded(
-                entry.location
-            )
-            assert (
-                location is not None
-            ), f"Could not find location {entry.location} for entry {entry.id}"
-            
-            entry_expanded = entry.dict()
-            entry_expanded.update({
-                'location': location.dict(),
-            })
+        vaccine_availabilities_expanded: List[VaccineAvailabilityExpandedResponse] = []
+        for vaccine_availability in vaccine_availabilities:
+            vaccine_availabilities_expanded.append(await self._expand(vaccine_availability))
 
-            entries_expanded.append(
-                VaccineAvailabilityExpandedResponse(
-                    **entry_expanded
-                )
-            )
-
-        return entries_expanded
+        return vaccine_availabilities_expanded

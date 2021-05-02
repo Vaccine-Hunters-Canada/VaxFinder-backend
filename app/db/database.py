@@ -12,6 +12,7 @@ from sqlalchemy.engine.interfaces import Dialect, ExecutionContext
 from sqlalchemy.engine.result import ResultMetaData, RowProxy
 from sqlalchemy.sql import ClauseElement
 from sqlalchemy.sql.elements import TextClause
+from pyodbc import Row
 
 
 class MSSQLBackend(DatabaseBackend):
@@ -171,12 +172,12 @@ class MSSQLConnection(ConnectionBackend):
                 await cursor.execute(query)
             return cursor.rowcount
     
-    async def execute_stored_procedure(self, query: ClauseElement, values: Tuple[Any, ...]) -> Any:
+    async def execute_stored_procedure(self, query: ClauseElement, values: Tuple[Any, ...]) -> Tuple[int]:
         assert self._connection is not None, 'Connection is not acquired'
         query, _, _ = self._compile(query)
         async with await self._connection.cursor() as cursor:
             await cursor.execute(query, values)
-            return cursor.rowcount
+            return await cursor.fetchone()
 
     async def execute_many(self, queries: List[ClauseElement]) -> None:
         assert self._connection is not None, "Connection is not acquired"

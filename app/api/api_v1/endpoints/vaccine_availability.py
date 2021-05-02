@@ -62,7 +62,10 @@ async def create_vaccine_availability(
     body: VaccineAvailabilityCreateRequest,
     db: MSSQLConnection = Depends(get_db),
 ) -> GeneralResponse:
-    await VaccineAvailabilityService(db).create(body)
+    vaccine_availability = await VaccineAvailabilityService(db).create(body)
+    
+    if vaccine_availability == -1:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return GeneralResponse(success=True)
 
@@ -80,12 +83,14 @@ async def update_vaccine_availability(
     body: VaccineAvailabilityUpdateRequest,
     db: MSSQLConnection = Depends(get_db)
 ) -> GeneralResponse:
-    requirement = await VaccineAvailabilityService(db).update(
+    vaccine_availability = await VaccineAvailabilityService(db).update(
         id=vaccine_availability_id,
         params=body)
 
-    if requirement is None:
+    if vaccine_availability is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    if vaccine_availability == -1:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return GeneralResponse(success=True)
 
 # ------------------------- Timeslots -------------------------
@@ -98,21 +103,21 @@ async def update_vaccine_availability(
             "description": "The vaccine availability with the specified id could not be found."
         }
     },
-) 
+)
 async def retrieve_vaccine_availability_timeslots(
     vaccine_availability_id: UUID,
     db: MSSQLConnection = Depends(get_db)
 ) -> List[VaccineAvailabilityTimeslotResponse]:
-    entry = await VaccineAvailabilityTimeslotService(db).get_all(
+    timeslots = await VaccineAvailabilityTimeslotService(db).get_all(
         VaccineAvailabilityTimeslotFilterParams(
             vaccine_availability=vaccine_availability_id,
             match_type='exact'
         )
     )
 
-    if entry is None:
+    if timeslots is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    return entry
+    return timeslots
 
 @router.post("/{vaccine_availability_id}/timeslots", response_model=GeneralResponse)
 async def create_vaccine_availability_timeslot(
@@ -120,7 +125,10 @@ async def create_vaccine_availability_timeslot(
     body: VaccineAvailabilityTimeslotCreateRequest,
     db: MSSQLConnection = Depends(get_db),
 ) -> GeneralResponse:
-    await VaccineAvailabilityTimeslotService(db).create(body)
+    timeslot = await VaccineAvailabilityTimeslotService(db).create(body)
+    
+    if timeslot == -1:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return GeneralResponse(success=True)
 
@@ -139,12 +147,14 @@ async def update_vaccine_availability_timeslot(
     body: VaccineAvailabilityTimeslotUpdateRequest,
     db: MSSQLConnection = Depends(get_db)
 ) -> GeneralResponse:
-    requirement = await VaccineAvailabilityTimeslotService(db).update(
+    timeslot = await VaccineAvailabilityTimeslotService(db).update(
         id=timeslot_id,
         params=body)
 
-    if requirement is None:
+    if timeslot is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    if timeslot == -1:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return GeneralResponse(success=True)
 #endregion
 
@@ -163,16 +173,17 @@ async def retrieve_vaccine_availability_requirements(
     vaccine_availability_id: UUID,
     db: MSSQLConnection = Depends(get_db)
 ) -> List[VaccineAvailabilityRequirementsResponse]:
-    entry = await VaccineAvailabilityRequirementService(db).get_all(
+    requirements = await VaccineAvailabilityRequirementService(db).get_all(
         VaccineAvailabilityRequirementsFilterParams(
             vaccine_availability=vaccine_availability_id,
             match_type='exact'
         )
     )
 
-    if entry is None:
+    if requirements is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    return entry
+
+    return requirements
 
 @router.post("/{vaccine_availability_id}/requirements", response_model=GeneralResponse)
 async def create_vaccine_availability_requirement(
@@ -180,7 +191,10 @@ async def create_vaccine_availability_requirement(
     body: VaccineAvailabilityRequirementsCreateRequest,
     db: MSSQLConnection = Depends(get_db),
 ) -> GeneralResponse:
-    await VaccineAvailabilityRequirementService(db).create(body)
+    requirement = await VaccineAvailabilityRequirementService(db).create(body)
+    
+    if requirement == -1:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return GeneralResponse(success=True)
 
@@ -205,5 +219,7 @@ async def update_vaccine_availability_requirement(
 
     if requirement is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    if requirement == -1:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return GeneralResponse(success=True)
 #endregion

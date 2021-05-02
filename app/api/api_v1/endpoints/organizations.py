@@ -51,7 +51,10 @@ async def create_organization(
     body: OrganizationCreateRequest,
     db: MSSQLConnection = Depends(get_db),
 ) -> GeneralResponse:
-    await OrganizationService(db).create(body)
+    organization = await OrganizationService(db).create(body)
+    
+    if organization == -1:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return GeneralResponse(success=True)
 
@@ -75,4 +78,6 @@ async def update_organization(
 
     if organization is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    if organization == -1:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return GeneralResponse(success=True)

@@ -45,7 +45,10 @@ async def create_address(
     body: AddressCreateRequest,
     db: MSSQLConnection = Depends(get_db),
 ) -> GeneralResponse:
-    await AddressService(db).create(body)
+    address = await AddressService(db).create(body)
+    
+    if address == -1:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return GeneralResponse(success=True)
 
@@ -69,4 +72,6 @@ async def update_address(
 
     if requirement is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    if requirement == -1:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return GeneralResponse(success=True)
