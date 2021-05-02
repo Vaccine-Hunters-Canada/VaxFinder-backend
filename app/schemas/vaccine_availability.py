@@ -42,3 +42,25 @@ class VaccineAvailabilityUpdateRequest(VaccineAvailabilityResponseBase):
     location: int
     auth: str
 
+# ------------------------- Timeslots -------------------------
+#region 
+class VaccineAvailabilityTimeslotResponse(BaseModel):
+    id: UUID
+    vaccine_availability: UUID
+    active: bool
+    taken_at: Optional[datetime]
+    created_at: datetime
+    time: datetime
+
+class VaccineAvailabilityTimeslotCreateRequest(BaseModel):
+    parentID: UUID
+    auth: str
+    time: datetime
+
+class VaccineAvailabilityTimeslotUpdateRequest(BaseModel):
+    # auth: str
+    taken_at: Optional[datetime]
+
+class VaccineAvailabilityTimeslotFilterParams(FilterParamsBase):
+    vaccine_availability: UUID
+#endregion

@@ -63,8 +63,6 @@ class LocationService(
                 'address': address,
                 'organization': organization
             })
-            
-            logger.critical(location_expanded)
 
             return LocationExpandedResponse(**location_expanded)
 

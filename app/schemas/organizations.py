@@ -23,5 +23,5 @@ class OrganizationCreateRequest(OrganizationBase):
     auth: str
 
 class OrganizationUpdateRequest(OrganizationBase):
-    id: int
+    # organizationID: int
     auth: str

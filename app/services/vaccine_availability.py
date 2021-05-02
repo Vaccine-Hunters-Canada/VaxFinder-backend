@@ -52,12 +52,10 @@ class VaccineAvailabilityService(
                 location is not None
             ), f"Could not find location {entry.location} for entry {entry.id}"
             
-            entry_expanded = location.dict()
+            entry_expanded = entry.dict()
             entry_expanded.update({
                 'location': location,
             })
-            
-            logger.critical(entry_expanded)
 
             return VaccineAvailabilityExpandedResponse(
                 **entry_expanded
@@ -69,6 +67,8 @@ class VaccineAvailabilityService(
         self, filters: Optional[FilterParamsBase] = None
     ) -> List[VaccineAvailabilityExpandedResponse]:
         entries = await super().get_all(filters=filters)
+        
+        logger.critical(entries)
 
         # TODO: should be done all at once instead of in a for loop
         entries_expanded: List[VaccineAvailabilityExpandedResponse] = []
@@ -80,7 +80,7 @@ class VaccineAvailabilityService(
                 location is not None
             ), f"Could not find location {entry.location} for entry {entry.id}"
             
-            entry_expanded = location.dict()
+            entry_expanded = entry.dict()
             entry_expanded.update({
                 'location': location.dict(),
             })

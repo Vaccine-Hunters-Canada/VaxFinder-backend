@@ -50,7 +50,7 @@ async def create_address(
     return GeneralResponse(success=True)
 
 @router.put(
-    "/{requirement_id}",
+    "/{address_id}",
     response_model=GeneralResponse,
     responses={
         status.HTTP_404_NOT_FOUND: {
@@ -59,12 +59,12 @@ async def create_address(
     },
 )
 async def update_address(
-    requirement_id: int,
+    address_id: int,
     body: AddressUpdateRequest,
     db: MSSQLConnection = Depends(get_db)
 ) -> GeneralResponse:
     requirement = await AddressService(db).update(
-        id=requirement_id,
+        id=address_id,
         params=body)
 
     if requirement is None:
