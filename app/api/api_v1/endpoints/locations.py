@@ -50,7 +50,7 @@ async def create_location(
     return GeneralResponse(success=True)
 
 @router.put(
-    "/{requirement_id}",
+    "/{location_id}",
     response_model=GeneralResponse,
     responses={
         status.HTTP_404_NOT_FOUND: {
@@ -59,12 +59,12 @@ async def create_location(
     },
 )
 async def update_location(
-    requirement_id: int,
+    location_id: int,
     body: LocationUpdateRequest,
     db: MSSQLConnection = Depends(get_db)
 ) -> GeneralResponse:
     requirement = await LocationService(db).update(
-        id=requirement_id,
+        id=location_id,
         params=body)
 
     if requirement is None:

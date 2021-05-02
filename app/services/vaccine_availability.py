@@ -52,7 +52,7 @@ class VaccineAvailabilityService(
                 location is not None
             ), f"Could not find location {entry.location} for entry {entry.id}"
             
-            entry_expanded = location.dict()
+            entry_expanded = entry.dict()
             entry_expanded.update({
                 'location': location,
             })
@@ -80,7 +80,7 @@ class VaccineAvailabilityService(
                 location is not None
             ), f"Could not find location {entry.location} for entry {entry.id}"
             
-            entry_expanded = location.dict()
+            entry_expanded = entry.dict()
             entry_expanded.update({
                 'location': location.dict(),
             })
