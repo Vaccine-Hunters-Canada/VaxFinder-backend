@@ -64,3 +64,27 @@ class VaccineAvailabilityTimeslotUpdateRequest(BaseModel):
 class VaccineAvailabilityTimeslotFilterParams(FilterParamsBase):
     vaccine_availability: UUID
 #endregion
+
+# ------------------------- Requirements -------------------------
+#region
+
+class VaccineAvailabilityRequirementsResponse(BaseModel):
+    id: int
+    vaccine_availability: UUID
+    requirement: int
+    active: bool
+    created_at: datetime
+
+class VaccineAvailabilityRequirementsCreateRequest(BaseModel):
+    vaccine_availability: UUID
+    requirement: int
+
+class VaccineAvailabilityRequirementsUpdateRequest(BaseModel):
+    id: int
+    vaccine_availability: UUID
+    requirement: int
+    active: bool
+
+class VaccineAvailabilityRequirementsFilterParams(FilterParamsBase):
+    vaccine_availability: UUID
+#endregion
