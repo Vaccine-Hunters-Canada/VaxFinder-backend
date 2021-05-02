@@ -37,7 +37,7 @@ class VaccineAvailabilityTimeslotService(
     def update_response_schema(self) -> Type[VaccineAvailabilityTimeslotUpdateRequest]:
         return VaccineAvailabilityTimeslotUpdateRequest
 
-    async def get_by_id(self, id: Union[UUID, int]) -> None:
+    async def get_by_id(self, identifier: Union[UUID, int]) -> None:
         raise NotImplementedError('Get by ID is not available for timeslots')
 
     # async def get_all(

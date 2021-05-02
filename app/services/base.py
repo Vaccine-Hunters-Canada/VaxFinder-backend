@@ -3,7 +3,6 @@ from typing import Generic, List, Optional, Type, TypeVar, Union
 from uuid import UUID
 
 from pydantic import BaseModel
-from loguru import logger
 
 from app.db.database import MSSQLConnection
 from app.schemas.misc import FilterParamsBase
@@ -21,7 +20,6 @@ class BaseService(
         UpdateSchemaType,
     ],
 ):
-
     read_procedure_name: Optional[str] = None
     read_procedure_id_parameter: Optional[str] = None
     update_procedure_id_parameter: Optional[str] = None
@@ -40,16 +38,19 @@ class BaseService(
 
     @property
     @abstractmethod
-    def create_response_schema(self) -> Type[CreateSchemaType]: pass
-    
+    def create_response_schema(self) -> Type[CreateSchemaType]:
+        pass
+
     @property
     @abstractmethod
-    def update_response_schema(self) -> Type[UpdateSchemaType]: pass
+    def update_response_schema(self) -> Type[UpdateSchemaType]:
+        pass
 
     def __init__(self, db: MSSQLConnection):
         self._db: MSSQLConnection = db
 
-    async def get_by_id(self, id: Union[UUID, int]) -> Optional[DBResponseSchemaType]:
+    async def get_by_id(self, identifier: Union[UUID, int]) -> Optional[
+        DBResponseSchemaType]:
         """
         Retrieve an instance from `self.table` from the database by id. None if
         the object can't be found.
@@ -67,12 +68,12 @@ class BaseService(
             else self.read_procedure_id_parameter
         )
 
-        if isinstance(id, UUID):
-            id: str = f"'{id}'" # type: ignore
+        if isinstance(identifier, UUID):
+            identifier: str = f"'{identifier}'"  # type: ignore
 
         db_row = await self._db.fetch_one(
             f"""
-                EXEC dbo.{procedure_name} @{procedure_id_param} = {id}
+                EXEC dbo.{procedure_name} @{procedure_id_param} = {identifier}
             """
         )
 
@@ -93,7 +94,7 @@ class BaseService(
         if filters is not None:
             filters_dict = filters.dict()
             filter_match_type = filters_dict.pop('match_type')
-            filters_no_blank = { k: v for k, v in filters_dict.items() if v }
+            filters_no_blank = {k: v for k, v in filters_dict.items() if v}
             if filters_no_blank:
                 db_filters = []
                 for k, v in filters_dict.items():
@@ -113,14 +114,14 @@ class BaseService(
 
         return [self.db_response_schema(**r) for r in db_rows]
 
-    async def create(self, params: CreateSchemaType) -> None:
+    async def create(self, params: CreateSchemaType, auth_key: UUID) -> None:
         procedure_name = (
             f"{self.table}_Create"
             if self.create_procedure_name is None
             else self.create_procedure_name
         )
 
-        db_params = [
+        db_params = ["@auth=?"] + [
             f'@{k}=?'
             for k in
             self.create_response_schema.__fields__.keys()
@@ -131,12 +132,17 @@ class BaseService(
                 EXEC dbo.{procedure_name}
                     {','.join(db_params)}
             """,
-            values=(tuple(params.dict().values())),
+            values=(tuple([auth_key] + list(params.dict().values()))),
         )
-    
-    async def update(self, id: Union[UUID, int], params: UpdateSchemaType) -> Optional[int]:
+
+    async def update(
+        self,
+        identifier: Union[UUID, int],
+        params: UpdateSchemaType,
+        auth_key: UUID
+    ) -> Optional[int]:
         # exists = await self.get_by_id(id)
-        
+
         # if exists is None:
         #     return None
 
@@ -145,30 +151,30 @@ class BaseService(
             if self.update_procedure_name is None
             else self.update_procedure_name
         )
-        
+
         procedure_id_param = (
             f"{self.table}ID"
             if self.update_procedure_id_parameter is None
             else self.update_procedure_id_parameter
         )
 
-        db_params = [
+        db_params = ["@auth=?"] + [
             f'@{k}=?'
             for k in
             self.update_response_schema.__fields__.keys()
         ]
-        
-        if isinstance(id, UUID):
-            id: str = f"'{id}'" # type: ignore
 
-        db_params.append(f'@{procedure_id_param}={id}')
+        if isinstance(identifier, UUID):
+            identifier: str = f"'{identifier}'"  # type: ignore
+
+        db_params.append(f'@{procedure_id_param}={identifier}')
 
         resp: int = await self._db.execute_stored_procedure(
             query=f"""
                 EXEC dbo.{procedure_name}
                     {','.join(db_params)}
             """,
-            values=(tuple(params.dict().values())),
+            values=(tuple([auth_key] + list(params.dict().values()))),
         )
 
         return resp
