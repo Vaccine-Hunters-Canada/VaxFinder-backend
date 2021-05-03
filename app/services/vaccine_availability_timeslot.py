@@ -42,15 +42,15 @@ class VaccineAvailabilityTimeslotService(
     ) -> Type[VaccineAvailabilityTimeslotUpdateRequest]:
         return VaccineAvailabilityTimeslotUpdateRequest
 
-    async def get_by_id(self, identifier: Union[UUID, int]) -> None:
+    async def get(self, identifier: Union[UUID, int]) -> None:
         raise NotImplementedError("Get by ID is not available for timeslots")
 
-    # async def get_all(
+    # async def get_multi(
     #     self,
     #     vaccine_availability_id: UUID,
     #     filters: Optional[FilterParamsBase] = None,
     # ) -> List[VaccineAvailabilityTimeslotResponse]:
-    #     entries = await super().get_all(filters=filters)
+    #     entries = await super().get_multi(filters=filters)
 
     #     db_rows = await self._db.fetch_all(
     #         f"""

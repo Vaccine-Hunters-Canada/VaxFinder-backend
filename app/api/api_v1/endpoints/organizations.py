@@ -21,7 +21,7 @@ router = APIRouter()
 async def list_organizations(
     name: str = "", db: MSSQLConnection = Depends(get_db)
 ) -> List[OrganizationResponse]:
-    return await OrganizationService(db).get_all(
+    return await OrganizationService(db).get_multi(
         filters=OrganizationFilterParams(name=name, match_type="exact")
     )
 
@@ -39,7 +39,7 @@ async def list_organizations(
 async def retrieve_organization_by_id(
     organization_id: int, db: MSSQLConnection = Depends(get_db)
 ) -> OrganizationResponse:
-    organization = await OrganizationService(db).get_by_id(organization_id)
+    organization = await OrganizationService(db).get(organization_id)
 
     if organization is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -119,13 +119,11 @@ async def delete_organization_by_id(
     parameter.
     """
     # Check if organization with the id exists
-    organization = await OrganizationService(db).get_by_id(organization_id)
+    organization = await OrganizationService(db).get(organization_id)
     if not organization:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     # Perform deletion
-    deleted = await OrganizationService(db).delete_by_id(
-        organization_id, api_key
-    )
+    deleted = await OrganizationService(db).delete(organization_id, api_key)
     if not deleted:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

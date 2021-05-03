@@ -35,7 +35,7 @@ router = APIRouter()
 async def list_vaccine_availability(
     postalCode: str = "", db: MSSQLConnection = Depends(get_db)
 ) -> List[VaccineAvailabilityExpandedResponse]:
-    return await VaccineAvailabilityService(db).get_all_expanded(
+    return await VaccineAvailabilityService(db).get_multi_expanded(
         filters=VaccineAvailabilityFilterParams(
             postalCode=postalCode, match_type="exact"
         )
@@ -55,7 +55,7 @@ async def list_vaccine_availability(
 async def retrieve_vaccine_availability_by_id(
     vaccine_availability_id: UUID, db: MSSQLConnection = Depends(get_db)
 ) -> VaccineAvailabilityExpandedResponse:
-    entry = await VaccineAvailabilityService(db).get_by_id_expanded(
+    entry = await VaccineAvailabilityService(db).get_expanded(
         vaccine_availability_id
     )
 
@@ -139,13 +139,13 @@ async def delete_vaccine_availability_by_id(
     `vaccine_availability_id` path parameter.
     """
     # Check if vaccine availability with the id exists
-    vaccine_availability = await VaccineAvailabilityService(db).get_by_id(
+    vaccine_availability = await VaccineAvailabilityService(db).get(
         vaccine_availability_id
     )
     if not vaccine_availability:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     # Perform deletion
-    deleted = await VaccineAvailabilityService(db).delete_by_id(
+    deleted = await VaccineAvailabilityService(db).delete(
         vaccine_availability_id, api_key
     )
     if not deleted:
@@ -167,7 +167,7 @@ async def delete_vaccine_availability_by_id(
 async def retrieve_vaccine_availability_timeslots(
     vaccine_availability_id: UUID, db: MSSQLConnection = Depends(get_db)
 ) -> List[VaccineAvailabilityTimeslotResponse]:
-    timeslots = await VaccineAvailabilityTimeslotService(db).get_all(
+    timeslots = await VaccineAvailabilityTimeslotService(db).get_multi(
         VaccineAvailabilityTimeslotFilterParams(
             vaccine_availability=vaccine_availability_id, match_type="exact"
         )
@@ -301,7 +301,7 @@ async def update_vaccine_availability_timeslot(
 async def retrieve_vaccine_availability_requirements(
     vaccine_availability_id: UUID, db: MSSQLConnection = Depends(get_db)
 ) -> List[VaccineAvailabilityRequirementsResponse]:
-    requirements = await VaccineAvailabilityRequirementService(db).get_all(
+    requirements = await VaccineAvailabilityRequirementService(db).get_multi(
         VaccineAvailabilityRequirementsFilterParams(
             vaccine_availability=vaccine_availability_id, match_type="exact"
         )

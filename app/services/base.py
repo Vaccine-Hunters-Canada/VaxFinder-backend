@@ -23,9 +23,9 @@ class BaseService(
 ):
     read_procedure_name: Optional[str] = None
     read_procedure_id_parameter: Optional[str] = None
-    update_procedure_id_parameter: Optional[str] = None
     create_procedure_name: Optional[str] = None
     update_procedure_name: Optional[str] = None
+    update_procedure_id_parameter: Optional[str] = None
     delete_procedure_name: Optional[str] = None
     delete_procedure_id_parameter: Optional[str] = None
 
@@ -52,7 +52,7 @@ class BaseService(
     def __init__(self, db: MSSQLConnection):
         self._db: MSSQLConnection = db
 
-    async def get_by_id(
+    async def get(
         self, identifier: Union[UUID, int]
     ) -> Optional[DBResponseSchemaType]:
         """
@@ -86,7 +86,7 @@ class BaseService(
 
         return self.db_response_schema(**db_row)
 
-    async def get_all(
+    async def get_multi(
         self,
         filters: Optional[FilterParamsBase] = None,
     ) -> List[DBResponseSchemaType]:
@@ -148,7 +148,7 @@ class BaseService(
         params: UpdateSchemaType,
         auth_key: UUID,
     ) -> Optional[int]:
-        # exists = await self.get_by_id(id)
+        # exists = await self.get(id)
 
         # if exists is None:
         #     return None
@@ -186,7 +186,7 @@ class BaseService(
 
         return resp[0]
 
-    async def delete_by_id(
+    async def delete(
         self, identifier: Union[UUID, int], auth_key: UUID
     ) -> bool:
         """

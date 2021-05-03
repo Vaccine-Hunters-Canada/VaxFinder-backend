@@ -43,16 +43,14 @@ class LocationService(
     ) -> LocationExpandedResponse:
         address = None
         if location.address is not None:
-            address = await AddressService(self._db).get_by_id(
-                location.address
-            )
+            address = await AddressService(self._db).get(location.address)
             assert (
                 address is not None
             ), f"Could not find address {location.address} for location {location.id}"
 
         organization = None
         if location.organization is not None:
-            organization = await OrganizationService(self._db).get_by_id(
+            organization = await OrganizationService(self._db).get(
                 location.organization
             )
             assert (
@@ -66,20 +64,20 @@ class LocationService(
 
         return LocationExpandedResponse(**location_expanded)
 
-    async def get_by_id_expanded(
+    async def get_expanded(
         self, id: int
     ) -> Optional[LocationExpandedResponse]:
-        location = await super().get_by_id(id)
+        location = await super().get(id)
 
         if location is not None:
             return await self._expand(location=location)
 
         return location
 
-    async def get_all_expanded(
+    async def get_multi_expanded(
         self, filters: Optional[FilterParamsBase] = None
     ) -> List[LocationExpandedResponse]:
-        locations = await super().get_all(filters)
+        locations = await super().get_multi(filters)
 
         # TODO: should be done all at once instead of in a for loop
         locations_expanded: List[LocationExpandedResponse] = []
@@ -87,13 +85,13 @@ class LocationService(
         address_ids = [l.address for l in locations]
         organization_ids = [l.organization for l in locations]
 
-        addresses = AddressService(self._db).get_all(
+        addresses = AddressService(self._db).get_multi(
             filters=AddressFilterParams(ids=address_ids, match_type="exact")
         )
         # for location in locations:
         #     address = None
         #     if location.address is not None:
-        #         address = await AddressService(self._db).get_by_id(
+        #         address = await AddressService(self._db).get(
         #             location.address
         #         )
         #         assert (
@@ -102,7 +100,7 @@ class LocationService(
 
         #     organization = None
         #     if location.organization is not None:
-        #         organization = await OrganizationService(self._db).get_by_id(
+        #         organization = await OrganizationService(self._db).get(
         #             location.organization
         #         )
         #         assert (

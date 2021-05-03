@@ -20,7 +20,7 @@ router = APIRouter()
 async def list_requirements(
     db: MSSQLConnection = Depends(get_db),
 ) -> List[RequirementResponse]:
-    return await RequirementService(db).get_all()
+    return await RequirementService(db).get_multi()
 
 
 @router.get(
@@ -36,7 +36,7 @@ async def list_requirements(
 async def retrieve_requirement_by_id(
     requirement_id: int, db: MSSQLConnection = Depends(get_db)
 ) -> RequirementResponse:
-    requirement = await RequirementService(db).get_by_id(requirement_id)
+    requirement = await RequirementService(db).get(requirement_id)
 
     if requirement is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -57,7 +57,7 @@ async def create_requirement(
 ) -> GeneralResponse:
     requirement = await RequirementService(db).create(body, api_key)
 
-    if requirement is -1:
+    if requirement == -1:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return GeneralResponse(success=True)
@@ -116,13 +116,11 @@ async def delete_requirement_by_id(
     parameter.
     """
     # Check if requirement with the id exists
-    requirement = await RequirementService(db).get_by_id(requirement_id)
+    requirement = await RequirementService(db).get(requirement_id)
     if not requirement:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     # Perform deletion
-    deleted = await RequirementService(db).delete_by_id(
-        requirement_id, api_key
-    )
+    deleted = await RequirementService(db).delete(requirement_id, api_key)
     if not deleted:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

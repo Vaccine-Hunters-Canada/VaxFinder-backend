@@ -21,7 +21,7 @@ router = APIRouter()
 async def list_addresses(
     postalCode: str = "", db: MSSQLConnection = Depends(get_db)
 ) -> List[AddressResponse]:
-    return await AddressService(db).get_all(
+    return await AddressService(db).get_multi(
         filters=AddressFilterParams(postalCode=postalCode, match_type="exact")
     )
 
@@ -39,7 +39,7 @@ async def list_addresses(
 async def retrieve_address_by_id(
     address_id: int, db: MSSQLConnection = Depends(get_db)
 ) -> AddressResponse:
-    address = await AddressService(db).get_by_id(address_id)
+    address = await AddressService(db).get(address_id)
 
     if address is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -118,11 +118,11 @@ async def delete_address_by_id(
     Deletes an address with the id from the `address_id` path parameter.
     """
     # Check if address with the id exists
-    address = await AddressService(db).get_by_id(address_id)
+    address = await AddressService(db).get(address_id)
     if not address:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     # Perform deletion
-    deleted = await AddressService(db).delete_by_id(address_id, api_key)
+    deleted = await AddressService(db).delete(address_id, api_key)
     if not deleted:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

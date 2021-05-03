@@ -21,7 +21,7 @@ router = APIRouter()
 async def list_locations(
     postalCode: str = "", db: MSSQLConnection = Depends(get_db)
 ) -> List[LocationExpandedResponse]:
-    return await LocationService(db).get_all_expanded(
+    return await LocationService(db).get_multi_expanded(
         filters=LocationFilterParams(postalCode=postalCode, match_type="exact")
     )
 
@@ -39,7 +39,7 @@ async def list_locations(
 async def retrieve_location_by_id(
     location_id: int, db: MSSQLConnection = Depends(get_db)
 ) -> LocationExpandedResponse:
-    location = await LocationService(db).get_by_id_expanded(location_id)
+    location = await LocationService(db).get_expanded(location_id)
 
     if location is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -119,11 +119,11 @@ async def delete_location_by_id(
     Deletes a location with the id from the `location_id` path parameter.
     """
     # Check if location with the id exists
-    location = await LocationService(db).get_by_id(location_id)
+    location = await LocationService(db).get(location_id)
     if not location:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     # Perform deletion
-    deleted = await LocationService(db).delete_by_id(location_id, api_key)
+    deleted = await LocationService(db).delete(location_id, api_key)
     if not deleted:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

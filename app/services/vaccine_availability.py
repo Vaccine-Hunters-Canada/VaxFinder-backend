@@ -45,7 +45,7 @@ class VaccineAvailabilityService(
     async def _expand(
         self, vaccine_availability: VaccineAvailabilityResponse
     ) -> VaccineAvailabilityExpandedResponse:
-        location = await LocationService(self._db).get_by_id_expanded(
+        location = await LocationService(self._db).get_expanded(
             vaccine_availability.location
         )
         assert (
@@ -68,10 +68,10 @@ class VaccineAvailabilityService(
             **vaccine_availability_expanded
         )
 
-    async def get_by_id_expanded(
+    async def get_expanded(
         self, id: UUID
     ) -> Optional[VaccineAvailabilityExpandedResponse]:
-        vaccine_availability = await super().get_by_id(id)
+        vaccine_availability = await super().get(id)
 
         if vaccine_availability is not None:
             return await self._expand(
@@ -80,10 +80,10 @@ class VaccineAvailabilityService(
 
         return vaccine_availability
 
-    async def get_all_expanded(
+    async def get_multi_expanded(
         self, filters: Optional[FilterParamsBase] = None
     ) -> List[VaccineAvailabilityExpandedResponse]:
-        vaccine_availabilities = await super().get_all(filters=filters)
+        vaccine_availabilities = await super().get_multi(filters=filters)
 
         # TODO: should be done all at once instead of in a for loop
         vaccine_availabilities_expanded: List[
