@@ -53,9 +53,7 @@ async def startup() -> None:
 
 
 # --- Routes ---
-app.include_router(
-    api_router, prefix=settings.API_V1_STR, include_in_schema=True
-)
+app.include_router(api_router, prefix=settings.API_V1_STR, include_in_schema=True)
 
 if __name__ == "__main__":
     uvicorn.run("app.main:app", port=8007, log_level="info", reload=True)

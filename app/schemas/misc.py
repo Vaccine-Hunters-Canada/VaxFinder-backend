@@ -7,9 +7,9 @@ class GeneralResponse(BaseModel):
     success: bool
     data: Union[str, None] = None
 
+
 MatchType = Literal[
-    'exact', # input 1, output 1
-    'list' # input multiple, output multiple
+    "exact", "list"  # input 1, output 1  # input multiple, output multiple
 ]
 
 

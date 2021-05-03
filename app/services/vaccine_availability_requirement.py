@@ -30,15 +30,19 @@ class VaccineAvailabilityRequirementService(
         return VaccineAvailabilityRequirementsResponse
 
     @property
-    def create_response_schema(self) -> Type[VaccineAvailabilityRequirementsCreateRequest]:
+    def create_response_schema(
+        self,
+    ) -> Type[VaccineAvailabilityRequirementsCreateRequest]:
         return VaccineAvailabilityRequirementsCreateRequest
 
     @property
-    def update_response_schema(self) -> Type[VaccineAvailabilityRequirementsUpdateRequest]:
+    def update_response_schema(
+        self,
+    ) -> Type[VaccineAvailabilityRequirementsUpdateRequest]:
         return VaccineAvailabilityRequirementsUpdateRequest
 
     async def get_by_id(self, identifier: Union[UUID, int]) -> None:
-        raise NotImplementedError('Get by ID is not available for requirements')
+        raise NotImplementedError("Get by ID is not available for requirements")
 
     # async def get_all(
     #     self,

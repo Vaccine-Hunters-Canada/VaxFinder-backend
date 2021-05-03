@@ -40,10 +40,9 @@ class VaccineAvailabilityService(
     @property
     def update_response_schema(self) -> Type[VaccineAvailabilityUpdateRequest]:
         return VaccineAvailabilityUpdateRequest
-    
+
     async def _expand(
-        self,
-        vaccine_availability: VaccineAvailabilityResponse
+        self, vaccine_availability: VaccineAvailabilityResponse
     ) -> VaccineAvailabilityExpandedResponse:
         location = await LocationService(self._db).get_by_id_expanded(
             vaccine_availability.location
@@ -56,16 +55,15 @@ class VaccineAvailabilityService(
             """
 
         vaccine_availability_expanded = vaccine_availability.dict()
-        vaccine_availability_expanded.update({
-            'location': location,
-        })
-        
+        vaccine_availability_expanded.update(
+            {
+                "location": location,
+            }
+        )
+
         # logger.critical(vaccine_availability_expanded)
 
-        return VaccineAvailabilityExpandedResponse(
-            **vaccine_availability_expanded
-        )
-        
+        return VaccineAvailabilityExpandedResponse(**vaccine_availability_expanded)
 
     async def get_by_id_expanded(
         self, id: UUID
@@ -85,6 +83,8 @@ class VaccineAvailabilityService(
         # TODO: should be done all at once instead of in a for loop
         vaccine_availabilities_expanded: List[VaccineAvailabilityExpandedResponse] = []
         for vaccine_availability in vaccine_availabilities:
-            vaccine_availabilities_expanded.append(await self._expand(vaccine_availability))
+            vaccine_availabilities_expanded.append(
+                await self._expand(vaccine_availability)
+            )
 
         return vaccine_availabilities_expanded

@@ -52,8 +52,9 @@ class BaseService(
     def __init__(self, db: MSSQLConnection):
         self._db: MSSQLConnection = db
 
-    async def get_by_id(self, identifier: Union[UUID, int]) -> Optional[
-        DBResponseSchemaType]:
+    async def get_by_id(
+        self, identifier: Union[UUID, int]
+    ) -> Optional[DBResponseSchemaType]:
         """
         Retrieve an instance from `self.table` from the database by id. None if
         the object can't be found.
@@ -93,20 +94,20 @@ class BaseService(
         List all instances from `self.table` from the database.
         """
 
-        filter_query = ''
+        filter_query = ""
         if filters is not None:
-            if filters.match_type == 'exact':
+            if filters.match_type == "exact":
                 filters_dict = filters.dict()
-                filter_match_type = filters_dict.pop('match_type')
-                filters_no_blank = { k: v for k, v in filters_dict.items() if v }
+                filter_match_type = filters_dict.pop("match_type")
+                filters_no_blank = {k: v for k, v in filters_dict.items() if v}
                 if filters_no_blank:
                     db_filters = []
                     for k, v in filters_dict.items():
                         if isinstance(v, UUID) or isinstance(v, str):
                             v = f"'{v}'"
-                        db_filters.append(f'{k}={v}')
+                        db_filters.append(f"{k}={v}")
                     filter_query = f" WHERE {' AND '.join(db_filters)}"
-            elif filters.match_type == 'list':
+            elif filters.match_type == "list":
                 pass
 
         db_rows = await self._db.fetch_all(
@@ -128,9 +129,7 @@ class BaseService(
         )
 
         db_params = ["@auth=?"] + [
-            f'@{k}=?'
-            for k in
-            self.create_response_schema.__fields__.keys()
+            f"@{k}=?" for k in self.create_response_schema.__fields__.keys()
         ]
 
         await self._db.execute_stored_procedure(
@@ -144,10 +143,7 @@ class BaseService(
         )
 
     async def update(
-        self,
-        identifier: Union[UUID, int],
-        params: UpdateSchemaType,
-        auth_key: UUID
+        self, identifier: Union[UUID, int], params: UpdateSchemaType, auth_key: UUID
     ) -> Optional[int]:
         # exists = await self.get_by_id(id)
 
@@ -167,15 +163,13 @@ class BaseService(
         )
 
         db_params = ["@auth=?"] + [
-            f'@{k}=?'
-            for k in
-            self.update_response_schema.__fields__.keys()
+            f"@{k}=?" for k in self.update_response_schema.__fields__.keys()
         ]
 
         if isinstance(identifier, UUID):
             identifier: str = f"'{identifier}'"  # type: ignore
 
-        db_params.append(f'@{procedure_id_param}={identifier}')
+        db_params.append(f"@{procedure_id_param}={identifier}")
 
         resp = await self._db.execute_stored_procedure(
             query=f"""
@@ -189,11 +183,7 @@ class BaseService(
 
         return resp[0]
 
-    async def delete_by_id(
-        self,
-        identifier: Union[UUID, int],
-        auth_key: UUID
-    ) -> bool:
+    async def delete_by_id(self, identifier: Union[UUID, int], auth_key: UUID) -> bool:
         """
         Delete an instance from `self.table` from the database by id. Returns
         True if the instance has been successfully deleted. Otherwise, returns
@@ -219,7 +209,10 @@ class BaseService(
             query=f"""
                 EXEC dbo.{procedure_name} @auth = ?, @{procedure_id_param} = ?
             """,
-            values=(auth_key, identifier,),
+            values=(
+                auth_key,
+                identifier,
+            ),
         )
 
         return response != -1

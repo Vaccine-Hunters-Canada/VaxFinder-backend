@@ -1,7 +1,12 @@
 from fastapi import APIRouter
 
-from app.api.api_v1.endpoints import (addresses, locations, organizations,
-                                      requirements, vaccine_availability)
+from app.api.api_v1.endpoints import (
+    addresses,
+    locations,
+    organizations,
+    requirements,
+    vaccine_availability,
+)
 
 api_router = APIRouter()
 

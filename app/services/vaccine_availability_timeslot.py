@@ -38,7 +38,7 @@ class VaccineAvailabilityTimeslotService(
         return VaccineAvailabilityTimeslotUpdateRequest
 
     async def get_by_id(self, identifier: Union[UUID, int]) -> None:
-        raise NotImplementedError('Get by ID is not available for timeslots')
+        raise NotImplementedError("Get by ID is not available for timeslots")
 
     # async def get_all(
     #     self,

@@ -29,7 +29,7 @@ class LocationService(
     @property
     def db_response_schema(self) -> Type[LocationResponse]:
         return LocationResponse
-    
+
     @property
     def create_response_schema(self) -> Type[LocationCreateRequest]:
         return LocationCreateRequest
@@ -37,20 +37,15 @@ class LocationService(
     @property
     def update_response_schema(self) -> Type[LocationUpdateRequest]:
         return LocationUpdateRequest
-    
-    async def _expand(
-        self,
-        location: LocationResponse
-    ) -> LocationExpandedResponse:
+
+    async def _expand(self, location: LocationResponse) -> LocationExpandedResponse:
         address = None
         if location.address is not None:
-            address = await AddressService(self._db).get_by_id(
-                location.address
-            )
+            address = await AddressService(self._db).get_by_id(location.address)
             assert (
                 address is not None
-            ), f'Could not find address {location.address} for location {location.id}'
-            
+            ), f"Could not find address {location.address} for location {location.id}"
+
         organization = None
         if location.organization is not None:
             organization = await OrganizationService(self._db).get_by_id(
@@ -58,20 +53,14 @@ class LocationService(
             )
             assert (
                 organization is not None
-            ), f'Could not find organization {location.organization} for location {location.id}'
-        
+            ), f"Could not find organization {location.organization} for location {location.id}"
+
         location_expanded = location.dict()
-        location_expanded.update({
-            'address': address,
-            'organization': organization
-        })
+        location_expanded.update({"address": address, "organization": organization})
 
         return LocationExpandedResponse(**location_expanded)
 
-
-    async def get_by_id_expanded(
-        self, id: int
-    ) -> Optional[LocationExpandedResponse]:
+    async def get_by_id_expanded(self, id: int) -> Optional[LocationExpandedResponse]:
         location = await super().get_by_id(id)
 
         if location is not None:
@@ -89,13 +78,10 @@ class LocationService(
 
         address_ids = [l.address for l in locations]
         organization_ids = [l.organization for l in locations]
-        
+
         addresses = AddressService(self._db).get_all(
-                        filters=AddressFilterParams(
-                            ids=address_ids,
-                            match_type='exact'
-                        )
-                    )
+            filters=AddressFilterParams(ids=address_ids, match_type="exact")
+        )
         # for location in locations:
         #     address = None
         #     if location.address is not None:

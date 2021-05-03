@@ -5,7 +5,7 @@ from loguru import logger
 from app.schemas.organizations import (
     OrganizationCreateRequest,
     OrganizationResponse,
-    OrganizationUpdateRequest
+    OrganizationUpdateRequest,
 )
 from app.services.base import BaseService
 

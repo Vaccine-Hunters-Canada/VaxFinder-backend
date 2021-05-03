@@ -3,7 +3,7 @@ from typing import Type
 from app.schemas.addresses import (
     AddressResponse,
     AddressCreateRequest,
-    AddressUpdateRequest
+    AddressUpdateRequest,
 )
 from app.services.base import BaseService
 
@@ -14,10 +14,10 @@ class AddressService(
     read_procedure_id_parameter = "addressID"
     delete_procedure_name = "address_Delete"
     delete_procedure_id_parameter = "addressID"
-    
+
     @property
     def table(self) -> str:
-        return 'address'
+        return "address"
 
     @property
     def db_response_schema(self) -> Type[AddressResponse]:

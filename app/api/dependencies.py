@@ -25,9 +25,7 @@ async def get_db() -> AsyncGenerator[MSSQLConnection, None]:
         await db.disconnect()
 
 
-async def get_api_key(
-    auth_value: Optional[str] = Security(auth_header)
-) -> UUID:
+async def get_api_key(auth_value: Optional[str] = Security(auth_header)) -> UUID:
     """
     Returns an API key from the Authorization header. The syntax for this
     header's value is `<type> <credentials>`. The Bearer authentication scheme
@@ -51,8 +49,7 @@ async def get_api_key(
     if auth_credentials is None:
         # Give generic error for security reasons
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials."
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials."
         )
 
     return auth_credentials

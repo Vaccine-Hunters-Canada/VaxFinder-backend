@@ -73,6 +73,7 @@ class VaccineAvailabilityTimeslotFilterParams(FilterParamsBase):
 # ------------------------- Requirements -------------------------
 # region
 
+
 class VaccineAvailabilityRequirementsResponse(BaseModel):
     id: int
     vaccine_availability: UUID
@@ -91,4 +92,6 @@ class VaccineAvailabilityRequirementsUpdateRequest(BaseModel):
 
 class VaccineAvailabilityRequirementsFilterParams(FilterParamsBase):
     vaccine_availability: UUID
+
+
 # endregion
