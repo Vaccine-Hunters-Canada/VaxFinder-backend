@@ -1,4 +1,3 @@
-from app.schemas.organizations import OrganizationResponse
 from datetime import datetime
 from typing import Optional
 
@@ -6,6 +5,7 @@ from pydantic import BaseModel
 
 from app.schemas.addresses import AddressResponse
 from app.schemas.misc import FilterParamsBase
+from app.schemas.organizations import OrganizationResponse
 
 
 class LocationFilterParams(FilterParamsBase):
@@ -34,10 +34,11 @@ class LocationExpandedResponse(LocationResponseBase):
     organization: Optional[OrganizationResponse]
     address: Optional[AddressResponse]
 
+
 class LocationCreateRequest(LocationResponseBase):
     organization: Optional[int]
     address: Optional[int]
-    auth: str
+
 
 class LocationUpdateRequest(LocationResponseBase):
     id: int
