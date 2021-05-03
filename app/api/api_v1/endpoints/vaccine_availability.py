@@ -1,12 +1,11 @@
-from app.services.vaccine_availability_requirement import VaccineAvailabilityRequirementService
-from app.schemas.misc import GeneralResponse
 from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.api.dependencies import get_db
+from app.api.dependencies import get_db, get_api_key
 from app.db.database import MSSQLConnection
+from app.schemas.misc import GeneralResponse
 from app.schemas.vaccine_availability import (
     VaccineAvailabilityCreateRequest,
     VaccineAvailabilityExpandedResponse,
@@ -22,14 +21,18 @@ from app.schemas.vaccine_availability import (
     VaccineAvailabilityUpdateRequest,
 )
 from app.services.vaccine_availability import VaccineAvailabilityService
-from app.services.vaccine_availability_timeslot import VaccineAvailabilityTimeslotService
+from app.services.vaccine_availability_requirement import \
+    VaccineAvailabilityRequirementService
+from app.services.vaccine_availability_timeslot import \
+    VaccineAvailabilityTimeslotService
 
 router = APIRouter()
 
 
 @router.get("", response_model=List[VaccineAvailabilityExpandedResponse])
 async def list_vaccine_availability(
-    postalCode: str = "", db: MSSQLConnection = Depends(get_db)
+    postalCode: str = "",
+    db: MSSQLConnection = Depends(get_db)
 ) -> List[VaccineAvailabilityExpandedResponse]:
     return await VaccineAvailabilityService(db).get_all_expanded(
         filters=VaccineAvailabilityFilterParams(
@@ -43,7 +46,8 @@ async def list_vaccine_availability(
     response_model=VaccineAvailabilityExpandedResponse,
     responses={
         status.HTTP_404_NOT_FOUND: {
-            "description": "The vaccine availability with the specified id could not be found."
+            "description": "The vaccine availability with the specified id "
+                           "could not be found. "
         }
     },
 )
@@ -51,41 +55,61 @@ async def retrieve_vaccine_availability_by_id(
     vaccine_availability_id: UUID,
     db: MSSQLConnection = Depends(get_db)
 ) -> VaccineAvailabilityExpandedResponse:
-    entry = await VaccineAvailabilityService(db).get_by_id_expanded(vaccine_availability_id)
+    entry = await VaccineAvailabilityService(db).get_by_id_expanded(
+        vaccine_availability_id
+    )
 
     if entry is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return entry
 
-@router.post("", response_model=GeneralResponse)
+
+@router.post(
+    "",
+    response_model=GeneralResponse,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "Invalid credentials."
+        }
+    },
+)
 async def create_vaccine_availability(
     body: VaccineAvailabilityCreateRequest,
     db: MSSQLConnection = Depends(get_db),
+    api_key: UUID = Depends(get_api_key)
 ) -> GeneralResponse:
-    vaccine_availability = await VaccineAvailabilityService(db).create(body)
+    vaccine_availability = await VaccineAvailabilityService(db).create(body, api_key)
     
     if vaccine_availability == -1:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return GeneralResponse(success=True)
 
+
 @router.put(
     "/{vaccine_availability_id}",
     response_model=GeneralResponse,
     responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "Invalid credentials."
+        },
         status.HTTP_404_NOT_FOUND: {
-            "description": "The location with the specified id could not be found."
+            "description": "The location with the specified id could not be "
+                           "found. "
         }
     },
 )
 async def update_vaccine_availability(
     vaccine_availability_id: int,
     body: VaccineAvailabilityUpdateRequest,
-    db: MSSQLConnection = Depends(get_db)
+    db: MSSQLConnection = Depends(get_db),
+    api_key: UUID = Depends(get_api_key)
 ) -> GeneralResponse:
     vaccine_availability = await VaccineAvailabilityService(db).update(
-        id=vaccine_availability_id,
-        params=body)
+        identifier=vaccine_availability_id,
+        params=body,
+        auth_key=api_key
+    )
 
     if vaccine_availability is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -93,14 +117,15 @@ async def update_vaccine_availability(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return GeneralResponse(success=True)
 
+
 # ------------------------- Timeslots -------------------------
-#region
 @router.get(
     "/{vaccine_availability_id}/timeslots",
     response_model=List[VaccineAvailabilityTimeslotResponse],
     responses={
         status.HTTP_404_NOT_FOUND: {
-            "description": "The vaccine availability with the specified id could not be found."
+            "description": "The vaccine availability with the specified id "
+                           "could not be found. "
         }
     },
 )
@@ -119,25 +144,40 @@ async def retrieve_vaccine_availability_timeslots(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return timeslots
 
-@router.post("/{vaccine_availability_id}/timeslots", response_model=GeneralResponse)
+
+@router.post(
+    "/{vaccine_availability_id}/timeslots",
+    response_model=GeneralResponse,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "Invalid credentials."
+        }
+    },
+)
 async def create_vaccine_availability_timeslot(
     vaccine_availability_id: UUID,
     body: VaccineAvailabilityTimeslotCreateRequest,
     db: MSSQLConnection = Depends(get_db),
+    api_key: UUID = Depends(get_api_key)
 ) -> GeneralResponse:
-    timeslot = await VaccineAvailabilityTimeslotService(db).create(body)
+    timeslot = await VaccineAvailabilityTimeslotService(db).create(body, api_key)
     
     if timeslot == -1:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return GeneralResponse(success=True)
 
+
 @router.put(
     "/{vaccine_availability_id}/timeslots/{timeslot_id}",
     response_model=GeneralResponse,
     responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "Invalid credentials."
+        },
         status.HTTP_404_NOT_FOUND: {
-            "description": "The location with the specified id could not be found."
+            "description": "The location with the specified id could not be "
+                           "found. "
         }
     },
 )
@@ -145,27 +185,30 @@ async def update_vaccine_availability_timeslot(
     vaccine_availability_id: UUID,
     timeslot_id: UUID,
     body: VaccineAvailabilityTimeslotUpdateRequest,
-    db: MSSQLConnection = Depends(get_db)
+    db: MSSQLConnection = Depends(get_db),
+    api_key: UUID = Depends(get_api_key)
 ) -> GeneralResponse:
     timeslot = await VaccineAvailabilityTimeslotService(db).update(
-        id=timeslot_id,
-        params=body)
+        identifier=timeslot_id,
+        params=body,
+        auth_key=api_key
+    )
 
     if timeslot is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     if timeslot == -1:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return GeneralResponse(success=True)
-#endregion
+
 
 # ------------------------- Requirements -------------------------
-#region
 @router.get(
     "/{vaccine_availability_id}/requirements",
     response_model=List[VaccineAvailabilityRequirementsResponse],
     responses={
         status.HTTP_404_NOT_FOUND: {
-            "description": "The vaccine availability with the specified id could not be found."
+            "description": "The vaccine availability with the specified id "
+                           "could not be found. "
         }
     },
 )
@@ -185,25 +228,40 @@ async def retrieve_vaccine_availability_requirements(
 
     return requirements
 
-@router.post("/{vaccine_availability_id}/requirements", response_model=GeneralResponse)
+
+@router.post(
+    "/{vaccine_availability_id}/requirements",
+    response_model=GeneralResponse,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "Invalid credentials."
+        }
+    },
+)
 async def create_vaccine_availability_requirement(
     vaccine_availability_id: UUID,
     body: VaccineAvailabilityRequirementsCreateRequest,
     db: MSSQLConnection = Depends(get_db),
+    api_key: UUID = Depends(get_api_key)
 ) -> GeneralResponse:
-    requirement = await VaccineAvailabilityRequirementService(db).create(body)
+    requirement = await VaccineAvailabilityRequirementService(db).create(body, api_key)
     
     if requirement == -1:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return GeneralResponse(success=True)
 
+
 @router.put(
     "/{vaccine_availability_id}/requirements/{requirement_id}",
     response_model=GeneralResponse,
     responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "Invalid credentials."
+        },
         status.HTTP_404_NOT_FOUND: {
-            "description": "The location with the specified id could not be found."
+            "description": "The location with the specified id could not be "
+                           "found. "
         }
     },
 )
@@ -211,15 +269,17 @@ async def update_vaccine_availability_requirement(
     vaccine_availability_id: UUID,
     requirement_id: UUID,
     body: VaccineAvailabilityRequirementsUpdateRequest,
-    db: MSSQLConnection = Depends(get_db)
+    db: MSSQLConnection = Depends(get_db),
+    api_key: UUID = Depends(get_api_key)
 ) -> GeneralResponse:
     requirement = await VaccineAvailabilityRequirementService(db).update(
-        id=requirement_id,
-        params=body)
+        identifier=requirement_id,
+        params=body,
+        auth_key=api_key
+    )
 
     if requirement is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     if requirement == -1:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return GeneralResponse(success=True)
-#endregion

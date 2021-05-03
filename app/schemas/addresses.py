@@ -10,6 +10,7 @@ class AddressFilterParams(FilterParamsBase):
     postalCode: Optional[str]
     ids: List[int]
 
+
 class AddressResponseBase(BaseModel):
     line1: Optional[str]
     line2: Optional[str]
@@ -18,12 +19,15 @@ class AddressResponseBase(BaseModel):
     province: str
     postcode: str
 
+
 class AddressResponse(AddressResponseBase):
     id: int
     created_at: datetime
 
+
 class AddressCreateRequest(AddressResponseBase):
-    auth: str
+    pass
+
 
 class AddressUpdateRequest(AddressResponseBase):
     id: int
