@@ -17,7 +17,15 @@ loguru = "^0.5.3"
 mypy = "^0.812"
 isort = "^5.8.0"
 black = "^21.4b2"
+pre-commit = "^2.12.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.black]
+line-length = 79
