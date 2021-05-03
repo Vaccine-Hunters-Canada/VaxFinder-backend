@@ -1,13 +1,14 @@
-import logging
-import sys
-from pathlib import Path
-from loguru import logger
-import loguru
 import json
-from datetime import timedelta
-from typing import Union, TypedDict, Optional, Callable
+import logging
 import os
+import sys
+from datetime import timedelta
+from pathlib import Path
 from types import FrameType
+from typing import Callable, Optional, TypedDict, Union
+
+import loguru
+from loguru import logger
 
 
 class Logging_Config_Data(TypedDict):
@@ -54,7 +55,9 @@ class InterceptHandler(logging.Handler):
             depth += 1
 
         log = logger.bind(request_id="app")
-        log.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
+        log.opt(depth=depth, exception=record.exc_info).log(
+            level, record.getMessage()
+        )
 
 
 def make_logger() -> "loguru.Logger":

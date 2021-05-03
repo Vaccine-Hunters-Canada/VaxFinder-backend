@@ -1,17 +1,18 @@
 from typing import List, Optional, Type
 from uuid import UUID
 
+from loguru import logger
+
 from app.schemas.misc import FilterParamsBase
 from app.schemas.vaccine_availability import (
+    VaccineAvailabilityCreateRequest,
     VaccineAvailabilityExpandedResponse,
     VaccineAvailabilityResponse,
-    VaccineAvailabilityCreateRequest,
     VaccineAvailabilityUpdateRequest,
 )
 from app.services.base import BaseService
 from app.services.locations import LocationService
 from app.services.organizations import OrganizationService
-from loguru import logger
 
 
 class VaccineAvailabilityService(
@@ -63,7 +64,9 @@ class VaccineAvailabilityService(
 
         # logger.critical(vaccine_availability_expanded)
 
-        return VaccineAvailabilityExpandedResponse(**vaccine_availability_expanded)
+        return VaccineAvailabilityExpandedResponse(
+            **vaccine_availability_expanded
+        )
 
     async def get_by_id_expanded(
         self, id: UUID
@@ -71,7 +74,9 @@ class VaccineAvailabilityService(
         vaccine_availability = await super().get_by_id(id)
 
         if vaccine_availability is not None:
-            return await self._expand(vaccine_availability=vaccine_availability)
+            return await self._expand(
+                vaccine_availability=vaccine_availability
+            )
 
         return vaccine_availability
 
@@ -81,7 +86,9 @@ class VaccineAvailabilityService(
         vaccine_availabilities = await super().get_all(filters=filters)
 
         # TODO: should be done all at once instead of in a for loop
-        vaccine_availabilities_expanded: List[VaccineAvailabilityExpandedResponse] = []
+        vaccine_availabilities_expanded: List[
+            VaccineAvailabilityExpandedResponse
+        ] = []
         for vaccine_availability in vaccine_availabilities:
             vaccine_availabilities_expanded.append(
                 await self._expand(vaccine_availability)

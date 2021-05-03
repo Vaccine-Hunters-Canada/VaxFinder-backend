@@ -1,18 +1,18 @@
-from app.services.organizations import OrganizationService
-from app.schemas.misc import FilterParamsBase
 from typing import List, Optional, Type
 
 from loguru import logger
 
+from app.schemas.addresses import AddressFilterParams
 from app.schemas.locations import (
+    LocationCreateRequest,
     LocationExpandedResponse,
     LocationResponse,
-    LocationCreateRequest,
     LocationUpdateRequest,
 )
-from app.schemas.addresses import AddressFilterParams
+from app.schemas.misc import FilterParamsBase
 from app.services.addresses import AddressService
 from app.services.base import BaseService
+from app.services.organizations import OrganizationService
 
 
 class LocationService(
@@ -38,10 +38,14 @@ class LocationService(
     def update_response_schema(self) -> Type[LocationUpdateRequest]:
         return LocationUpdateRequest
 
-    async def _expand(self, location: LocationResponse) -> LocationExpandedResponse:
+    async def _expand(
+        self, location: LocationResponse
+    ) -> LocationExpandedResponse:
         address = None
         if location.address is not None:
-            address = await AddressService(self._db).get_by_id(location.address)
+            address = await AddressService(self._db).get_by_id(
+                location.address
+            )
             assert (
                 address is not None
             ), f"Could not find address {location.address} for location {location.id}"
@@ -56,11 +60,15 @@ class LocationService(
             ), f"Could not find organization {location.organization} for location {location.id}"
 
         location_expanded = location.dict()
-        location_expanded.update({"address": address, "organization": organization})
+        location_expanded.update(
+            {"address": address, "organization": organization}
+        )
 
         return LocationExpandedResponse(**location_expanded)
 
-    async def get_by_id_expanded(self, id: int) -> Optional[LocationExpandedResponse]:
+    async def get_by_id_expanded(
+        self, id: int
+    ) -> Optional[LocationExpandedResponse]:
         location = await super().get_by_id(id)
 
         if location is not None:

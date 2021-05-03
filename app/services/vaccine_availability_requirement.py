@@ -1,14 +1,15 @@
 from typing import List, Optional, Type, Union
 from uuid import UUID
 
+from loguru import logger
+
 from app.schemas.misc import FilterParamsBase
 from app.schemas.vaccine_availability import (
-    VaccineAvailabilityRequirementsResponse,
     VaccineAvailabilityRequirementsCreateRequest,
+    VaccineAvailabilityRequirementsResponse,
     VaccineAvailabilityRequirementsUpdateRequest,
 )
 from app.services.base import BaseService
-from loguru import logger
 
 
 class VaccineAvailabilityRequirementService(
@@ -26,7 +27,9 @@ class VaccineAvailabilityRequirementService(
         return "vaccine_availability_requirements"
 
     @property
-    def db_response_schema(self) -> Type[VaccineAvailabilityRequirementsResponse]:
+    def db_response_schema(
+        self,
+    ) -> Type[VaccineAvailabilityRequirementsResponse]:
         return VaccineAvailabilityRequirementsResponse
 
     @property
@@ -42,7 +45,9 @@ class VaccineAvailabilityRequirementService(
         return VaccineAvailabilityRequirementsUpdateRequest
 
     async def get_by_id(self, identifier: Union[UUID, int]) -> None:
-        raise NotImplementedError("Get by ID is not available for requirements")
+        raise NotImplementedError(
+            "Get by ID is not available for requirements"
+        )
 
     # async def get_all(
     #     self,

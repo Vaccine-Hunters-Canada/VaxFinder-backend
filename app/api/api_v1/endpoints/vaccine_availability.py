@@ -1,9 +1,9 @@
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 
-from app.api.dependencies import get_db, get_api_key
+from app.api.dependencies import get_api_key, get_db
 from app.db.database import MSSQLConnection
 from app.schemas.misc import GeneralResponse
 from app.schemas.vaccine_availability import (
@@ -67,14 +67,18 @@ async def retrieve_vaccine_availability_by_id(
 @router.post(
     "",
     response_model=GeneralResponse,
-    responses={status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."}},
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."}
+    },
 )
 async def create_vaccine_availability(
     body: VaccineAvailabilityCreateRequest,
     db: MSSQLConnection = Depends(get_db),
     api_key: UUID = Depends(get_api_key),
 ) -> GeneralResponse:
-    vaccine_availability = await VaccineAvailabilityService(db).create(body, api_key)
+    vaccine_availability = await VaccineAvailabilityService(db).create(
+        body, api_key
+    )
 
     if vaccine_availability == -1:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -177,7 +181,9 @@ async def retrieve_vaccine_availability_timeslots(
 @router.post(
     "/{vaccine_availability_id}/timeslots",
     response_model=GeneralResponse,
-    responses={status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."}},
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."}
+    },
 )
 async def create_vaccine_availability_timeslot(
     vaccine_availability_id: UUID,
@@ -185,7 +191,9 @@ async def create_vaccine_availability_timeslot(
     db: MSSQLConnection = Depends(get_db),
     api_key: UUID = Depends(get_api_key),
 ) -> GeneralResponse:
-    timeslot = await VaccineAvailabilityTimeslotService(db).create(body, api_key)
+    timeslot = await VaccineAvailabilityTimeslotService(db).create(
+        body, api_key
+    )
 
     if timeslot == -1:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -308,7 +316,9 @@ async def retrieve_vaccine_availability_requirements(
 @router.post(
     "/{vaccine_availability_id}/requirements",
     response_model=GeneralResponse,
-    responses={status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."}},
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."}
+    },
 )
 async def create_vaccine_availability_requirement(
     vaccine_availability_id: UUID,
@@ -316,7 +326,9 @@ async def create_vaccine_availability_requirement(
     db: MSSQLConnection = Depends(get_db),
     api_key: UUID = Depends(get_api_key),
 ) -> GeneralResponse:
-    requirement = await VaccineAvailabilityRequirementService(db).create(body, api_key)
+    requirement = await VaccineAvailabilityRequirementService(db).create(
+        body, api_key
+    )
 
     if requirement == -1:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

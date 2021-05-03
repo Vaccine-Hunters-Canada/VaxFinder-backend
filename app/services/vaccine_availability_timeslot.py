@@ -1,14 +1,15 @@
 from typing import List, Optional, Type, Union
 from uuid import UUID
 
+from loguru import logger
+
 from app.schemas.misc import FilterParamsBase
 from app.schemas.vaccine_availability import (
-    VaccineAvailabilityTimeslotResponse,
     VaccineAvailabilityTimeslotCreateRequest,
+    VaccineAvailabilityTimeslotResponse,
     VaccineAvailabilityTimeslotUpdateRequest,
 )
 from app.services.base import BaseService
-from loguru import logger
 
 
 class VaccineAvailabilityTimeslotService(
@@ -30,11 +31,15 @@ class VaccineAvailabilityTimeslotService(
         return VaccineAvailabilityTimeslotResponse
 
     @property
-    def create_response_schema(self) -> Type[VaccineAvailabilityTimeslotCreateRequest]:
+    def create_response_schema(
+        self,
+    ) -> Type[VaccineAvailabilityTimeslotCreateRequest]:
         return VaccineAvailabilityTimeslotCreateRequest
 
     @property
-    def update_response_schema(self) -> Type[VaccineAvailabilityTimeslotUpdateRequest]:
+    def update_response_schema(
+        self,
+    ) -> Type[VaccineAvailabilityTimeslotUpdateRequest]:
         return VaccineAvailabilityTimeslotUpdateRequest
 
     async def get_by_id(self, identifier: Union[UUID, int]) -> None:

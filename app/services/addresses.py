@@ -1,8 +1,8 @@
 from typing import Type
 
 from app.schemas.addresses import (
-    AddressResponse,
     AddressCreateRequest,
+    AddressResponse,
     AddressUpdateRequest,
 )
 from app.services.base import BaseService

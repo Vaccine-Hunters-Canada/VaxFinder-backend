@@ -12,7 +12,9 @@ from app.services.base import BaseService
 
 class OrganizationService(
     BaseService[
-        OrganizationResponse, OrganizationCreateRequest, OrganizationUpdateRequest
+        OrganizationResponse,
+        OrganizationCreateRequest,
+        OrganizationUpdateRequest,
     ]
 ):
     read_procedure_id_parameter = "organizationID"

@@ -1,8 +1,9 @@
 from typing import List
+from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 
-from app.api.dependencies import get_db, get_api_key
+from app.api.dependencies import get_api_key, get_db
 from app.db.database import MSSQLConnection
 from app.schemas.locations import (
     LocationCreateRequest,
@@ -12,7 +13,6 @@ from app.schemas.locations import (
 )
 from app.schemas.misc import GeneralResponse
 from app.services.locations import LocationService
-from uuid import UUID
 
 router = APIRouter()
 
@@ -31,7 +31,8 @@ async def list_locations(
     response_model=LocationExpandedResponse,
     responses={
         status.HTTP_404_NOT_FOUND: {
-            "description": "The location with the specified id could not be " "found."
+            "description": "The location with the specified id could not be "
+            "found."
         }
     },
 )
@@ -48,7 +49,9 @@ async def retrieve_location_by_id(
 @router.post(
     "",
     response_model=GeneralResponse,
-    responses={status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."}},
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."}
+    },
 )
 async def create_location(
     body: LocationCreateRequest,
@@ -69,7 +72,8 @@ async def create_location(
     responses={
         status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."},
         status.HTTP_404_NOT_FOUND: {
-            "description": "The location with the specified id could not be " "found."
+            "description": "The location with the specified id could not be "
+            "found."
         },
     },
 )
@@ -101,7 +105,8 @@ async def update_location(
         },
         status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."},
         status.HTTP_404_NOT_FOUND: {
-            "description": "The location with the specified id could not be " "found."
+            "description": "The location with the specified id could not be "
+            "found."
         },
     },
 )

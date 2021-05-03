@@ -10,7 +10,9 @@ from app.services.base import BaseService
 
 class RequirementService(
     BaseService[
-        RequirementResponse, RequirementsCreateRequest, RequirementsUpdateRequest
+        RequirementResponse,
+        RequirementsCreateRequest,
+        RequirementsUpdateRequest,
     ]
 ):
     read_procedure_id_parameter = "requirementID"

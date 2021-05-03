@@ -1,17 +1,21 @@
 import importlib
-from typing import Union, Any, Tuple, Dict, List, Mapping, Optional
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 
 import aioodbc
 import sqlalchemy
 from aioodbc import Connection, Pool
 from databases.core import DatabaseURL
-from databases.interfaces import ConnectionBackend, DatabaseBackend, TransactionBackend
+from databases.interfaces import (
+    ConnectionBackend,
+    DatabaseBackend,
+    TransactionBackend,
+)
 from loguru import logger
+from pyodbc import Row
 from sqlalchemy.engine.interfaces import Dialect, ExecutionContext
 from sqlalchemy.engine.result import ResultMetaData, RowProxy
 from sqlalchemy.sql import ClauseElement
 from sqlalchemy.sql.elements import TextClause
-from pyodbc import Row
 
 
 class MSSQLBackend(DatabaseBackend):
@@ -110,13 +114,17 @@ class MSSQLConnection(ConnectionBackend):
 
     async def acquire(self, autocommit: bool = False) -> None:
         assert self._connection is None, "Connection is already acquired"
-        assert self._database.pool is not None, "DatabaseBackend is not running"
+        assert (
+            self._database.pool is not None
+        ), "DatabaseBackend is not running"
         self._connection = await self._database.pool.acquire()
         self._connection._conn.autocommit = autocommit
 
     async def release(self) -> None:
         assert self._connection is not None, "Connection is not acquired"
-        assert self._database.pool is not None, "DatabaseBackend is not running"
+        assert (
+            self._database.pool is not None
+        ), "DatabaseBackend is not running"
         self._connection = await self._database.pool.release(self._connection)
         self._connection = None
 
@@ -129,7 +137,9 @@ class MSSQLConnection(ConnectionBackend):
             else:
                 await cursor.execute(query)
             rows = await cursor.fetchall()
-            metadata: ResultMetaData = ResultMetaData(context, cursor.description)
+            metadata: ResultMetaData = ResultMetaData(
+                context, cursor.description
+            )
             return [
                 RowProxy(metadata, row, metadata._processors, metadata._keymap)
                 for row in rows
@@ -147,7 +157,9 @@ class MSSQLConnection(ConnectionBackend):
             if row is None:
                 return None
             metadata = ResultMetaData(context, cursor.description)
-            return RowProxy(metadata, row, metadata._processors, metadata._keymap)
+            return RowProxy(
+                metadata, row, metadata._processors, metadata._keymap
+            )
 
     async def execute(self, query: ClauseElement) -> Any:
         assert self._connection is not None, "Connection is not acquired"
@@ -181,7 +193,9 @@ class MSSQLConnection(ConnectionBackend):
     def transaction(self) -> "MSSQLTransaction":
         return MSSQLTransaction(self)
 
-    def _compile(self, query: str) -> Tuple[str, List[Any], CompilationContext]:
+    def _compile(
+        self, query: str
+    ) -> Tuple[str, List[Any], CompilationContext]:
         sql_query: TextClause = sqlalchemy.text(query)
         compiled = sql_query.compile(dialect=self._dialect)
         args: Dict[str, Any] = compiled.construct_params()
@@ -199,7 +213,11 @@ class MSSQLConnection(ConnectionBackend):
 
         args_values = list(args.values())
         logger.debug(f"Query: {compiled.string}\nArgs: {args_values}")
-        return compiled.string, args_values, CompilationContext(execution_context)
+        return (
+            compiled.string,
+            args_values,
+            CompilationContext(execution_context),
+        )
 
     @property
     def raw_connection(self) -> Connection:
@@ -212,16 +230,24 @@ class MSSQLTransaction(TransactionBackend):
         self._connection: MSSQLConnection = connection
         self._original_autocommit = self._connection.raw_connection.autocommit
 
-    async def start(self, is_root: bool, extra_options: Dict[Any, Any]) -> None:
-        assert self._connection.raw_connection is not None, "Connection is not acquired"
+    async def start(
+        self, is_root: bool, extra_options: Dict[Any, Any]
+    ) -> None:
+        assert (
+            self._connection.raw_connection is not None
+        ), "Connection is not acquired"
         self._connection.raw_connection.autocommit = False
 
     async def commit(self) -> None:
-        assert self._connection.raw_connection is not None, "Connection is not acquired"
+        assert (
+            self._connection.raw_connection is not None
+        ), "Connection is not acquired"
         self._connection.raw_connection.commit()
         self._connection.raw_connection.autocommit = self._original_autocommit
 
     async def rollback(self) -> None:
-        assert self._connection.raw_connection is not None, "Connection is not acquired"
+        assert (
+            self._connection.raw_connection is not None
+        ), "Connection is not acquired"
         self._connection.raw_connection.rollback()
         self._connection.raw_connection.autocommit = self._original_autocommit

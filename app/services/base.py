@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Generic, List, Optional, Type, TypeVar, Union, Tuple
+from typing import Generic, List, Optional, Tuple, Type, TypeVar, Union
 from uuid import UUID
-from pyodbc import Row
 
 from pydantic import BaseModel
+from pyodbc import Row
 
 from app.db.database import MSSQLConnection
 from app.schemas.misc import FilterParamsBase
@@ -143,7 +143,10 @@ class BaseService(
         )
 
     async def update(
-        self, identifier: Union[UUID, int], params: UpdateSchemaType, auth_key: UUID
+        self,
+        identifier: Union[UUID, int],
+        params: UpdateSchemaType,
+        auth_key: UUID,
     ) -> Optional[int]:
         # exists = await self.get_by_id(id)
 
@@ -183,7 +186,9 @@ class BaseService(
 
         return resp[0]
 
-    async def delete_by_id(self, identifier: Union[UUID, int], auth_key: UUID) -> bool:
+    async def delete_by_id(
+        self, identifier: Union[UUID, int], auth_key: UUID
+    ) -> bool:
         """
         Delete an instance from `self.table` from the database by id. Returns
         True if the instance has been successfully deleted. Otherwise, returns
