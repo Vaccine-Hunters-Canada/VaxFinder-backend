@@ -1,7 +1,7 @@
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 
 from app.api.dependencies import get_db, get_api_key
 from app.db.database import MSSQLConnection
@@ -47,7 +47,7 @@ async def list_vaccine_availability(
     responses={
         status.HTTP_404_NOT_FOUND: {
             "description": "The vaccine availability with the specified id "
-                           "could not be found. "
+                           "could not be found."
         }
     },
 )
@@ -94,8 +94,8 @@ async def create_vaccine_availability(
             "description": "Invalid credentials."
         },
         status.HTTP_404_NOT_FOUND: {
-            "description": "The location with the specified id could not be "
-                           "found. "
+            "description": "The vaccine availability with the specified id "
+                           "could not be found."
         }
     },
 )
@@ -118,6 +118,48 @@ async def update_vaccine_availability(
     return GeneralResponse(success=True)
 
 
+@router.delete(
+    "/{vaccine_availability_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_204_NO_CONTENT: {
+            "description": "The vaccine availability with the specified id "
+                           "has been successfully deleted."
+        },
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "Invalid credentials."
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The vaccine availability with the specified id "
+                           "could not be found."
+        }
+    },
+)
+async def delete_vaccine_availability_by_id(
+    vaccine_availability_id: int,
+    db: MSSQLConnection = Depends(get_db),
+    api_key: UUID = Depends(get_api_key)
+) -> Response:
+    """
+    Deletes a vaccine availability with the id from the
+    `vaccine_availability_id` path parameter.
+    """
+    # Check if vaccine availability with the id exists
+    vaccine_availability = await VaccineAvailabilityService(db).get_by_id(
+        vaccine_availability_id
+    )
+    if not vaccine_availability:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    # Perform deletion
+    deleted = await VaccineAvailabilityService(db).delete_by_id(
+        vaccine_availability_id,
+        api_key
+    )
+    if not deleted:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
 # ------------------------- Timeslots -------------------------
 @router.get(
     "/{vaccine_availability_id}/timeslots",
@@ -125,7 +167,7 @@ async def update_vaccine_availability(
     responses={
         status.HTTP_404_NOT_FOUND: {
             "description": "The vaccine availability with the specified id "
-                           "could not be found. "
+                           "could not be found."
         }
     },
 )
@@ -176,8 +218,10 @@ async def create_vaccine_availability_timeslot(
             "description": "Invalid credentials."
         },
         status.HTTP_404_NOT_FOUND: {
-            "description": "The location with the specified id could not be "
-                           "found. "
+            "description": "The vaccine availability with the id from the "
+                           "`vaccine_availability_id` path parameter or "
+                           "the timeslot with the id from the `timeslot_id` "
+                           "path parameter could not be found."
         }
     },
 )
@@ -201,6 +245,61 @@ async def update_vaccine_availability_timeslot(
     return GeneralResponse(success=True)
 
 
+# TODO: This can be commented out once vaccine availability timeslot has a
+#  delete stored procedure
+# @router.delete(
+#     "/{vaccine_availability_id}/timeslots/{timeslot_id}",
+#     status_code=status.HTTP_204_NO_CONTENT,
+#     responses={
+#         status.HTTP_204_NO_CONTENT: {
+#             "description": "The vaccine availability timeslot with the id "
+#                            "from the `timeslot_id` path parameter has been "
+#                            "successfully deleted. "
+#         },
+#         status.HTTP_401_UNAUTHORIZED: {
+#             "description": "Invalid credentials."
+#         },
+#         status.HTTP_404_NOT_FOUND: {
+#             "description": "The vaccine availability with the id from the "
+#                            "`vaccine_availability_id` path parameter or "
+#                            "the timeslot with the id from the `timeslot_id` "
+#                            "path parameter could not be found."
+#         }
+#     },
+# )
+# async def delete_vaccine_availability_by_id(
+#     vaccine_availability_id: int,
+#     timeslot_id: int,
+#     db: MSSQLConnection = Depends(get_db),
+#     api_key: UUID = Depends(get_api_key)
+# ) -> Response:
+#     """
+#     Deletes a vaccine availability timeslot with the id from the `timeslot_id`
+#     path parameter. This timeslot must be under a vaccine availability with the
+#     id from the `vaccine_availability_id` path parameter.
+#     """
+#     # Check if vaccine availability with the id exists
+#     vaccine_availability = await VaccineAvailabilityService(db).get_by_id(
+#         vaccine_availability_id
+#     )
+#     if not vaccine_availability:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+#     # Check if timeslot with the id exists
+#     timeslot = await VaccineAvailabilityTimeslotService(db).get_by_id(
+#        timeslot_id
+#     )
+#     if not timeslot or timeslot:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+#     # Perform deletion
+#     deleted = await VaccineAvailabilityService(db).delete_by_id(
+#         timeslot_id,
+#         api_key
+#     )
+#     if not deleted:
+#         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
 # ------------------------- Requirements -------------------------
 @router.get(
     "/{vaccine_availability_id}/requirements",
@@ -209,6 +308,7 @@ async def update_vaccine_availability_timeslot(
         status.HTTP_404_NOT_FOUND: {
             "description": "The vaccine availability with the specified id "
                            "could not be found. "
+
         }
     },
 )
@@ -260,8 +360,11 @@ async def create_vaccine_availability_requirement(
             "description": "Invalid credentials."
         },
         status.HTTP_404_NOT_FOUND: {
-            "description": "The location with the specified id could not be "
-                           "found. "
+            "description": "The vaccine availability with the id from the "
+                           "`vaccine_availability_id` path parameter or "
+                           "the requirement with the id from the "
+                           "`requirement_id` path parameter could not be "
+                           "found."
         }
     },
 )

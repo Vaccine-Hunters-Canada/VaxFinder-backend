@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 
 from app.api.dependencies import get_db, get_api_key
 from app.db.database import MSSQLConnection
@@ -29,7 +29,7 @@ async def list_locations(
     responses={
         status.HTTP_404_NOT_FOUND: {
             "description": "The location with the specified id could not be "
-                           "found. "
+                           "found."
         }
     },
 )
@@ -75,7 +75,7 @@ async def create_location(
         },
         status.HTTP_404_NOT_FOUND: {
             "description": "The location with the specified id could not be "
-                           "found. "
+                           "found."
         }
     },
 )
@@ -97,3 +97,39 @@ async def update_location(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return GeneralResponse(success=True)
+
+
+@router.delete(
+    "/{location_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_204_NO_CONTENT: {
+            "description": "The location with the specified id has been "
+                           "successfully deleted."
+        },
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "Invalid credentials."
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The location with the specified id could not be "
+                           "found."
+        }
+    },
+)
+async def delete_location_by_id(
+    location_id: int,
+    db: MSSQLConnection = Depends(get_db),
+    api_key: UUID = Depends(get_api_key)
+) -> Response:
+    """
+    Deletes a location with the id from the `location_id` path parameter.
+    """
+    # Check if location with the id exists
+    location = await LocationService(db).get_by_id(location_id)
+    if not location:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    # Perform deletion
+    deleted = await LocationService(db).delete_by_id(location_id, api_key)
+    if not deleted:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

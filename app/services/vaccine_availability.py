@@ -22,6 +22,8 @@ class VaccineAvailabilityService(
     ]
 ):
     read_procedure_id_parameter = "availabilityID"
+    delete_procedure_name = "vaccine_availability_Delete"
+    delete_procedure_id_parameter = "availabilityID"
 
     @property
     def table(self) -> str:

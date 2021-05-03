@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 
 from app.api.dependencies import get_db, get_api_key
 from app.db.database import MSSQLConnection
@@ -33,7 +33,7 @@ async def list_organizations(
     responses={
         status.HTTP_404_NOT_FOUND: {
             "description": "The location with the specified id could not be "
-                           "found. "
+                           "found."
         }
     },
 )
@@ -79,7 +79,7 @@ async def create_organization(
         },
         status.HTTP_404_NOT_FOUND: {
             "description": "The location with the specified id could not be "
-                           "found. "
+                           "found."
         }
     },
 )
@@ -100,3 +100,43 @@ async def update_organization(
     if organization == -1:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return GeneralResponse(success=True)
+
+
+@router.delete(
+    "/{organization_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_204_NO_CONTENT: {
+            "description": "The organization with the specified id has been "
+                           "successfully deleted."
+        },
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "Invalid credentials."
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The organization with the specified id could not "
+                           "be found."
+        }
+    },
+)
+async def delete_organization_by_id(
+    organization_id: int,
+    db: MSSQLConnection = Depends(get_db),
+    api_key: UUID = Depends(get_api_key)
+) -> Response:
+    """
+    Deletes an organization with the id from the `organization_id` path
+    parameter.
+    """
+    # Check if organization with the id exists
+    organization = await OrganizationService(db).get_by_id(organization_id)
+    if not organization:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    # Perform deletion
+    deleted = await OrganizationService(db).delete_by_id(
+        organization_id,
+        api_key
+    )
+    if not deleted:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

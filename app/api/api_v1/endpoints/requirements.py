@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 
 from app.api.dependencies import get_db, get_api_key
 from app.db.database import MSSQLConnection
@@ -28,7 +28,7 @@ async def list_requirements(
     responses={
         status.HTTP_404_NOT_FOUND: {
             "description": "The requirement with the specified id could not "
-                           "be found. "
+                           "be found."
         }
     },
 )
@@ -74,7 +74,7 @@ async def create_requirement(
         },
         status.HTTP_404_NOT_FOUND: {
             "description": "The location with the specified id could not be "
-                           "found. "
+                           "found."
         }
     },
 )
@@ -95,3 +95,43 @@ async def update_requirement(
     if requirement is -1:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return GeneralResponse(success=True)
+
+
+@router.delete(
+    "/{requirement_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_204_NO_CONTENT: {
+            "description": "The requirement with the specified id has been "
+                           "successfully deleted."
+        },
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "Invalid credentials."
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The requirement with the specified id could not "
+                           "be found."
+        }
+    },
+)
+async def delete_requirement_by_id(
+    requirement_id: int,
+    db: MSSQLConnection = Depends(get_db),
+    api_key: UUID = Depends(get_api_key)
+) -> Response:
+    """
+    Deletes a requirement with the id from the `requirement_id` path
+    parameter.
+    """
+    # Check if requirement with the id exists
+    requirement = await RequirementService(db).get_by_id(requirement_id)
+    if not requirement:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    # Perform deletion
+    deleted = await RequirementService(db).delete_by_id(
+        requirement_id,
+        api_key
+    )
+    if not deleted:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

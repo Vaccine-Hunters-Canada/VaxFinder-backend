@@ -26,6 +26,8 @@ class BaseService(
     update_procedure_id_parameter: Optional[str] = None
     create_procedure_name: Optional[str] = None
     update_procedure_name: Optional[str] = None
+    delete_procedure_name: Optional[str] = None
+    delete_procedure_id_parameter: Optional[str] = None
 
     @property
     @abstractmethod
@@ -186,3 +188,38 @@ class BaseService(
         )
 
         return resp[0]
+
+    async def delete_by_id(
+        self,
+        identifier: Union[UUID, int],
+        auth_key: UUID
+    ) -> bool:
+        """
+        Delete an instance from `self.table` from the database by id. Returns
+        True if the instance has been successfully deleted. Otherwise, returns
+        False.
+        """
+
+        procedure_name = (
+            f"{self.table}_Delete"
+            if self.delete_procedure_name is None
+            else self.delete_procedure_name
+        )
+
+        procedure_id_param = (
+            f"{self.table}ID"
+            if self.delete_procedure_id_parameter is None
+            else self.delete_procedure_id_parameter
+        )
+
+        if isinstance(identifier, UUID):
+            identifier: str = str(identifier)  # type: ignore
+
+        response: int = await self._db.execute_stored_procedure(
+            query=f"""
+                EXEC dbo.{procedure_name} @auth = ?, @{procedure_id_param} = ?
+            """,
+            values=(auth_key, identifier,),
+        )
+
+        return response != -1

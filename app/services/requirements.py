@@ -12,6 +12,8 @@ class RequirementService(
     BaseService[RequirementResponse, RequirementsCreateRequest, RequirementsUpdateRequest]
 ):
     read_procedure_id_parameter = "requirementID"
+    delete_procedure_name = "requirements_Delete"
+    delete_procedure_id_parameter = "requirementID"
 
     @property
     def table(self) -> str:

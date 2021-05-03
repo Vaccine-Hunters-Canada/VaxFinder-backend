@@ -19,6 +19,8 @@ class LocationService(
     BaseService[LocationResponse, LocationCreateRequest, LocationUpdateRequest]
 ):
     read_procedure_id_parameter = "locationID"
+    delete_procedure_name = "locations_Delete"
+    delete_procedure_id_parameter = "locationID"
 
     @property
     def table(self) -> str:

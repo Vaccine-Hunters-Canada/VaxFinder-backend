@@ -12,6 +12,8 @@ class AddressService(
     BaseService[AddressResponse, AddressCreateRequest, AddressUpdateRequest]
 ):
     read_procedure_id_parameter = "addressID"
+    delete_procedure_name = "address_Delete"
+    delete_procedure_id_parameter = "addressID"
     
     @property
     def table(self) -> str:
