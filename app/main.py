@@ -1,5 +1,4 @@
 import time
-from typing import List
 
 import uvicorn
 from fastapi import FastAPI

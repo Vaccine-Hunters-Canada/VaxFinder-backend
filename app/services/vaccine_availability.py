@@ -1,8 +1,6 @@
 from typing import List, Optional, Type
 from uuid import UUID
 
-from loguru import logger
-
 from app.schemas.misc import FilterParamsBase
 from app.schemas.vaccine_availability import (
     VaccineAvailabilityCreateRequest,
@@ -12,7 +10,6 @@ from app.schemas.vaccine_availability import (
 )
 from app.services.base import BaseService
 from app.services.locations import LocationService
-from app.services.organizations import OrganizationService
 
 
 class VaccineAvailabilityService(

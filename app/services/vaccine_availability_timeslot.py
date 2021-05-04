@@ -1,9 +1,6 @@
-from typing import List, Optional, Type, Union
+from typing import Type, Union
 from uuid import UUID
 
-from loguru import logger
-
-from app.schemas.misc import FilterParamsBase
 from app.schemas.vaccine_availability import (
     VaccineAvailabilityTimeslotCreateRequest,
     VaccineAvailabilityTimeslotResponse,

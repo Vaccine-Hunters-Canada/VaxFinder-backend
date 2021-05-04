@@ -1,11 +1,9 @@
-import json
 import logging
 import os
 import sys
 from datetime import timedelta
 from pathlib import Path
-from types import FrameType
-from typing import Callable, Optional, TypedDict, Union
+from typing import Optional, TypedDict, Union
 
 import loguru
 from loguru import logger

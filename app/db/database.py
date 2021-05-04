@@ -1,5 +1,5 @@
 import importlib
-from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 import aioodbc
 import sqlalchemy
@@ -11,7 +11,6 @@ from databases.interfaces import (
     TransactionBackend,
 )
 from loguru import logger
-from pyodbc import Row
 from sqlalchemy.engine.interfaces import Dialect, ExecutionContext
 from sqlalchemy.engine.result import ResultMetaData, RowProxy
 from sqlalchemy.sql import ClauseElement

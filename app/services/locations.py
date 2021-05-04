@@ -1,7 +1,5 @@
 from typing import List, Optional, Type
 
-from loguru import logger
-
 from app.schemas.addresses import AddressFilterParams
 from app.schemas.locations import (
     LocationCreateRequest,

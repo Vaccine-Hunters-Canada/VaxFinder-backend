@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Generic, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Generic, List, Optional, Type, TypeVar, Union
 from uuid import UUID
 
 from pydantic import BaseModel
-from pyodbc import Row
 
 from app.db.database import MSSQLConnection
 from app.schemas.misc import FilterParamsBase

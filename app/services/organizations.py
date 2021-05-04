@@ -1,6 +1,4 @@
-from typing import Optional, Type
-
-from loguru import logger
+from typing import Type
 
 from app.schemas.organizations import (
     OrganizationCreateRequest,
