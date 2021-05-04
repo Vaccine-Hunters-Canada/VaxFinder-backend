@@ -15,7 +15,10 @@ class OrganizationService(
         OrganizationUpdateRequest,
     ]
 ):
+    read_procedure_name = "organizations_Read"
     read_procedure_id_parameter = "organizationID"
+    create_procedure_name = "organizations_Create"
+    update_procedure_name = "organizations_Update"
     update_procedure_id_parameter = "organizationID"
     delete_procedure_name = "organizations_Delete"
     delete_procedure_id_parameter = "organizationID"

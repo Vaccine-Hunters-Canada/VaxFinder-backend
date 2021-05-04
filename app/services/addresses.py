@@ -11,7 +11,11 @@ from app.services.base import BaseService
 class AddressService(
     BaseService[AddressResponse, AddressCreateRequest, AddressUpdateRequest]
 ):
+    read_procedure_name = "address_Read"
     read_procedure_id_parameter = "addressID"
+    create_procedure_name = "address_Create"
+    update_procedure_name = "address_Update"
+    update_procedure_id_parameter = "addressID"
     delete_procedure_name = "address_Delete"
     delete_procedure_id_parameter = "addressID"
 

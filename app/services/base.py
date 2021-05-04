@@ -5,7 +5,10 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from app.db.database import MSSQLConnection
-from app.schemas.misc import FilterParamsBase
+from app.services.exceptions import (
+    InternalDatabaseError,
+    InvalidAuthenticationKeyForRequest,
+)
 
 DBResponseSchemaType = TypeVar("DBResponseSchemaType", bound=BaseModel)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -52,7 +55,7 @@ class BaseService(
         self._db: MSSQLConnection = db
 
     async def get(
-        self, identifier: Union[UUID, int]
+        self, identifier: Union[UUID, int], auth_key: Optional[UUID] = None
     ) -> Optional[DBResponseSchemaType]:
         """
         Retrieve an instance from `self.table` from the database by id. None if
@@ -71,86 +74,72 @@ class BaseService(
             else self.read_procedure_id_parameter
         )
 
-        if isinstance(identifier, UUID):
-            identifier: str = f"'{identifier}'"  # type: ignore
-
-        db_row = await self._db.fetch_one(
-            f"""
-                EXEC dbo.{procedure_name} @{procedure_id_param} = {identifier}
-            """
+        ret_value, db_obj = await self._db.sproc_fetch_one(
+            procedure_name, {procedure_id_param: identifier}, auth_key=auth_key
         )
 
-        if db_row is None:
-            return db_row
+        if db_obj is None or ret_value == -1:
+            # We are assuming that any error on the stored procedure is due
+            # to the fact that the object doesn't exist.
+            return None
 
-        return self.db_response_schema(**db_row)
+        return self.db_response_schema(**db_obj)
 
     async def get_multi(
         self,
-        filters: Optional[FilterParamsBase] = None,
     ) -> List[DBResponseSchemaType]:
         """
         List all instances from `self.table` from the database.
         """
 
-        filter_query = ""
-        if filters is not None:
-            if filters.match_type == "exact":
-                filters_dict = filters.dict()
-                filter_match_type = filters_dict.pop("match_type")
-                filters_no_blank = {k: v for k, v in filters_dict.items() if v}
-                if filters_no_blank:
-                    db_filters = []
-                    for k, v in filters_dict.items():
-                        if isinstance(v, UUID) or isinstance(v, str):
-                            v = f"'{v}'"
-                        db_filters.append(f"{k}={v}")
-                    filter_query = f" WHERE {' AND '.join(db_filters)}"
-            elif filters.match_type == "list":
-                pass
-
         db_rows = await self._db.fetch_all(
             f"""
-                SELECT
-                    {','.join(list(self.db_response_schema.__fields__.keys()))}
-                FROM dbo.{self.table}
-                {filter_query} 
+            SELECT {','.join(list(self.db_response_schema.__fields__.keys()))}
+            FROM dbo.{self.table}
             """
         )
 
         return [self.db_response_schema(**r) for r in db_rows]
 
-    async def create(self, params: CreateSchemaType, auth_key: UUID) -> None:
+    async def create(
+        self, params: CreateSchemaType, auth_key: UUID
+    ) -> DBResponseSchemaType:
+        """
+        Creates an instance of `self.table` within the database.
+        """
+
         procedure_name = (
             f"{self.table}_Create"
             if self.create_procedure_name is None
             else self.create_procedure_name
         )
 
-        db_params = ["@auth=?"] + [
-            f"@{k}=?" for k in self.create_response_schema.__fields__.keys()
-        ]
-
-        await self._db.execute_stored_procedure(
-            query=f"""
-                DECLARE @rc int
-                EXEC dbo.{procedure_name}
-                    {','.join(db_params)}
-                SELECT @rc
-            """,
-            values=(tuple([auth_key] + list(params.dict().values()))),
+        ret_value = await self._db.execute_sproc(
+            procedure_name, params.dict(), auth_key
         )
+
+        if ret_value == 0:
+            raise InvalidAuthenticationKeyForRequest()
+        elif ret_value == -1:
+            raise InternalDatabaseError()
+
+        # ret_value should be the identifier for the created object
+        created = await self.get(ret_value)
+
+        if created is None:
+            raise InternalDatabaseError()
+
+        return created
 
     async def update(
         self,
         identifier: Union[UUID, int],
         params: UpdateSchemaType,
         auth_key: UUID,
-    ) -> Optional[int]:
-        # exists = await self.get(id)
-
-        # if exists is None:
-        #     return None
+    ) -> DBResponseSchemaType:
+        """
+        Updates an instance from `self.table` from the database by id.
+        """
 
         procedure_name = (
             f"{self.table}_Update"
@@ -164,34 +153,30 @@ class BaseService(
             else self.update_procedure_id_parameter
         )
 
-        db_params = ["@auth=?"] + [
-            f"@{k}=?" for k in self.update_response_schema.__fields__.keys()
-        ]
+        parameters = params.dict(exclude={"id"})
+        parameters[procedure_id_param] = identifier
 
-        if isinstance(identifier, UUID):
-            identifier: str = f"'{identifier}'"  # type: ignore
-
-        db_params.append(f"@{procedure_id_param}={identifier}")
-
-        resp = await self._db.execute_stored_procedure(
-            query=f"""
-                DECLARE @rc int
-                EXEC @rc = dbo.{procedure_name}
-                    {','.join(db_params)};
-                SELECT @rc
-            """,
-            values=(tuple([auth_key] + list(params.dict().values()))),
+        ret_value = await self._db.execute_sproc(
+            procedure_name, parameters, auth_key
         )
 
-        return resp[0]
+        if ret_value == 0:
+            raise InvalidAuthenticationKeyForRequest()
+        elif ret_value == -1:
+            raise InternalDatabaseError()
+
+        updated = await self.get(identifier)
+
+        if updated is None:
+            raise InternalDatabaseError()
+
+        return updated
 
     async def delete(
         self, identifier: Union[UUID, int], auth_key: UUID
-    ) -> bool:
+    ) -> None:
         """
-        Delete an instance from `self.table` from the database by id. Returns
-        True if the instance has been successfully deleted. Otherwise, returns
-        False.
+        Deletes an instance from `self.table` from the database by id.
         """
 
         procedure_name = (
@@ -206,17 +191,11 @@ class BaseService(
             else self.delete_procedure_id_parameter
         )
 
-        if isinstance(identifier, UUID):
-            identifier: str = str(identifier)  # type: ignore
-
-        response: int = await self._db.execute_stored_procedure(
-            query=f"""
-                EXEC dbo.{procedure_name} @auth = ?, @{procedure_id_param} = ?
-            """,
-            values=(
-                auth_key,
-                identifier,
-            ),
+        ret_value: int = await self._db.execute_sproc(
+            procedure_name, {procedure_id_param: identifier}, auth_key=auth_key
         )
 
-        return response != -1
+        if ret_value == 0:
+            raise InvalidAuthenticationKeyForRequest()
+        elif ret_value == -1:
+            raise InternalDatabaseError()

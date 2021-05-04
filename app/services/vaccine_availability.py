@@ -1,7 +1,6 @@
 from typing import List, Optional, Type
 from uuid import UUID
 
-from app.schemas.misc import FilterParamsBase
 from app.schemas.vaccine_availability import (
     VaccineAvailabilityCreateRequest,
     VaccineAvailabilityExpandedResponse,
@@ -19,9 +18,13 @@ class VaccineAvailabilityService(
         VaccineAvailabilityUpdateRequest,
     ]
 ):
+    read_procedure_name = "vaccine_availability_Read"
     read_procedure_id_parameter = "availabilityID"
+    create_procedure_name = "vaccine_availability_Create"
+    update_procedure_name = "vaccine_availability_Update"
+    update_procedure_id_parameter = "entryID"
     delete_procedure_name = "vaccine_availability_Delete"
-    delete_procedure_id_parameter = "availabilityID"
+    delete_procedure_id_parameter = "avaliabilityID"
 
     @property
     def table(self) -> str:
@@ -78,9 +81,9 @@ class VaccineAvailabilityService(
         return vaccine_availability
 
     async def get_multi_expanded(
-        self, filters: Optional[FilterParamsBase] = None
+        self,
     ) -> List[VaccineAvailabilityExpandedResponse]:
-        vaccine_availabilities = await super().get_multi(filters=filters)
+        vaccine_availabilities = await super().get_multi()
 
         # TODO: should be done all at once instead of in a for loop
         vaccine_availabilities_expanded: List[

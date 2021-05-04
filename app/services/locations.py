@@ -1,13 +1,11 @@
 from typing import List, Optional, Type
 
-from app.schemas.addresses import AddressFilterParams
 from app.schemas.locations import (
     LocationCreateRequest,
     LocationExpandedResponse,
     LocationResponse,
     LocationUpdateRequest,
 )
-from app.schemas.misc import FilterParamsBase
 from app.services.addresses import AddressService
 from app.services.base import BaseService
 from app.services.organizations import OrganizationService
@@ -16,7 +14,11 @@ from app.services.organizations import OrganizationService
 class LocationService(
     BaseService[LocationResponse, LocationCreateRequest, LocationUpdateRequest]
 ):
+    read_procedure_name = "locations_Read"
     read_procedure_id_parameter = "locationID"
+    create_procedure_name = "locations_Create"
+    update_procedure_name = "locations_Update"
+    update_procedure_id_parameter = "locationID"
     delete_procedure_name = "locations_Delete"
     delete_procedure_id_parameter = "locationID"
 
@@ -72,10 +74,8 @@ class LocationService(
 
         return location
 
-    async def get_multi_expanded(
-        self, filters: Optional[FilterParamsBase] = None
-    ) -> List[LocationExpandedResponse]:
-        locations = await super().get_multi(filters)
+    async def get_multi_expanded(self) -> List[LocationExpandedResponse]:
+        locations = await super().get_multi()
 
         # TODO: should be done all at once instead of in a for loop
         locations_expanded: List[LocationExpandedResponse] = []
@@ -83,9 +83,7 @@ class LocationService(
         address_ids = [l.address for l in locations]
         organization_ids = [l.organization for l in locations]
 
-        addresses = AddressService(self._db).get_multi(
-            filters=AddressFilterParams(ids=address_ids, match_type="exact")
-        )
+        addresses = await AddressService(self._db).get_multi()
         # for location in locations:
         #     address = None
         #     if location.address is not None:

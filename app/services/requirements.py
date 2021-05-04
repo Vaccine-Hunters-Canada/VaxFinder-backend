@@ -15,7 +15,11 @@ class RequirementService(
         RequirementsUpdateRequest,
     ]
 ):
+    read_procedure_name = "requirements_Read"
     read_procedure_id_parameter = "requirementID"
+    create_procedure_name = "requirements_Create"
+    update_procedure_name = "requirements_Update"
+    update_procedure_id_parameter = "requirementID"
     delete_procedure_name = "requirements_Delete"
     delete_procedure_id_parameter = "requirementID"
 

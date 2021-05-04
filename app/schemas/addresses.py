@@ -3,13 +3,6 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from app.schemas.misc import FilterParamsBase
-
-
-class AddressFilterParams(FilterParamsBase):
-    postalCode: Optional[str]
-    ids: List[int]
-
 
 class AddressResponseBase(BaseModel):
     line1: Optional[str]
@@ -31,4 +24,3 @@ class AddressCreateRequest(AddressResponseBase):
 
 class AddressUpdateRequest(AddressResponseBase):
     id: int
-    auth: str
