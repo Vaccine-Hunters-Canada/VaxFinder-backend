@@ -3,12 +3,6 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from app.schemas.misc import FilterParamsBase
-
-
-class OrganizationFilterParams(FilterParamsBase):
-    name: str
-
 
 class OrganizationBase(BaseModel):
     full_name: Optional[str]

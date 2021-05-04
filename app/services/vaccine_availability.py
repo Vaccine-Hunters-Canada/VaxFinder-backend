@@ -1,17 +1,14 @@
 from typing import List, Optional, Type
 from uuid import UUID
 
-from app.schemas.misc import FilterParamsBase
 from app.schemas.vaccine_availability import (
+    VaccineAvailabilityCreateRequest,
     VaccineAvailabilityExpandedResponse,
     VaccineAvailabilityResponse,
-    VaccineAvailabilityCreateRequest,
     VaccineAvailabilityUpdateRequest,
 )
 from app.services.base import BaseService
 from app.services.locations import LocationService
-from app.services.organizations import OrganizationService
-from loguru import logger
 
 
 class VaccineAvailabilityService(
@@ -21,7 +18,13 @@ class VaccineAvailabilityService(
         VaccineAvailabilityUpdateRequest,
     ]
 ):
+    read_procedure_name = "vaccine_availability_Read"
     read_procedure_id_parameter = "availabilityID"
+    create_procedure_name = "vaccine_availability_Create"
+    update_procedure_name = "vaccine_availability_Update"
+    update_procedure_id_parameter = "entryID"
+    delete_procedure_name = "vaccine_availability_Delete"
+    delete_procedure_id_parameter = "avaliabilityID"
 
     @property
     def table(self) -> str:
@@ -38,12 +41,11 @@ class VaccineAvailabilityService(
     @property
     def update_response_schema(self) -> Type[VaccineAvailabilityUpdateRequest]:
         return VaccineAvailabilityUpdateRequest
-    
+
     async def _expand(
-        self,
-        vaccine_availability: VaccineAvailabilityResponse
+        self, vaccine_availability: VaccineAvailabilityResponse
     ) -> VaccineAvailabilityExpandedResponse:
-        location = await LocationService(self._db).get_by_id_expanded(
+        location = await LocationService(self._db).get_expanded(
             vaccine_availability.location
         )
         assert (
@@ -54,35 +56,42 @@ class VaccineAvailabilityService(
             """
 
         vaccine_availability_expanded = vaccine_availability.dict()
-        vaccine_availability_expanded.update({
-            'location': location,
-        })
-        
+        vaccine_availability_expanded.update(
+            {
+                "location": location,
+            }
+        )
+
         # logger.critical(vaccine_availability_expanded)
 
         return VaccineAvailabilityExpandedResponse(
             **vaccine_availability_expanded
         )
-        
 
-    async def get_by_id_expanded(
+    async def get_expanded(
         self, id: UUID
     ) -> Optional[VaccineAvailabilityExpandedResponse]:
-        vaccine_availability = await super().get_by_id(id)
+        vaccine_availability = await super().get(id)
 
         if vaccine_availability is not None:
-            return await self._expand(vaccine_availability=vaccine_availability)
+            return await self._expand(
+                vaccine_availability=vaccine_availability
+            )
 
         return vaccine_availability
 
-    async def get_all_expanded(
-        self, filters: Optional[FilterParamsBase] = None
+    async def get_multi_expanded(
+        self,
     ) -> List[VaccineAvailabilityExpandedResponse]:
-        vaccine_availabilities = await super().get_all(filters=filters)
+        vaccine_availabilities = await super().get_multi()
 
         # TODO: should be done all at once instead of in a for loop
-        vaccine_availabilities_expanded: List[VaccineAvailabilityExpandedResponse] = []
+        vaccine_availabilities_expanded: List[
+            VaccineAvailabilityExpandedResponse
+        ] = []
         for vaccine_availability in vaccine_availabilities:
-            vaccine_availabilities_expanded.append(await self._expand(vaccine_availability))
+            vaccine_availabilities_expanded.append(
+                await self._expand(vaccine_availability)
+            )
 
         return vaccine_availabilities_expanded

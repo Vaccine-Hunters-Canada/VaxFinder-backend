@@ -1,10 +1,11 @@
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Optional
+from uuid import UUID
+
+from fastapi import HTTPException, Security, status
+from fastapi.security import APIKeyHeader
+
 from app.core.config import settings
 from app.db.database import MSSQLBackend, MSSQLConnection
-from fastapi.security import APIKeyHeader
-from fastapi import Security, HTTPException, status
-from typing import Optional
-from uuid import UUID
 
 auth_header = APIKeyHeader(name="Authorization", auto_error=False)
 
@@ -26,7 +27,7 @@ async def get_db() -> AsyncGenerator[MSSQLConnection, None]:
 
 
 async def get_api_key(
-    auth_value: Optional[str] = Security(auth_header)
+    auth_value: Optional[str] = Security(auth_header),
 ) -> UUID:
     """
     Returns an API key from the Authorization header. The syntax for this
@@ -52,7 +53,7 @@ async def get_api_key(
         # Give generic error for security reasons
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials."
+            detail="Invalid credentials.",
         )
 
     return auth_credentials

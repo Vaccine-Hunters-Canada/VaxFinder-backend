@@ -1,18 +1,21 @@
 import importlib
-from typing import Union, Any, Tuple, Dict, List, Mapping, Optional
+from typing import Any, Dict, List, Optional, Tuple, Union
+from uuid import UUID
 
 import aioodbc
 import sqlalchemy
 from aioodbc import Connection, Pool
 from databases.core import DatabaseURL
-from databases.interfaces import (ConnectionBackend, DatabaseBackend,
-                                  TransactionBackend)
+from databases.interfaces import (
+    ConnectionBackend,
+    DatabaseBackend,
+    TransactionBackend,
+)
 from loguru import logger
 from sqlalchemy.engine.interfaces import Dialect, ExecutionContext
 from sqlalchemy.engine.result import ResultMetaData, RowProxy
 from sqlalchemy.sql import ClauseElement
 from sqlalchemy.sql.elements import TextClause
-from pyodbc import Row
 
 
 class MSSQLBackend(DatabaseBackend):
@@ -109,7 +112,7 @@ class MSSQLConnection(ConnectionBackend):
         self._dialect = dialect
         self._connection: Connection = None
 
-    async def acquire(self, autocommit: bool =False) -> None:
+    async def acquire(self, autocommit: bool = False) -> None:
         assert self._connection is None, "Connection is already acquired"
         assert (
             self._database.pool is not None
@@ -126,7 +129,7 @@ class MSSQLConnection(ConnectionBackend):
         self._connection = None
 
     async def fetch_all(
-        self, query: ClauseElement
+        self, query: Union[ClauseElement, str]
     ) -> List[RowProxy]:
         assert self._connection is not None, "Connection is not acquired"
         query, args, context = self._compile(query)
@@ -144,9 +147,7 @@ class MSSQLConnection(ConnectionBackend):
                 for row in rows
             ]
 
-    async def fetch_one(
-        self, query: ClauseElement
-    ) -> Optional[RowProxy]:
+    async def fetch_one(self, query: ClauseElement) -> Optional[RowProxy]:
         assert self._connection is not None, "Connection is not acquired"
         query, args, context = self._compile(query)
         async with await self._connection.cursor() as cursor:
@@ -171,13 +172,6 @@ class MSSQLConnection(ConnectionBackend):
             else:
                 await cursor.execute(query)
             return cursor.rowcount
-    
-    async def execute_stored_procedure(self, query: ClauseElement, values: Tuple[Any, ...]) -> Tuple[int]:
-        assert self._connection is not None, 'Connection is not acquired'
-        query, _, _ = self._compile(query)
-        async with await self._connection.cursor() as cursor:
-            await cursor.execute(query, values)
-            return await cursor.fetchone()
 
     async def execute_many(self, queries: List[ClauseElement]) -> None:
         assert self._connection is not None, "Connection is not acquired"
@@ -188,6 +182,113 @@ class MSSQLConnection(ConnectionBackend):
                     await cursor.execute(single_query, *args)
                 else:
                     await cursor.execute(single_query)
+
+    @staticmethod
+    def _sproc_execute_parameters(
+        procname: str,
+        parameters: Dict[str, Any],
+        auth_key: Optional[UUID] = None,
+    ) -> Tuple[str, List[Any]]:
+        params_markers = [f"@{param_key}=?" for param_key in parameters.keys()]
+        params_values = list(parameters.values())
+        if auth_key is not None:
+            params_markers.insert(0, "@auth=?")
+            params_values.insert(0, auth_key)
+        query = f"""DECLARE @rc int
+                EXEC @rc =  dbo.{procname} {','.join(params_markers)}
+                SELECT @rc
+            """
+        return query, params_values
+
+    async def execute_sproc(
+        self,
+        procname: str,
+        parameters: Dict[str, Any],
+        auth_key: Optional[UUID] = None,
+    ) -> Any:
+        """
+        Execute a stored procedure (sproc), where the first value is returned.
+        :param procname: The name of the sproc.
+        :param parameters: A dictionary, where the keys are the variables for
+        the sproc and the values are the values to be used during execution.
+        :param auth_key: An authentication key to execute the sproc.
+        :return: The returned value from the stored procedure.
+        """
+        assert self._connection is not None, "Connection is not acquired"
+        query, params_values = self._sproc_execute_parameters(
+            procname, parameters, auth_key
+        )
+        async with await self._connection.cursor() as cursor:
+            await cursor.execute(query, params_values)
+            ret_value = await cursor.fetchone()
+            return ret_value[0]
+
+    async def sproc_fetch_one(
+        self,
+        procname: str,
+        parameters: Dict[str, Any],
+        auth_key: Optional[UUID] = None,
+    ) -> Tuple[Any, Optional[Dict[str, Any]]]:
+        """
+        Execute a stored procedure (sproc), where one row is returned.
+        :param procname: The name of the sproc.
+        :param parameters: A dictionary, where the keys are the variables for
+        the sproc and the values are the values to be used during execution.
+        :param auth_key: An authentication key to execute the sproc.
+        :return: A tuple. The first value is the returned value from the stored
+        procedure. The second value is a dictionary of a row, where the keys
+        are the column names and the corresponding values are the values. None
+        if the execution didn't succeed.
+        """
+        assert self._connection is not None, "Connection is not acquired"
+        query, params_values = self._sproc_execute_parameters(
+            procname, parameters, auth_key
+        )
+        async with await self._connection.cursor() as cursor:
+            await cursor.execute(query, params_values)
+            row = await cursor.fetchone()
+            row_description = cursor.description
+            await cursor.nextset()
+            ret_value = await cursor.fetchone()
+            if row is None:
+                return ret_value[0], row
+            return ret_value[0], dict(
+                zip([column[0] for column in row_description], row)
+            )
+
+    async def sproc_fetch_many(
+        self,
+        procname: str,
+        parameters: Dict[str, Any],
+        auth_key: Optional[UUID] = None,
+    ) -> Tuple[Any, Optional[List[Dict[str, Any]]]]:
+        """
+        Execute a stored procedure (sproc), where many rows are returned.
+        :param procname: The name of the sproc.
+        :param parameters: A dictionary, where the keys are the variables for
+        the sproc and the values are the values to be used during execution.
+        :param auth_key: An authentication key to execute the sproc.
+        :return: A tuple. The first value is the returned value from the stored
+        procedure. The second value is a list of rows with each row being a
+        dictionary, where the keys are the column names and the corresponding
+        values are the values. None if the execution didn't succeed.
+        """
+        assert self._connection is not None, "Connection is not acquired"
+        query, params_values = self._sproc_execute_parameters(
+            procname, parameters, auth_key
+        )
+        async with await self._connection.cursor() as cursor:
+            await cursor.execute(query, params_values)
+            rows = await cursor.fetchall()
+            rows_description = cursor.description
+            await cursor.nextset()
+            ret_value = await cursor.fetchone()
+            if rows is None:
+                return ret_value[0], rows
+            return ret_value[0], [
+                dict(zip([column[0] for column in rows_description], row))
+                for row in rows
+            ]
 
     def transaction(self) -> "MSSQLTransaction":
         return MSSQLTransaction(self)
@@ -212,7 +313,11 @@ class MSSQLConnection(ConnectionBackend):
 
         args_values = list(args.values())
         logger.debug(f"Query: {compiled.string}\nArgs: {args_values}")
-        return compiled.string, args_values, CompilationContext(execution_context)
+        return (
+            compiled.string,
+            args_values,
+            CompilationContext(execution_context),
+        )
 
     @property
     def raw_connection(self) -> Connection:

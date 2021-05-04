@@ -1,16 +1,11 @@
 from datetime import date, datetime
-from typing import Optional, Union, List
+from typing import List, Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel
 
 from app.schemas.enums import InputTypeEnum
 from app.schemas.locations import LocationExpandedResponse
-from app.schemas.misc import FilterParamsBase
-
-
-class VaccineAvailabilityFilterParams(FilterParamsBase):
-    postalCode: str
 
 
 class VaccineAvailabilityResponseBase(BaseModel):
@@ -64,14 +59,11 @@ class VaccineAvailabilityTimeslotUpdateRequest(BaseModel):
     taken_at: Optional[datetime]
 
 
-class VaccineAvailabilityTimeslotFilterParams(FilterParamsBase):
-    vaccine_availability: UUID
-
-
 # endregion
 
 # ------------------------- Requirements -------------------------
 # region
+
 
 class VaccineAvailabilityRequirementsResponse(BaseModel):
     id: int
@@ -89,6 +81,4 @@ class VaccineAvailabilityRequirementsUpdateRequest(BaseModel):
     active: bool
 
 
-class VaccineAvailabilityRequirementsFilterParams(FilterParamsBase):
-    vaccine_availability: UUID
 # endregion

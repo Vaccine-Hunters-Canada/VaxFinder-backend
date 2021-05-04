@@ -1,22 +1,27 @@
-from typing import Optional, Type
-
-from loguru import logger
+from typing import Type
 
 from app.schemas.organizations import (
     OrganizationCreateRequest,
     OrganizationResponse,
-    OrganizationUpdateRequest
+    OrganizationUpdateRequest,
 )
 from app.services.base import BaseService
 
 
 class OrganizationService(
     BaseService[
-        OrganizationResponse, OrganizationCreateRequest, OrganizationUpdateRequest
+        OrganizationResponse,
+        OrganizationCreateRequest,
+        OrganizationUpdateRequest,
     ]
 ):
+    read_procedure_name = "organizations_Read"
     read_procedure_id_parameter = "organizationID"
+    create_procedure_name = "organizations_Create"
+    update_procedure_name = "organizations_Update"
     update_procedure_id_parameter = "organizationID"
+    delete_procedure_name = "organizations_Delete"
+    delete_procedure_id_parameter = "organizationID"
 
     @property
     def table(self) -> str:
