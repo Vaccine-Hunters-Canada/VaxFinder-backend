@@ -21,8 +21,11 @@ router = APIRouter()
 
 @router.get("", response_model=List[OrganizationResponse])
 async def list_organizations(
-    name: str = "", db: MSSQLConnection = Depends(get_db)
+    db: MSSQLConnection = Depends(get_db),
 ) -> List[OrganizationResponse]:
+    """
+    **Retrieves the list of organizations.**
+    """
     # TODO: Filter by name
     return await OrganizationService(db).get_multi()
 
@@ -40,6 +43,10 @@ async def list_organizations(
 async def retrieve_organization_by_id(
     organization_id: int, db: MSSQLConnection = Depends(get_db)
 ) -> OrganizationResponse:
+    """
+    **Retrieves an organization with the id from the `organization_id` path
+    parameter.**
+    """
     organization = await OrganizationService(db).get(organization_id)
     if organization is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -61,6 +68,11 @@ async def create_organization(
     db: MSSQLConnection = Depends(get_db),
     api_key: UUID = Depends(get_api_key),
 ) -> OrganizationResponse:
+    """
+    **Creates a new organization with the entity enclosed in the request
+    body.** On success, the new organization is returned in the body of the
+    response.
+    """
     try:
         organization = await OrganizationService(db).create(body, api_key)
     except InvalidAuthenticationKeyForRequest as e:
@@ -90,6 +102,11 @@ async def update_organization(
     db: MSSQLConnection = Depends(get_db),
     api_key: UUID = Depends(get_api_key),
 ) -> OrganizationResponse:
+    """
+    **Updates an organization with the id from the `organization_id` path
+    parameter with the entity enclosed in the request body.** On success,
+    the updated organization is returned in the body of the response.
+    """
     # Check if organization with the id exists
     organization = await OrganizationService(db).get(organization_id)
     if not organization:
@@ -130,8 +147,8 @@ async def delete_organization_by_id(
     api_key: UUID = Depends(get_api_key),
 ) -> Response:
     """
-    Deletes an organization with the id from the `organization_id` path
-    parameter.
+    **Deletes an organization with the id from the `organization_id` path
+    parameter.**
     """
     # Check if organization with the id exists
     organization = await OrganizationService(db).get(organization_id)

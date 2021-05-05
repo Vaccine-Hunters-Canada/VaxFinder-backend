@@ -21,8 +21,11 @@ router = APIRouter()
 
 @router.get("", response_model=List[AddressResponse])
 async def list_addresses(
-    postal_code: str = "", db: MSSQLConnection = Depends(get_db)
+    db: MSSQLConnection = Depends(get_db),
 ) -> List[AddressResponse]:
+    """
+    **Retrieves the list of addresses.**
+    """
     # TODO: Filter by postal code and requirements
     return await AddressService(db).get_multi()
 
@@ -40,6 +43,9 @@ async def list_addresses(
 async def retrieve_address_by_id(
     address_id: int, db: MSSQLConnection = Depends(get_db)
 ) -> AddressResponse:
+    """
+    **Retrieves an address with the id from the `address_id` path parameter.**
+    """
     address = await AddressService(db).get(address_id)
     if address is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -61,6 +67,10 @@ async def create_address(
     db: MSSQLConnection = Depends(get_db),
     api_key: UUID = Depends(get_api_key),
 ) -> AddressResponse:
+    """
+    **Creates a new address with the entity enclosed in the request body.** On
+    success, the new address is returned in the body of the response.
+    """
     try:
         address = await AddressService(db).create(body, api_key)
     except InvalidAuthenticationKeyForRequest as e:
@@ -90,6 +100,11 @@ async def update_address(
     db: MSSQLConnection = Depends(get_db),
     api_key: UUID = Depends(get_api_key),
 ) -> AddressResponse:
+    """
+    **Updates an address with the id from the `address_id` path parameter with
+    the entity enclosed in the request body.** On success, the updated address
+    is returned in the body of the response.
+    """
     # Check if address with the id exists
     address = await AddressService(db).get(address_id)
     if not address:
@@ -128,7 +143,7 @@ async def delete_address_by_id(
     api_key: UUID = Depends(get_api_key),
 ) -> Response:
     """
-    Deletes an address with the id from the `address_id` path parameter.
+    **Deletes an address with the id from the `address_id` path parameter.**
     """
     # Check if address with the id exists
     address = await AddressService(db).get(address_id)
