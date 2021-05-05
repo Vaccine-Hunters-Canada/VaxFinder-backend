@@ -1,6 +1,6 @@
+from datetime import datetime, timedelta
 from typing import List
 from uuid import UUID
-from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 
@@ -36,7 +36,7 @@ router = APIRouter()
 @router.get("", response_model=List[VaccineAvailabilityExpandedResponse])
 async def list_vaccine_availability(
     postal_code: str = "",
-    min_date: datetime = datetime.now() - timedelta(days=30*365),
+    min_date: datetime = datetime.now() - timedelta(days=30 * 365),
     db: MSSQLConnection = Depends(get_db),
 ) -> List[VaccineAvailabilityExpandedResponse]:
     rows = await VaccineAvailabilityService(db).get_multi_filtered(

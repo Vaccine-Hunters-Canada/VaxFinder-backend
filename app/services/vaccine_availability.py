@@ -1,6 +1,7 @@
+from datetime import datetime
 from typing import List, Optional, Type
 from uuid import UUID
-from datetime import datetime
+
 from loguru import logger
 
 from app.schemas.vaccine_availability import (
@@ -83,21 +84,18 @@ class VaccineAvailabilityService(
         return vaccine_availability
 
     async def get_multi_filtered(
-        self,
-        postal_code: str,
-        min_date: datetime
+        self, postal_code: str, min_date: datetime
     ) -> Optional[List[VaccineAvailabilityExpandedResponse]]:
         _, rows = await self._db.sproc_fetch_all(
-            procname='GetAvailableVaccines',
-            parameters={
-                'postal': postal_code,
-                'date': min_date
-            },
-            auth_key=None
+            procname="GetAvailableVaccines",
+            parameters={"postal": postal_code, "date": min_date},
+            auth_key=None,
         )
 
         if rows is not None:
-            vaccine_availabilities = [VaccineAvailabilityResponse(**r) for r in rows]
+            vaccine_availabilities = [
+                VaccineAvailabilityResponse(**r) for r in rows
+            ]
             vaccine_availabilities_expanded: List[
                 VaccineAvailabilityExpandedResponse
             ] = []
@@ -107,7 +105,6 @@ class VaccineAvailabilityService(
                 )
             return vaccine_availabilities_expanded
         return rows
-        
 
     async def get_multi_expanded(
         self,
