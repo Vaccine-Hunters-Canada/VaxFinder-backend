@@ -51,7 +51,7 @@ async def startup() -> None:
 
 @app.on_event("shutdown")
 async def shutdown() -> None:
-    db.disconnect()
+    await db.disconnect()
 
 
 # --- Routes ---
