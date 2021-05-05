@@ -22,8 +22,11 @@ router = APIRouter()
 
 @router.get("", response_model=List[LocationExpandedResponse])
 async def list_locations(
-    postal_code: str = "", db: MSSQLConnection = Depends(get_db)
+    db: MSSQLConnection = Depends(get_db),
 ) -> List[LocationExpandedResponse]:
+    """
+    **Retrieves the list of locations.**
+    """
     # TODO: Filter by postal code
     return await LocationService(db).get_multi_expanded()
 
@@ -41,6 +44,10 @@ async def list_locations(
 async def retrieve_location_by_id(
     location_id: int, db: MSSQLConnection = Depends(get_db)
 ) -> LocationExpandedResponse:
+    """
+    **Retrieves a location with the id from the `location_id` path
+    parameter.**
+    """
     location = await LocationService(db).get_expanded(location_id)
     if location is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -62,6 +69,10 @@ async def create_location(
     db: MSSQLConnection = Depends(get_db),
     api_key: UUID = Depends(get_api_key),
 ) -> LocationResponse:
+    """
+    **Creates a new location with the entity enclosed in the request body.** On
+    success, the new location is returned in the body of the response.
+    """
     try:
         location = await LocationService(db).create(body, api_key)
     except InvalidAuthenticationKeyForRequest as e:
@@ -91,6 +102,11 @@ async def update_location(
     db: MSSQLConnection = Depends(get_db),
     api_key: UUID = Depends(get_api_key),
 ) -> LocationResponse:
+    """
+    **Updates a location with the id from the `location_id` path parameter
+    with the entity enclosed in the request body.** On success, the updated
+    location is returned in the body of the response.
+    """
     # Check if location with the id exists
     location = await LocationService(db).get(location_id)
     if not location:
@@ -129,7 +145,7 @@ async def delete_location_by_id(
     api_key: UUID = Depends(get_api_key),
 ) -> Response:
     """
-    Deletes a location with the id from the `location_id` path parameter.
+    **Deletes a location with the id from the `location_id` path parameter.**
     """
     # Check if location with the id exists
     location = await LocationService(db).get(location_id)

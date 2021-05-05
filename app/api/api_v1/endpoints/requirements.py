@@ -23,6 +23,9 @@ router = APIRouter()
 async def list_requirements(
     db: MSSQLConnection = Depends(get_db),
 ) -> List[RequirementResponse]:
+    """
+    **Retrieves the list of requirements.**
+    """
     return await RequirementService(db).get_multi()
 
 
@@ -39,6 +42,10 @@ async def list_requirements(
 async def retrieve_requirement_by_id(
     requirement_id: int, db: MSSQLConnection = Depends(get_db)
 ) -> RequirementResponse:
+    """
+    **Retrieves a requirement with the id from the `requirement_id` path
+    parameter.**
+    """
     requirement = await RequirementService(db).get(requirement_id)
     if requirement is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -60,6 +67,11 @@ async def create_requirement(
     db: MSSQLConnection = Depends(get_db),
     api_key: UUID = Depends(get_api_key),
 ) -> RequirementResponse:
+    """
+    **Creates a new requirement with the entity enclosed in the request
+    body.** On success, the new requirement is returned in the body of the
+    response.
+    """
     try:
         requirement = await RequirementService(db).create(body, api_key)
     except InvalidAuthenticationKeyForRequest as e:
@@ -89,6 +101,11 @@ async def update_requirement(
     db: MSSQLConnection = Depends(get_db),
     api_key: UUID = Depends(get_api_key),
 ) -> RequirementResponse:
+    """
+    **Updates a requirement with the id from the `requirement_id` path
+    parameter with the entity enclosed in the request body.** On success,
+    the updated requirement is returned in the body of the response.
+    """
     # Check if requirement with the id exists
     requirement = await RequirementService(db).get(requirement_id)
     if not requirement:
@@ -129,8 +146,8 @@ async def delete_requirement_by_id(
     api_key: UUID = Depends(get_api_key),
 ) -> Response:
     """
-    Deletes a requirement with the id from the `requirement_id` path
-    parameter.
+    **Deletes a requirement with the id from the `requirement_id` path
+    parameter.**
     """
     # Check if requirement with the id exists
     requirement = await RequirementService(db).get(requirement_id)

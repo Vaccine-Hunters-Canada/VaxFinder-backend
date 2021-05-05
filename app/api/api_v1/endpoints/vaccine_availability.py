@@ -1,10 +1,17 @@
-from datetime import datetime, timedelta
-from typing import List
+from datetime import datetime, timezone
+from typing import List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Path,
+    Query,
+    Response,
+    status,
+)
 from loguru import logger
-from pydantic import constr
 
 from app.api.dependencies import get_api_key, get_db
 from app.db.database import MSSQLConnection
@@ -38,10 +45,31 @@ router = APIRouter()
 
 @router.get("", response_model=List[VaccineAvailabilityExpandedResponse])
 async def list_vaccine_availability(
-    min_date: datetime,
-    postal_code: str = Query(..., min_length=3, max_length=6),
+    min_date: Optional[datetime] = Query(
+        None,
+        title="Minimum Date",
+        description="**Search for vaccine availabilities after a certain date "
+        "and time (UTC)**. The default value is the current date and time ("
+        "UTC).<br/><br/>Valid example(s): *2021-05-05T21:59:02.961804+00:00*",
+    ),
+    postal_code: str = Query(
+        ...,
+        title="Postal Code",
+        description="**Search for vaccine availabilities within the vicinity "
+        "of a postal code.**<br/><br/>Valid example(s): *K1A; K1A0; K1A0k; "
+        "K1A0K9*",
+        min_length=3,
+        max_length=6,
+    ),
     db: MSSQLConnection = Depends(get_db),
 ) -> List[VaccineAvailabilityExpandedResponse]:
+    """
+    **Retrieves the list of vaccine availabilities within the vicinity of a
+    `postal_code` and after the `min_date`.**
+    """
+    # Done here so the OpenAPI spec doesn't show the wrong default value
+    if min_date is None:
+        min_date = datetime.now(timezone.utc)
     try:
         availabilities = await VaccineAvailabilityService(
             db
@@ -70,6 +98,10 @@ async def list_vaccine_availability(
 async def retrieve_vaccine_availability_by_id(
     vaccine_availability_id: UUID, db: MSSQLConnection = Depends(get_db)
 ) -> VaccineAvailabilityExpandedResponse:
+    """
+    **Retrieves a vaccine availability with the id from the
+    `vaccine_availability_id` path parameter.**
+    """
     entry = await VaccineAvailabilityService(db).get_expanded(
         vaccine_availability_id
     )
@@ -93,6 +125,11 @@ async def create_vaccine_availability(
     db: MSSQLConnection = Depends(get_db),
     api_key: UUID = Depends(get_api_key),
 ) -> VaccineAvailabilityResponse:
+    """
+    **Creates a new vaccine availability with the entity enclosed in the
+    request body.** On success, the new vaccine availability is returned in the
+    body of the response.
+    """
     try:
         availability = await VaccineAvailabilityService(db).create(
             body, api_key
@@ -124,6 +161,12 @@ async def update_vaccine_availability(
     db: MSSQLConnection = Depends(get_db),
     api_key: UUID = Depends(get_api_key),
 ) -> VaccineAvailabilityResponse:
+    """
+    **Updates a vaccine availability with the id from the
+    `vaccine_availability_id` path parameter with the entity enclosed in the
+    request body.** On success, the updated vaccine availability is returned in
+    the body of the response.
+    """
     # Check if vaccine availability with the id exists
     availability = await VaccineAvailabilityService(db).get(
         vaccine_availability_id
@@ -166,8 +209,8 @@ async def delete_vaccine_availability_by_id(
     api_key: UUID = Depends(get_api_key),
 ) -> Response:
     """
-    Deletes a vaccine availability with the id from the
-    `vaccine_availability_id` path parameter.
+    **Deletes a vaccine availability with the id from the
+    `vaccine_availability_id` path parameter.**
     """
     # Check if vaccine availability with the id exists
     availability = await VaccineAvailabilityService(db).get(
@@ -198,9 +241,19 @@ async def delete_vaccine_availability_by_id(
         }
     },
 )
-async def retrieve_vaccine_availability_timeslots(
-    vaccine_availability_id: UUID, db: MSSQLConnection = Depends(get_db)
+async def list_timeslots_for_vaccine_availability_by_id(
+    vaccine_availability_id: UUID = Path(
+        ...,
+        description="Timeslots for a vaccine availability with this id.",
+    ),
+    db: MSSQLConnection = Depends(get_db),
 ) -> List[VaccineAvailabilityTimeslotResponse]:
+    """
+    **Retrieves the list of timeslots for a vaccine availability. This
+    vaccine availability has an ID of `vaccine_availability_id` from the
+    path.**
+    """
+    # TODO: Filter by vaccine availability
     timeslots = await VaccineAvailabilityTimeslotService(db).get_multi()
     if timeslots is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -217,12 +270,22 @@ async def retrieve_vaccine_availability_timeslots(
         },
     },
 )
-async def create_vaccine_availability_timeslot(
-    vaccine_availability_id: UUID,
+async def create_timeslot_for_vaccine_availability_by_id(
     body: VaccineAvailabilityTimeslotCreateRequest,
+    vaccine_availability_id: UUID = Path(
+        ...,
+        description="Timeslot for a vaccine availability with this id.",
+    ),
     db: MSSQLConnection = Depends(get_db),
     api_key: UUID = Depends(get_api_key),
 ) -> VaccineAvailabilityTimeslotResponse:
+    """
+    **Creates a new timeslot for a vaccine availability with the entity
+    enclosed in the request body. This vaccine availability has an ID of
+    `vaccine_availability_id` from the path.** On success, the new timeslot is
+    returned in the body of the response.
+    """
+    # TODO: Check vaccine_availability_id against body
     try:
         timeslot = await VaccineAvailabilityTimeslotService(db).create(
             body, api_key
@@ -250,13 +313,24 @@ async def create_vaccine_availability_timeslot(
         },
     },
 )
-async def update_vaccine_availability_timeslot(
-    vaccine_availability_id: UUID,
+async def update_timeslot_for_vaccine_availability_by_id(
     timeslot_id: UUID,
     body: VaccineAvailabilityTimeslotUpdateRequest,
+    vaccine_availability_id: UUID = Path(
+        ...,
+        description="Timeslot for a vaccine availability with this id.",
+    ),
     db: MSSQLConnection = Depends(get_db),
     api_key: UUID = Depends(get_api_key),
 ) -> VaccineAvailabilityTimeslotResponse:
+    """
+    **Updates a timeslot with the id from the `timeslot_id` path parameter
+    with the entity enclosed in the request body. The timeslot must be
+    for a vaccine availability that has an ID of `vaccine_availability_id`
+    from the path.** On success, the updated timeslot is returned in the body
+    of the response.
+    """
+    # TODO: Check vaccine_availability_id against body
     # Check if timeslot with the id exists
     timeslot = await VaccineAvailabilityTimeslotService(db).get(timeslot_id)
     if not timeslot:
@@ -273,64 +347,6 @@ async def update_vaccine_availability_timeslot(
     return timeslot
 
 
-# TODO: This can be commented out once vaccine availability timeslot has a
-#  delete stored procedure
-# @router.delete(
-#     "/{vaccine_availability_id}/timeslots/{timeslot_id}",
-#     status_code=status.HTTP_204_NO_CONTENT,
-#     responses={
-#         status.HTTP_204_NO_CONTENT: {
-#             "description": "The vaccine availability timeslot with the id "
-#                            "from the `timeslot_id` path parameter has been "
-#                            "successfully deleted. "
-#         },
-#         status.HTTP_401_UNAUTHORIZED: {
-#             "description": "Invalid credentials."
-#         },
-#         status.HTTP_404_NOT_FOUND: {
-#             "description": "The vaccine availability with the id from the "
-#                            "`vaccine_availability_id` path parameter or "
-#                            "the timeslot with the id from the `timeslot_id` "
-#                            "path parameter could not be found."
-#         }
-#     },
-# )
-# async def delete_vaccine_availability_by_id(
-#     vaccine_availability_id: int,
-#     timeslot_id: int,
-#     db: MSSQLConnection = Depends(get_db),
-#     api_key: UUID = Depends(get_api_key)
-# ) -> Response:
-#     """
-#     Deletes a vaccine availability timeslot with the id from the
-#     `timeslot_id` path parameter. This timeslot must be under a
-#     vaccine availability with the id from the `vaccine_availability_id`
-#     path parameter.
-#     """
-#     # Check if vaccine availability with the id exists
-#     vaccine_availability = await VaccineAvailabilityService(db).get_by_id(
-#         vaccine_availability_id
-#     )
-#     if not vaccine_availability:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-#     # Check if timeslot with the id exists
-#     timeslot = await VaccineAvailabilityTimeslotService(db).get_by_id(
-#        timeslot_id
-#     )
-#     if not timeslot or timeslot:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-#     # Perform deletion
-#     deleted = await VaccineAvailabilityService(db).delete_by_id(
-#         timeslot_id,
-#         api_key
-#     )
-#     if not deleted:
-#         raise HTTPException(
-#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-#         )
-#     return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
 # ------------------------- Requirements -------------------------
 @router.get(
     "/{vaccine_availability_id}/requirements",
@@ -338,13 +354,23 @@ async def update_vaccine_availability_timeslot(
     responses={
         status.HTTP_404_NOT_FOUND: {
             "description": "The vaccine availability with the specified id "
-            "could not be found. "
+            "could not be found."
         }
     },
 )
-async def retrieve_vaccine_availability_requirements(
-    vaccine_availability_id: UUID, db: MSSQLConnection = Depends(get_db)
+async def list_requirements_for_vaccine_availability_by_id(
+    vaccine_availability_id: UUID = Path(
+        ...,
+        description="Requirements for a vaccine availability with this id.",
+    ),
+    db: MSSQLConnection = Depends(get_db),
 ) -> List[VaccineAvailabilityRequirementsResponse]:
+    """
+    **Retrieves the list of requirements for a vaccine availability. This
+    vaccine availability has an ID of `vaccine_availability_id` from the
+    path.**
+    """
+    # TODO: Filter by vaccine availability
     requirements = await VaccineAvailabilityRequirementService(db).get_multi()
     if requirements is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -361,12 +387,22 @@ async def retrieve_vaccine_availability_requirements(
         },
     },
 )
-async def create_vaccine_availability_requirement(
-    vaccine_availability_id: UUID,
+async def create_requirement_for_vaccine_availability_by_id(
     body: VaccineAvailabilityRequirementsCreateRequest,
+    vaccine_availability_id: UUID = Path(
+        ...,
+        description="Requirement for a vaccine availability with this id.",
+    ),
     db: MSSQLConnection = Depends(get_db),
     api_key: UUID = Depends(get_api_key),
 ) -> VaccineAvailabilityRequirementsResponse:
+    """
+    **Creates a new requirements for a vaccine availability with the entity
+    enclosed in the request body. This vaccine availability has an ID of
+    `vaccine_availability_id` from the path.** On success, the new timeslot is
+    returned in the body of the response.
+    """
+    # TODO: Check vaccine_availability_id against body
     try:
         requirement = await VaccineAvailabilityRequirementService(db).create(
             body, api_key
@@ -395,13 +431,24 @@ async def create_vaccine_availability_requirement(
         },
     },
 )
-async def update_vaccine_availability_requirement(
-    vaccine_availability_id: UUID,
+async def update_requirement_for_vaccine_availability_by_id(
     requirement_id: UUID,
     body: VaccineAvailabilityRequirementsUpdateRequest,
+    vaccine_availability_id: UUID = Path(
+        ...,
+        description="Requirement for a vaccine availability with this id.",
+    ),
     db: MSSQLConnection = Depends(get_db),
     api_key: UUID = Depends(get_api_key),
 ) -> VaccineAvailabilityRequirementsResponse:
+    """
+    **Updates a requirement with the id from the `requirement_id` path
+    parameter with the entity enclosed in the request body. The requirement
+    must be for a vaccine availability that has an ID of
+    `vaccine_availability_id` from the path.** On success, the updated
+    requirement is returned in the body of the response.
+    """
+    # TODO: Check vaccine_availability_id against body
     # Check if vaccine availability requirement with the id exists
     requirement = await VaccineAvailabilityRequirementService(db).get(
         requirement_id
