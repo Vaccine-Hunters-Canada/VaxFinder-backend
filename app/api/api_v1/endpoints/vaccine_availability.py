@@ -2,8 +2,9 @@ from datetime import datetime, timedelta
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from loguru import logger
+from pydantic import constr
 
 from app.api.dependencies import get_api_key, get_db
 from app.db.database import MSSQLConnection
@@ -37,8 +38,8 @@ router = APIRouter()
 
 @router.get("", response_model=List[VaccineAvailabilityExpandedResponse])
 async def list_vaccine_availability(
-    postal_code,
-    min_date,
+    min_date: datetime,
+    postal_code: str = Query(..., min_length=3, max_length=6),
     db: MSSQLConnection = Depends(get_db),
 ) -> List[VaccineAvailabilityExpandedResponse]:
     try:
@@ -301,9 +302,10 @@ async def update_vaccine_availability_timeslot(
 #     api_key: UUID = Depends(get_api_key)
 # ) -> Response:
 #     """
-#     Deletes a vaccine availability timeslot with the id from the `timeslot_id`
-#     path parameter. This timeslot must be under a vaccine availability with the
-#     id from the `vaccine_availability_id` path parameter.
+#     Deletes a vaccine availability timeslot with the id from the
+#     `timeslot_id` path parameter. This timeslot must be under a
+#     vaccine availability with the id from the `vaccine_availability_id`
+#     path parameter.
 #     """
 #     # Check if vaccine availability with the id exists
 #     vaccine_availability = await VaccineAvailabilityService(db).get_by_id(
@@ -323,7 +325,9 @@ async def update_vaccine_availability_timeslot(
 #         api_key
 #     )
 #     if not deleted:
-#         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#         raise HTTPException(
+#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+#         )
 #     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 

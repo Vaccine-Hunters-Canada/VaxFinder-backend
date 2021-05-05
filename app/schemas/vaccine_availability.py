@@ -8,36 +8,6 @@ from app.schemas.enums import InputTypeEnum
 from app.schemas.locations import LocationExpandedResponse
 
 
-class VaccineAvailabilityResponseBase(BaseModel):
-    numberAvailable: Optional[int]
-    numberTotal: Optional[int]
-    date: Optional[date]
-    vaccine: Optional[int]
-    inputType: Optional[InputTypeEnum]
-    tags: Optional[str]
-
-
-class VaccineAvailabilityResponse(VaccineAvailabilityResponseBase):
-    id: Union[UUID, int]
-    location: int
-    created_at: datetime
-
-
-class VaccineAvailabilityExpandedResponse(VaccineAvailabilityResponseBase):
-    id: Union[UUID, int]
-    location: LocationExpandedResponse
-    created_at: datetime
-
-
-class VaccineAvailabilityCreateRequest(VaccineAvailabilityResponseBase):
-    location: int
-
-
-class VaccineAvailabilityUpdateRequest(VaccineAvailabilityResponseBase):
-    id: Union[UUID, int]
-    location: int
-
-
 # ------------------------- Timeslots -------------------------
 # region
 class VaccineAvailabilityTimeslotResponse(BaseModel):
@@ -79,6 +49,41 @@ class VaccineAvailabilityRequirementsCreateRequest(BaseModel):
 
 class VaccineAvailabilityRequirementsUpdateRequest(BaseModel):
     active: bool
+
+
+# endregion
+
+# ----------------------------- Root -----------------------------
+# region
+class VaccineAvailabilityResponseBase(BaseModel):
+    numberAvailable: Optional[int]
+    numberTotal: Optional[int]
+    date: Optional[date]
+    vaccine: Optional[int]
+    inputType: Optional[InputTypeEnum]
+    tags: Optional[str]
+
+
+class VaccineAvailabilityResponse(VaccineAvailabilityResponseBase):
+    id: UUID
+    location: int
+    created_at: datetime
+
+
+class VaccineAvailabilityExpandedResponse(VaccineAvailabilityResponseBase):
+    id: Union[UUID, int]
+    location: LocationExpandedResponse
+    created_at: datetime
+    timeslots: List[VaccineAvailabilityTimeslotResponse]
+
+
+class VaccineAvailabilityCreateRequest(VaccineAvailabilityResponseBase):
+    location: int
+
+
+class VaccineAvailabilityUpdateRequest(VaccineAvailabilityResponseBase):
+    id: Union[UUID, int]
+    location: int
 
 
 # endregion

@@ -2,6 +2,8 @@ from datetime import datetime
 from typing import List, Optional, Type
 from uuid import UUID
 
+from loguru import logger
+
 from app.schemas.addresses import AddressResponse
 from app.schemas.locations import LocationResponse
 from app.schemas.organizations import OrganizationResponse
@@ -9,6 +11,7 @@ from app.schemas.vaccine_availability import (
     VaccineAvailabilityCreateRequest,
     VaccineAvailabilityExpandedResponse,
     VaccineAvailabilityResponse,
+    VaccineAvailabilityTimeslotResponse,
     VaccineAvailabilityUpdateRequest,
 )
 from app.services.base import BaseService
@@ -99,15 +102,17 @@ class VaccineAvailabilityService(
         )
 
         availability_rows = sproc_processed[0]
-        location_rows = sproc_processed[1]
-        address_rows = sproc_processed[2]
-        organization_rows = sproc_processed[3]
+        timeslot_rows = sproc_processed[1]
+        location_rows = sproc_processed[2]
+        address_rows = sproc_processed[3]
+        organization_rows = sproc_processed[4]
 
         if availability_rows is None:
             return []
 
         if (
             ret_val == -1
+            or timeslot_rows is None
             or location_rows is None
             or address_rows is None
             or organization_rows is None
@@ -117,9 +122,18 @@ class VaccineAvailabilityService(
         availabilities: List[VaccineAvailabilityExpandedResponse] = []
         for availability_row in availability_rows:
             availability = VaccineAvailabilityResponse(**availability_row)
+            timeslots = []
             location = None
             address = None
             organization = None
+
+            for timeslot_row in timeslot_rows:
+                timeslot_resp = VaccineAvailabilityTimeslotResponse(
+                    **timeslot_row
+                )
+                if timeslot_resp.vaccine_availability == availability.id:
+                    timeslots.append(timeslot_resp)
+
             for location_row in location_rows:
                 if location_row["id"] == availability.location:
                     location = LocationResponse(**location_row)
@@ -150,6 +164,7 @@ class VaccineAvailabilityService(
             location_dict["address"] = address.dict()
             location_dict["organization"] = organization.dict()
             availability_dict = availability.dict()
+            availability_dict["timeslots"] = timeslots
             availability_dict["location"] = location_dict
             availabilities.append(
                 VaccineAvailabilityExpandedResponse(**availability_dict)
