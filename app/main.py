@@ -1,4 +1,5 @@
 import time
+from typing import List
 
 import uvicorn
 from fastapi import FastAPI
@@ -9,7 +10,7 @@ from app import logging_config
 from app.api.api_v1.api import api_router
 from app.api.openapi_tags import openapi_tags
 from app.core.config import settings
-from app.db.database import MSSQLBackend
+from app.db.database import MSSQLBackend, db
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -36,19 +37,21 @@ app.add_middleware(
 # --- Database Startup Procedure ---
 @app.on_event("startup")
 async def startup() -> None:
-    db = MSSQLBackend(settings.DB_URL)
-
     while True:
         try:
             # check health
             await db.connect()
             logger.info("Database connection established")
-            await db.disconnect()
             break
         except Exception as e:
             logger.critical(e)
             logger.critical("Connecting to database...")
             time.sleep(5)
+
+
+@app.on_event("shutdown")
+async def shutdown() -> None:
+    db.disconnect()
 
 
 # --- Routes ---

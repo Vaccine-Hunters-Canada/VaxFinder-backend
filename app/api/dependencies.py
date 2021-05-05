@@ -5,7 +5,7 @@ from fastapi import HTTPException, Security, status
 from fastapi.security import APIKeyHeader
 
 from app.core.config import settings
-from app.db.database import MSSQLBackend, MSSQLConnection
+from app.db.database import MSSQLConnection, db
 
 auth_header = APIKeyHeader(name="Authorization", auto_error=False)
 
@@ -15,15 +15,13 @@ async def get_db() -> AsyncGenerator[MSSQLConnection, None]:
     Returns a database object that will subsequently be used for making queries
     to the database for each HTTP request.
     """
-    db = MSSQLBackend(settings.DB_URL)
-    await db.connect()
+    connection = db.connection
+
     try:
-        connection = db.connection()
         await connection.acquire(autocommit=True)
         yield connection
     finally:
         await connection.release()
-        await db.disconnect()
 
 
 async def get_api_key(
