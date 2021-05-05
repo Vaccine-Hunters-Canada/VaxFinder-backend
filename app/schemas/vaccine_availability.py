@@ -2,14 +2,12 @@ from datetime import date, datetime
 from typing import List, Optional, Union
 from uuid import UUID
 
-from pydantic import BaseModel
-
+from app.schemas.base import BaseModel
 from app.schemas.enums import InputTypeEnum
 from app.schemas.locations import LocationExpandedResponse
 
 
 # ------------------------- Timeslots -------------------------
-# region
 class VaccineAvailabilityTimeslotResponse(BaseModel):
     id: UUID
     vaccine_availability: UUID
@@ -25,14 +23,10 @@ class VaccineAvailabilityTimeslotCreateRequest(BaseModel):
 
 
 class VaccineAvailabilityTimeslotUpdateRequest(BaseModel):
-    # auth: str
     taken_at: Optional[datetime]
 
 
-# endregion
-
 # ------------------------- Requirements -------------------------
-# region
 
 
 class VaccineAvailabilityRequirementsResponse(BaseModel):
@@ -51,10 +45,7 @@ class VaccineAvailabilityRequirementsUpdateRequest(BaseModel):
     active: bool
 
 
-# endregion
-
 # ----------------------------- Root -----------------------------
-# region
 class VaccineAvailabilityResponseBase(BaseModel):
     numberAvailable: Optional[int]
     numberTotal: Optional[int]
@@ -84,6 +75,3 @@ class VaccineAvailabilityCreateRequest(VaccineAvailabilityResponseBase):
 class VaccineAvailabilityUpdateRequest(VaccineAvailabilityResponseBase):
     id: Union[UUID, int]
     location: int
-
-
-# endregion

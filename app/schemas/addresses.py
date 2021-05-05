@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from app.schemas.base import BaseModel
 
 
 class AddressResponseBase(BaseModel):

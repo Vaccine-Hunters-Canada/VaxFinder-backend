@@ -1,9 +1,8 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
-
 from app.schemas.addresses import AddressResponse
+from app.schemas.base import BaseModel
 from app.schemas.organizations import OrganizationResponse
 
 
