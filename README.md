@@ -1,5 +1,5 @@
 <div align="center">
-    <h1>VaxFinder - Backend</h1>
+    <h1>:syringe: :mag: VaxFinder - Backend</h1>
 </div>
 
 <div align="center">
@@ -9,11 +9,14 @@
 <br/>
 
 <div align="center">
-    <a href="https://www.python.org/downloads/">
+    <a href="https://www.python.org/downloads/release/python-380/">
         <img src="https://img.shields.io/badge/python-3.8-blue.svg" alt="Python 3.8" />
     </a>
     <a href="https://github.com/psf/black">
         <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black" />
+    </a>
+    <a href="https://discord.com/channels/822486436837326908/832366009091358731">
+        <img src="https://img.shields.io/badge/-%23vax--ui--backend-7389D8?logo=discord&logoColor=ffffff&labelColor=6A7EC2" alt="Discord: #vax-ui-backend" />
     </a>
 </div>
 
@@ -21,7 +24,7 @@
 
 ### Prerequisites
 
-1. [Python ~3.8](https://www.python.org/downloads/)
+1. [Python 3.8](https://www.python.org/downloads/release/python-380/)
 2. [Poetry](https://python-poetry.org/): A tool for dependency management and packaging.
 3. Access to VaxFinder's Microsoft SQL Server database hosted on [Azure](https://azure.microsoft.com/en-ca/services/sql-database/). Please message Patrick or Evan for access.
 
@@ -97,7 +100,3 @@ It's possible to disable hooks temporarily, but it isn't recommended.
 ```
 $ SKIP=isort,black git commit -m <message>
 ```
-
-## Production
-
-TBA
