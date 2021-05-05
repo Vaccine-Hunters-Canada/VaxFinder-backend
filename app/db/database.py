@@ -17,6 +17,8 @@ from sqlalchemy.engine.result import ResultMetaData, RowProxy
 from sqlalchemy.sql import ClauseElement
 from sqlalchemy.sql.elements import TextClause
 
+from app.core.config import settings
+
 
 class MSSQLBackend(DatabaseBackend):
     def __init__(
@@ -97,6 +99,7 @@ class MSSQLBackend(DatabaseBackend):
         self._pool.close()
         await self._pool.wait_closed()
 
+    @property
     def connection(self) -> "MSSQLConnection":
         return MSSQLConnection(self, self._dialect)
 
@@ -399,3 +402,6 @@ class MSSQLTransaction(TransactionBackend):
         ), "Connection is not acquired"
         self._connection.raw_connection.rollback()
         self._connection.raw_connection.autocommit = self._original_autocommit
+
+
+db = MSSQLBackend(settings.DB_URL)
