@@ -2,8 +2,9 @@ from datetime import datetime
 from typing import List, Optional, Type
 from uuid import UUID
 
-from loguru import logger
-
+from app.schemas.addresses import AddressResponse
+from app.schemas.locations import LocationResponse
+from app.schemas.organizations import OrganizationResponse
 from app.schemas.vaccine_availability import (
     VaccineAvailabilityCreateRequest,
     VaccineAvailabilityExpandedResponse,
@@ -11,6 +12,10 @@ from app.schemas.vaccine_availability import (
     VaccineAvailabilityUpdateRequest,
 )
 from app.services.base import BaseService
+from app.services.exceptions import (
+    DatabaseNotInSyncError,
+    InternalDatabaseError,
+)
 from app.services.locations import LocationService
 
 
@@ -83,41 +88,70 @@ class VaccineAvailabilityService(
 
         return vaccine_availability
 
-    async def get_multi_filtered(
+    async def get_filtered_multi_expanded(
         self, postal_code: str, min_date: datetime
-    ) -> Optional[List[VaccineAvailabilityExpandedResponse]]:
-        _, rows = await self._db.sproc_fetch_all(
-            procname="GetAvailableVaccines",
+    ) -> List[VaccineAvailabilityExpandedResponse]:
+        procedure_name = "GetAvailableVaccines"
+
+        ret_val, sproc_processed = await self._db.sproc_fetch(
+            procedure_name,
             parameters={"postal": postal_code, "date": min_date},
-            auth_key=None,
         )
 
-        if rows is not None:
-            vaccine_availabilities = [
-                VaccineAvailabilityResponse(**r) for r in rows
-            ]
-            vaccine_availabilities_expanded: List[
-                VaccineAvailabilityExpandedResponse
-            ] = []
-            for vaccine_availability in vaccine_availabilities:
-                vaccine_availabilities_expanded.append(
-                    await self._expand(vaccine_availability)
+        availability_rows = sproc_processed[0]
+        location_rows = sproc_processed[1]
+        address_rows = sproc_processed[2]
+        organization_rows = sproc_processed[3]
+
+        if availability_rows is None:
+            return []
+
+        if (
+            ret_val == -1
+            or location_rows is None
+            or address_rows is None
+            or organization_rows is None
+        ):
+            raise InternalDatabaseError()
+
+        availabilities: List[VaccineAvailabilityExpandedResponse] = []
+        for availability_row in availability_rows:
+            availability = VaccineAvailabilityResponse(**availability_row)
+            location = None
+            address = None
+            organization = None
+            for location_row in location_rows:
+                if location_row["id"] == availability.location:
+                    location = LocationResponse(**location_row)
+                    break
+
+            if location is None:
+                raise DatabaseNotInSyncError(
+                    f"location `{availability.location}` does not exist"
                 )
-            return vaccine_availabilities_expanded
-        return rows
+            for address_row in address_rows:
+                if address_row["id"] == location.address:
+                    address = AddressResponse(**address_row)
+                    break
+            for organization_row in organization_rows:
+                if organization_row["id"] == location.organization:
+                    organization = OrganizationResponse(**organization_row)
+                    break
+            if address is None:
+                raise DatabaseNotInSyncError(
+                    f"address `{location.address}` does not exist"
+                )
+            if organization is None:
+                raise DatabaseNotInSyncError(
+                    f"organization `{location.organization}` does not exist"
+                )
 
-    async def get_multi_expanded(
-        self,
-    ) -> List[VaccineAvailabilityExpandedResponse]:
-        vaccine_availabilities = await super().get_multi()
-
-        # TODO: should be done all at once instead of in a for loop
-        vaccine_availabilities_expanded: List[
-            VaccineAvailabilityExpandedResponse
-        ] = []
-        for vaccine_availability in vaccine_availabilities:
-            vaccine_availabilities_expanded.append(
-                await self._expand(vaccine_availability)
+            location_dict = location.dict()
+            location_dict["address"] = address.dict()
+            location_dict["organization"] = organization.dict()
+            availability_dict = availability.dict()
+            availability_dict["location"] = location_dict
+            availabilities.append(
+                VaccineAvailabilityExpandedResponse(**availability_dict)
             )
-
-        return vaccine_availabilities_expanded
+        return availabilities

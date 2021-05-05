@@ -3,6 +3,7 @@ from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
+from loguru import logger
 
 from app.api.dependencies import get_api_key, get_db
 from app.db.database import MSSQLConnection
@@ -19,6 +20,7 @@ from app.schemas.vaccine_availability import (
     VaccineAvailabilityUpdateRequest,
 )
 from app.services.exceptions import (
+    DatabaseNotInSyncError,
     InternalDatabaseError,
     InvalidAuthenticationKeyForRequest,
 )
@@ -35,18 +37,23 @@ router = APIRouter()
 
 @router.get("", response_model=List[VaccineAvailabilityExpandedResponse])
 async def list_vaccine_availability(
-    postal_code: str = "",
-    min_date: datetime = datetime.now() - timedelta(days=30 * 365),
+    postal_code,
+    min_date,
     db: MSSQLConnection = Depends(get_db),
 ) -> List[VaccineAvailabilityExpandedResponse]:
-    rows = await VaccineAvailabilityService(db).get_multi_filtered(
-        postal_code=postal_code,
-        min_date=min_date,
-    )
-    if rows is None:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return rows
-    # return await VaccineAvailabilityService(db).get_multi_expanded()
+    try:
+        availabilities = await VaccineAvailabilityService(
+            db
+        ).get_filtered_multi_expanded(
+            postal_code=postal_code,
+            min_date=min_date,
+        )
+    except InternalDatabaseError:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except DatabaseNotInSyncError as e:
+        logger.warning("Database not in sync: {}", e.message)
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return availabilities
 
 
 @router.get(

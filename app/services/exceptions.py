@@ -13,3 +13,7 @@ class InvalidAuthenticationKeyForRequest(BaseServiceException):
 
 class InternalDatabaseError(BaseServiceException):
     message = "Internal server error."
+
+
+class DatabaseNotInSyncError(BaseServiceException):
+    message = "Database is not in sync."

@@ -198,8 +198,12 @@ class MSSQLConnection(ConnectionBackend):
                 EXEC @rc =  dbo.{procname} {','.join(params_markers)}
                 SELECT @rc
             """
-        logger.debug(query)
-        logger.debug(params_values)
+        logger.debug(
+            "Stored procedure query prepared for execution.\nQuery with "
+            "Parameters: {}\nParameter Values: {}",
+            query.split(),
+            params_values,
+        )
         return query, params_values
 
     async def execute_sproc(
@@ -224,6 +228,47 @@ class MSSQLConnection(ConnectionBackend):
             await cursor.execute(query, params_values)
             ret_value = await cursor.fetchone()
             return ret_value[0]
+
+    async def sproc_fetch(
+        self,
+        procname: str,
+        parameters: Dict[str, Any],
+        auth_key: Optional[UUID] = None,
+    ) -> Tuple[Any, List[Optional[List[Dict[str, Any]]]]]:
+        assert self._connection is not None, "Connection is not acquired"
+        query, params_values = self._sproc_execute_parameters(
+            procname, parameters, auth_key
+        )
+
+        sproc_unprocessed = []
+        async with await self._connection.cursor() as cursor:
+            if len(params_values) > 0:
+                await cursor.execute(query, params_values)
+            else:
+                await cursor.execute(query)
+            while True:
+                rows = await cursor.fetchall()
+                sproc_unprocessed.append((cursor.description, rows))
+                if not await cursor.nextset():
+                    break
+        ret_val = sproc_unprocessed.pop()[1][0][0]
+        sproc_processed: List[Optional[List[Dict[str, Any]]]] = []
+        for (description, rows) in sproc_unprocessed:
+            if rows is None:
+                sproc_processed.append(rows)
+            else:
+                sproc_processed.append(
+                    [
+                        dict(
+                            zip(
+                                [column[0] for column in description],
+                                row,
+                            )
+                        )
+                        for row in rows
+                    ],
+                )
+        return ret_val, sproc_processed
 
     async def sproc_fetch_one(
         self,
@@ -252,6 +297,7 @@ class MSSQLConnection(ConnectionBackend):
             row_description = cursor.description
             await cursor.nextset()
             ret_value = await cursor.fetchone()
+            print(cursor.description[0][1])
             if row is None:
                 return ret_value[0], row
             return ret_value[0], dict(
