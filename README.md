@@ -103,10 +103,10 @@ $ SKIP=isort,black git commit -m <message>
 
 ## Production
 
-:warning: **Please note that the production environment is currently not stable.** :warning:
+**Please note that the production environment is currently not stable.** :warning:
 
 The production environment, which is automatically deployed from the `main` branch, can be accessed here: [https://vax-availability-api.azurewebsites.net](https://vax-availability-api.azurewebsites.net).
 
 - Swagger: [https://vax-availability-api.azurewebsites.net/swagger](https://vax-availability-api.azurewebsites.net/swagger)
 - ReDoc: [https://vax-availability-api.azurewebsites.net/redoc](https://vax-availability-api.azurewebsites.net/redoc)
-- OpenAPI: [https://vax-availability-api.azurewebsites.net/openapi.json](https://vax-availability-api.azurewebsites.net/redoc)
+- OpenAPI: [https://vax-availability-api.azurewebsites.net/openapi.json](https://vax-availability-api.azurewebsites.net/openapi.json)
