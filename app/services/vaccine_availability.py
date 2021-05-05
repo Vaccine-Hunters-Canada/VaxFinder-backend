@@ -1,5 +1,6 @@
+from collections import defaultdict
 from datetime import datetime
-from typing import List, Optional, Type
+from typing import Dict, List, Optional, Type
 from uuid import UUID
 
 from loguru import logger
@@ -119,43 +120,48 @@ class VaccineAvailabilityService(
         ):
             raise InternalDatabaseError()
 
+        # convert to hash tables
+        timeslot_rows_valid = [
+            VaccineAvailabilityTimeslotResponse(**t) for t in timeslot_rows
+        ]
+        timeslot_hash: Dict[
+            UUID, List[VaccineAvailabilityTimeslotResponse]
+        ] = defaultdict(list)
+        for timeslot_row in timeslot_rows_valid:
+            timeslot_hash[timeslot_row.vaccine_availability].append(
+                timeslot_row
+            )
+
+        location_hash = {l["id"]: LocationResponse(**l) for l in location_rows}
+        address_hash = {a["id"]: AddressResponse(**a) for a in address_rows}
+        organization_hash = {
+            o["id"]: OrganizationResponse(**o) for o in organization_rows
+        }
+
+        # expand availabilities
         availabilities: List[VaccineAvailabilityExpandedResponse] = []
         for availability_row in availability_rows:
             availability = VaccineAvailabilityResponse(**availability_row)
-            timeslots = []
-            location = None
-            address = None
-            organization = None
 
-            for timeslot_row in timeslot_rows:
-                timeslot_resp = VaccineAvailabilityTimeslotResponse(
-                    **timeslot_row
-                )
-                if timeslot_resp.vaccine_availability == availability.id:
-                    timeslots.append(timeslot_resp)
+            timeslots = timeslot_hash.get(availability.id, [])
 
-            for location_row in location_rows:
-                if location_row["id"] == availability.location:
-                    location = LocationResponse(**location_row)
-                    break
-
-            if location is None:
+            try:
+                location = location_hash[availability.location]
+            except KeyError:
                 raise DatabaseNotInSyncError(
                     f"location `{availability.location}` does not exist"
                 )
-            for address_row in address_rows:
-                if address_row["id"] == location.address:
-                    address = AddressResponse(**address_row)
-                    break
-            for organization_row in organization_rows:
-                if organization_row["id"] == location.organization:
-                    organization = OrganizationResponse(**organization_row)
-                    break
-            if address is None:
+
+            try:
+                address = address_hash[location.address]
+            except KeyError:
                 raise DatabaseNotInSyncError(
                     f"address `{location.address}` does not exist"
                 )
-            if organization is None:
+
+            try:
+                organization = organization_hash[location.organization]
+            except KeyError:
                 raise DatabaseNotInSyncError(
                     f"organization `{location.organization}` does not exist"
                 )
