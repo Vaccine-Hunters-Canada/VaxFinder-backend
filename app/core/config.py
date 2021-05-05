@@ -5,7 +5,7 @@ from pydantic import BaseSettings
 
 class Settings(BaseSettings):
     # -- Project Details ---
-    PROJECT_NAME: str = "VaxFinder"
+    PROJECT_NAME: str = "💉🔍 VaxFinder"
     PROJECT_DESCRIPTION: str = "RESTful APIs for VaxFinder."
     PROJECT_VERSION: str = "1.0.0"
 
