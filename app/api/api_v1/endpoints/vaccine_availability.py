@@ -1,5 +1,6 @@
 from typing import List
 from uuid import UUID
+from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 
@@ -34,10 +35,18 @@ router = APIRouter()
 
 @router.get("", response_model=List[VaccineAvailabilityExpandedResponse])
 async def list_vaccine_availability(
-    postal_code: str = "", db: MSSQLConnection = Depends(get_db)
+    postal_code: str = "",
+    min_date: datetime = datetime.now() - timedelta(days=30*365),
+    db: MSSQLConnection = Depends(get_db),
 ) -> List[VaccineAvailabilityExpandedResponse]:
-    # TODO: Filtering for postal code
-    return await VaccineAvailabilityService(db).get_multi_expanded()
+    rows = await VaccineAvailabilityService(db).get_multi_filtered(
+        postal_code=postal_code,
+        min_date=min_date,
+    )
+    if rows is None:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return rows
+    # return await VaccineAvailabilityService(db).get_multi_expanded()
 
 
 @router.get(

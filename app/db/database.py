@@ -198,6 +198,8 @@ class MSSQLConnection(ConnectionBackend):
                 EXEC @rc =  dbo.{procname} {','.join(params_markers)}
                 SELECT @rc
             """
+        logger.debug(query)
+        logger.debug(params_values)
         return query, params_values
 
     async def execute_sproc(
@@ -256,7 +258,7 @@ class MSSQLConnection(ConnectionBackend):
                 zip([column[0] for column in row_description], row)
             )
 
-    async def sproc_fetch_many(
+    async def sproc_fetch_all(
         self,
         procname: str,
         parameters: Dict[str, Any],
