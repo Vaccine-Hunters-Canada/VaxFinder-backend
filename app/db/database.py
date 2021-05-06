@@ -300,7 +300,6 @@ class MSSQLConnection(ConnectionBackend):
             row_description = cursor.description
             await cursor.nextset()
             ret_value = await cursor.fetchone()
-            print(cursor.description[0][1])
             if row is None:
                 return ret_value[0], row
             return ret_value[0], dict(
