@@ -1,9 +1,10 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import HttpUrl
 
 from app.schemas.addresses import AddressResponse
+from app.schemas.base import BaseModel
 from app.schemas.organizations import OrganizationResponse
 
 
@@ -13,7 +14,7 @@ class LocationResponseBase(BaseModel):
     notes: Optional[str]
     active: int
     postcode: Optional[str]
-    url: Optional[str]
+    url: Optional[HttpUrl]
     tags: Optional[str]
 
 

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from app.schemas.base import BaseModel
 
 
 class RequirementResponseBase(BaseModel):
