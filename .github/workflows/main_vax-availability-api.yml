@@ -47,7 +47,7 @@ jobs:
       id: deploy-to-webapp-staging
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'vax-availability-api'
+        app-name: 'vax-availability-api-staging'
         slot-name: 'production'
         publish-profile: ${{ secrets.AZURE_APP_SERVICE_PUBLISH_PROFILE }}
         images: 'index.docker.io/${{ secrets.DOCKER_USERNAME }}/vax-hunters-api:${{ github.sha }}'
