@@ -1,13 +1,9 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import Field
 
-from app.schemas.misc import FilterParamsBase
-
-
-class AddressFilterParams(FilterParamsBase):
-    postalCode: str
+from app.schemas.base import BaseModel
 
 
 class AddressResponseBase(BaseModel):
@@ -16,7 +12,7 @@ class AddressResponseBase(BaseModel):
     city: Optional[str]
     # TODO: Should be enum but database is string now
     province: str
-    postcode: str
+    postcode: str = Field(min_length=6, max_length=6)
 
 
 class AddressResponse(AddressResponseBase):
@@ -25,9 +21,11 @@ class AddressResponse(AddressResponseBase):
 
 
 class AddressCreateRequest(AddressResponseBase):
-    pass
+    latitude: float
+    longitude: float
 
 
 class AddressUpdateRequest(AddressResponseBase):
     id: int
-    auth: str
+    latitude: float
+    longitude: float

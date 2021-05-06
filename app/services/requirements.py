@@ -9,13 +9,23 @@ from app.services.base import BaseService
 
 
 class RequirementService(
-    BaseService[RequirementResponse, RequirementsCreateRequest, RequirementsUpdateRequest]
+    BaseService[
+        RequirementResponse,
+        RequirementsCreateRequest,
+        RequirementsUpdateRequest,
+    ]
 ):
+    read_procedure_name = "requirements_Read"
     read_procedure_id_parameter = "requirementID"
+    create_procedure_name = "requirements_Create"
+    update_procedure_name = "requirements_Update"
+    update_procedure_id_parameter = "requirementID"
+    delete_procedure_name = "requirements_Delete"
+    delete_procedure_id_parameter = "requirementID"
 
     @property
     def table(self) -> str:
-        return 'requirements'
+        return "requirements"
 
     @property
     def db_response_schema(self) -> Type[RequirementResponse]:

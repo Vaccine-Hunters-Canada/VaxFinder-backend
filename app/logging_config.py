@@ -1,13 +1,13 @@
 import logging
-import sys
-from pathlib import Path
-from loguru import logger
-import loguru
-import json
-from datetime import timedelta
-from typing import Union, TypedDict, Optional, Callable
 import os
-from types import FrameType
+import sys
+from datetime import timedelta
+from pathlib import Path
+from typing import Optional, TypedDict, Union
+
+import loguru
+from loguru import logger
+
 
 class Logging_Config_Data(TypedDict):
     level: str
@@ -15,6 +15,7 @@ class Logging_Config_Data(TypedDict):
     path: Union[Path, str]
     retention: Optional[timedelta]
     rotation: Optional[timedelta]
+
 
 config: Logging_Config_Data = {
     "level": "trace",
@@ -24,19 +25,20 @@ config: Logging_Config_Data = {
         "<cyan>{name:35}</cyan>:<cyan>{function:30}</cyan>:<cyan>{line:4}</cyan> | "
         "<level>{message: <8}</level>"
     ),
-    "path": os.environ.get('LOG_PATH', 'log.txt'),
+    "path": os.environ.get("LOG_PATH", "log.txt"),
     "retention": timedelta(days=7),
-    'rotation': None
+    "rotation": None,
 }
+
 
 class InterceptHandler(logging.Handler):
     loglevel_mapping = {
-        50: 'CRITICAL',
-        40: 'ERROR',
-        30: 'WARNING',
-        20: 'INFO',
-        10: 'DEBUG',
-        0: 'NOTSET',
+        50: "CRITICAL",
+        40: "ERROR",
+        30: "WARNING",
+        20: "INFO",
+        10: "DEBUG",
+        0: "NOTSET",
     }
 
     def emit(self, record: logging.LogRecord) -> None:
@@ -47,34 +49,34 @@ class InterceptHandler(logging.Handler):
 
         frame, depth = logging.currentframe(), 2
         while frame.f_code.co_filename == logging.__file__:
-            frame = frame.f_back # type: ignore
+            frame = frame.f_back  # type: ignore
             depth += 1
 
-        log = logger.bind(request_id='app')
-        log.opt(
-            depth=depth,
-            exception=record.exc_info
-        ).log(level,record.getMessage())
+        log = logger.bind(request_id="app")
+        log.opt(depth=depth, exception=record.exc_info).log(
+            level, record.getMessage()
+        )
 
 
-def make_logger() -> 'loguru.Logger':
+def make_logger() -> "loguru.Logger":
 
     logger = customize_logging(
-        config.get('path'),
-        level=config['level'],
-        retention=config.get('retention'),
-        rotation=config.get('rotation'),
-        format=config['format']
+        config.get("path"),
+        level=config["level"],
+        retention=config.get("retention"),
+        rotation=config.get("rotation"),
+        format=config["format"],
     )
     return logger
 
+
 def customize_logging(
-        filepath: Optional[Union[Path, str]],
-        level: str,
-        rotation: Optional[timedelta],
-        retention: Optional[timedelta],
-        format: str
-) -> 'loguru.Logger':
+    filepath: Optional[Union[Path, str]],
+    level: str,
+    rotation: Optional[timedelta],
+    retention: Optional[timedelta],
+    format: str,
+) -> "loguru.Logger":
 
     logger.remove()
     logger.add(
@@ -82,14 +84,14 @@ def customize_logging(
         enqueue=True,
         backtrace=True,
         level=level.upper(),
-        format=format
+        format=format,
     )
 
     logger.level("TRACE", color="<green><d>")
 
     logging.basicConfig(handlers=[InterceptHandler()], level=0)
     logging.getLogger("uvicorn.access").handlers = [InterceptHandler()]
-    for _log in ['uvicorn', 'uvicorn.error', 'fastapi']:
+    for _log in ["uvicorn", "uvicorn.error", "fastapi"]:
         _logger = logging.getLogger(_log)
         _logger.handlers = [InterceptHandler()]
 
