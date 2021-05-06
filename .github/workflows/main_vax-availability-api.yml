@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+      - staging
   workflow_dispatch:
 
 jobs:
@@ -34,6 +35,23 @@ jobs:
         tags: ${{ secrets.DOCKER_USERNAME }}/vax-hunters-api:${{ github.sha }}
         file: ./Dockerfile
 
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'staging'
+      url: ${{ steps.deploy-to-webapp-staging.outputs.webapp-url }}
+
+    steps:
+    - name: Deploy to Azure Web App (staging)
+      id: deploy-to-webapp-staging
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'vax-availability-api-staging'
+        slot-name: 'production'
+        publish-profile: ${{ secrets.AZURE_APP_SERVICE_PUBLISH_PROFILE }}
+        images: 'index.docker.io/${{ secrets.DOCKER_USERNAME }}/vax-hunters-api:${{ github.sha }}'
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -42,7 +60,7 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
-    - name: Deploy to Azure Web App
+    - name: Deploy to Azure Web App (production)
       id: deploy-to-webapp
       uses: azure/webapps-deploy@v2
       with:
@@ -50,3 +68,4 @@ jobs:
         slot-name: 'production'
         publish-profile: ${{ secrets.AZURE_APP_SERVICE_PUBLISH_PROFILE }}
         images: 'index.docker.io/${{ secrets.DOCKER_USERNAME }}/vax-hunters-api:${{ github.sha }}'
+
