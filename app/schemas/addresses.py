@@ -1,9 +1,14 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import Field
+from pydantic import ConstrainedStr
 
 from app.schemas.base import BaseModel
+
+
+class PostalCode(ConstrainedStr):
+    min_length = 6
+    max_length = 6
 
 
 class AddressResponseBase(BaseModel):
@@ -12,7 +17,7 @@ class AddressResponseBase(BaseModel):
     city: Optional[str]
     # TODO: Should be enum but database is string now
     province: str
-    postcode: str = Field(min_length=6, max_length=6)
+    postcode: PostalCode
 
 
 class AddressResponse(AddressResponseBase):

@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Generic, List, Optional, Type, TypeVar, Union
 from uuid import UUID
 
+from loguru import logger
 from pydantic import BaseModel
 
 from app.db.database import MSSQLConnection
@@ -78,7 +79,10 @@ class BaseService(
             procedure_name, {procedure_id_param: identifier}, auth_key=auth_key
         )
 
-        if db_obj is None or ret_value == -1:
+        if ret_value == -1:
+            raise InternalDatabaseError(f"Failed to execute {procedure_name}")
+
+        if db_obj is None:
             # We are assuming that any error on the stored procedure is due
             # to the fact that the object doesn't exist.
             return None
@@ -121,7 +125,7 @@ class BaseService(
         if ret_value == 0:
             raise InvalidAuthenticationKeyForRequest()
         elif ret_value == -1:
-            raise InternalDatabaseError()
+            raise InternalDatabaseError(f"Failed to execute {procedure_name}")
 
         # ret_value should be the identifier for the created object
         created = await self.get(ret_value)

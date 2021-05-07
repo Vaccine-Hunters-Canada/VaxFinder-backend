@@ -1,10 +1,13 @@
 from typing import Optional
 
+from loguru import logger
+
 
 class BaseServiceException(Exception):
     def __init__(self, msg: Optional[str] = None) -> None:
         if msg is not None:
             self.message = msg
+            logger.critical(self.message)
 
 
 class InvalidAuthenticationKeyForRequest(BaseServiceException):

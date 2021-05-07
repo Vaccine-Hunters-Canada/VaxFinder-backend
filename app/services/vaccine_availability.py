@@ -1,5 +1,5 @@
 from collections import defaultdict
-from datetime import datetime
+from datetime import date, timezone
 from typing import Dict, List, Optional, Type
 from uuid import UUID
 
@@ -21,6 +21,9 @@ from app.services.exceptions import (
     InternalDatabaseError,
 )
 from app.services.locations import LocationService
+from app.services.vaccine_availability_timeslot import (
+    VaccineAvailabilityTimeslotService,
+)
 
 
 class VaccineAvailabilityService(
@@ -54,46 +57,43 @@ class VaccineAvailabilityService(
     def update_response_schema(self) -> Type[VaccineAvailabilityUpdateRequest]:
         return VaccineAvailabilityUpdateRequest
 
-    async def _expand(
-        self, vaccine_availability: VaccineAvailabilityResponse
-    ) -> VaccineAvailabilityExpandedResponse:
-        location = await LocationService(self._db).get_expanded(
-            vaccine_availability.location
-        )
-        assert (
-            location is not None
-        ), f"""
-            Could not find location {vaccine_availability.location}
-            for vaccine_availability {vaccine_availability.id}
-            """
-
-        vaccine_availability_expanded = vaccine_availability.dict()
-        vaccine_availability_expanded.update(
-            {
-                "location": location,
-            }
-        )
-
-        # logger.critical(vaccine_availability_expanded)
-
-        return VaccineAvailabilityExpandedResponse(
-            **vaccine_availability_expanded
-        )
-
     async def get_expanded(
         self, id: UUID
     ) -> Optional[VaccineAvailabilityExpandedResponse]:
         vaccine_availability = await super().get(id)
 
         if vaccine_availability is not None:
-            return await self._expand(
-                vaccine_availability=vaccine_availability
+            location = await LocationService(self._db).get_expanded(
+                vaccine_availability.location
+            )
+            assert (
+                location is not None
+            ), f"""
+                Could not find location {vaccine_availability.location}
+                for vaccine_availability {vaccine_availability.id}
+                """
+
+            timeslots = await VaccineAvailabilityTimeslotService(
+                self._db
+            ).get_by_vaccine_availability_id(
+                vaccine_availability_id=vaccine_availability.id
+            )
+
+            vaccine_availability_expanded = vaccine_availability.dict()
+            vaccine_availability_expanded.update(
+                {"location": location, "timeslots": timeslots}
+            )
+
+            logger.critical(vaccine_availability_expanded)
+
+            return VaccineAvailabilityExpandedResponse(
+                **vaccine_availability_expanded
             )
 
         return vaccine_availability
 
     async def get_filtered_multi_expanded(
-        self, postal_code: str, min_date: datetime
+        self, postal_code: str, min_date: date
     ) -> List[VaccineAvailabilityExpandedResponse]:
         procedure_name = "GetAvailableVaccines"
 

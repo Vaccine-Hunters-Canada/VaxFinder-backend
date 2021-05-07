@@ -1,6 +1,9 @@
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from typing import List, Optional, Union
 from uuid import UUID
+
+from loguru import logger
+from pydantic import NonNegativeInt, validator
 
 from app.schemas.base import BaseModel
 from app.schemas.enums import InputTypeEnum
@@ -16,10 +19,35 @@ class VaccineAvailabilityTimeslotResponse(BaseModel):
     created_at: datetime
     time: datetime
 
+    @validator("time", pre=True)
+    def _date_to_utc(cls, dt: datetime) -> datetime:
+        dt = dt.replace(tzinfo=timezone.utc)
+        return dt
+
 
 class VaccineAvailabilityTimeslotCreateRequest(BaseModel):
-    parentID: UUID
     time: datetime
+
+    @validator("time", pre=True)
+    def _validate_time(cls, dt: str) -> datetime:
+        if isinstance(dt, str):
+            dt = dt.replace("Z", "+00:00")
+            iso = datetime.fromisoformat(dt)
+            if iso.tzinfo is None:
+                raise ValueError(
+                    """
+                    ISO datestring must have timezone info.
+                    i.e. 2020-12-13T21:20:37+04:00
+                    """
+                )
+            iso = iso.astimezone(timezone.utc)
+            return iso
+        raise ValueError("Must input a string.")
+
+
+class VaccineAvailabilityTimeslotCreateSprocParams(BaseModel):
+    time: datetime
+    parentID: UUID
 
 
 class VaccineAvailabilityTimeslotUpdateRequest(BaseModel):
@@ -37,41 +65,83 @@ class VaccineAvailabilityRequirementsResponse(BaseModel):
     created_at: datetime
 
 
-class VaccineAvailabilityRequirementsCreateRequest(BaseModel):
-    requirements: List[int]
+class VaccineAvailabilityRequirementCreateRequest(BaseModel):
+    requirement: NonNegativeInt
 
 
-class VaccineAvailabilityRequirementsUpdateRequest(BaseModel):
+class VaccineAvailabilityRequirementCreateSprocParams(BaseModel):
+    vaccine_availability: UUID
+    requirement: NonNegativeInt
+
+
+class VaccineAvailabilityRequirementUpdateSprocParams(BaseModel):
+    time: datetime
+    parentID: UUID
+
+
+class VaccineAvailabilityRequirementUpdateRequest(BaseModel):
     active: bool
 
 
 # ----------------------------- Root -----------------------------
 class VaccineAvailabilityResponseBase(BaseModel):
-    numberAvailable: Optional[int]
-    numberTotal: Optional[int]
-    date: Optional[date]
-    vaccine: Optional[int]
-    inputType: Optional[InputTypeEnum]
+    numberAvailable: NonNegativeInt
+    numberTotal: Optional[NonNegativeInt]
+    vaccine: Optional[NonNegativeInt]
+    inputType: InputTypeEnum
     tags: Optional[str]
 
 
 class VaccineAvailabilityResponse(VaccineAvailabilityResponseBase):
     id: UUID
-    location: int
+    location: NonNegativeInt
     created_at: datetime
+    date: datetime
+
+    @validator("date", pre=True)
+    def _date_to_utc(cls, dt: datetime) -> datetime:
+        dt = dt.replace(tzinfo=timezone.utc)
+        return dt
 
 
 class VaccineAvailabilityExpandedResponse(VaccineAvailabilityResponseBase):
-    id: Union[UUID, int]
+    id: UUID
     location: LocationExpandedResponse
     created_at: datetime
     timeslots: List[VaccineAvailabilityTimeslotResponse]
+    date: datetime
+
+    @validator("date", pre=True)
+    def _date_to_utc(cls, dt: datetime) -> datetime:
+        dt = dt.replace(tzinfo=timezone.utc)
+        return dt
 
 
 class VaccineAvailabilityCreateRequest(VaccineAvailabilityResponseBase):
-    location: int
+    location: NonNegativeInt
+    date: datetime
+
+    @validator("date", pre=True)
+    def _validate_time(cls, dt: str) -> datetime:
+        if isinstance(dt, str):
+            dt = dt.replace("Z", "+00:00")
+            iso = datetime.fromisoformat(dt)
+            if iso.tzinfo is None:
+                raise ValueError(
+                    """
+                    ISO datestring must have timezone info.
+                    i.e. 2020-12-13T21:20:37+04:00
+                    """
+                )
+            iso = iso.astimezone(timezone.utc)
+            return iso
+        raise ValueError("Must input a string.")
+
+
+class VaccineAvailabilityUpdateSprocParams(VaccineAvailabilityResponseBase):
+    id: UUID
+    location: NonNegativeInt
 
 
 class VaccineAvailabilityUpdateRequest(VaccineAvailabilityResponseBase):
-    id: Union[UUID, int]
-    location: int
+    location: NonNegativeInt
