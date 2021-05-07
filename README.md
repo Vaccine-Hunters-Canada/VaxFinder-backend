@@ -32,7 +32,7 @@
 
 1. Install the unixODBC library if you are on a linux environment as it's required for pyodbc (hence *aioodbc*). You can install it using your package manager, for example:
 
-    ```
+    ```bash
     $ sudo apt-get install unixodbc
     $ sudo apt-get install unixodbc-dev
     ```
@@ -43,14 +43,14 @@
 
     On macOS or Linux:
 
-    ```
+    ```bash
     $ python -m venv ~/.mypyls
     $ ~/.mypyls/bin/pip install "https://github.com/matangover/mypyls/archive/master.zip#egg=mypyls[default-mypy]"
     ```
 
     On Windows:
 
-    ```
+    ```powershell
     $ python -m venv %USERPROFILE%\.mypyls
     $ %USERPROFILE%\.mypyls\Scripts\pip install "https://github.com/matangover/mypyls/archive/master.zip#egg=mypyls[default-mypy]"
     ```
@@ -59,7 +59,7 @@
 
 4. Install all python dependencies with [Poetry](https://python-poetry.org/).
 
-    ```
+    ```bash
     $ poetry install
     ```
 
@@ -67,7 +67,7 @@
 
 1. Spawn a shell within a virtual environment.
 
-    ```
+    ```bash
     $ poetry shell
     ```
 
@@ -75,7 +75,7 @@
 
 2. Run the server on port `8007` from the root of the project within the shell.
 
-    ```
+    ```bash
     $ DB_URL={DATABASE_URL} python -m app.main
     ```
 
@@ -89,7 +89,7 @@ Pre-commit hooks helps identify simple issues in code before it's committed into
 
 #### Install the git hook scripts
 
-```
+```bash
 $ pre-commit install
 ```
 
@@ -97,16 +97,27 @@ $ pre-commit install
 
 It's possible to disable hooks temporarily, but it isn't recommended.
 
-```
+```bash
 $ SKIP=isort,black git commit -m <message>
 ```
 
-## Production
+## Environments
+
+### Production
 
 **Please note that the production environment is currently not stable.** :warning:
 
-The production environment, which is automatically deployed from the `main` branch, can be accessed here: [https://vax-availability-api.azurewebsites.net](https://vax-availability-api.azurewebsites.net).
+The production environment, deployed after a staging build of the `main` branch is manually approved, can be accessed here: [https://vax-availability-api.azurewebsites.net](https://vax-availability-api.azurewebsites.net).
 
 - Swagger: [https://vax-availability-api.azurewebsites.net/swagger](https://vax-availability-api.azurewebsites.net/swagger)
 - ReDoc: [https://vax-availability-api.azurewebsites.net/redoc](https://vax-availability-api.azurewebsites.net/redoc)
 - OpenAPI: [https://vax-availability-api.azurewebsites.net/openapi.json](https://vax-availability-api.azurewebsites.net/openapi.json)
+
+### Staging
+
+The staging environment, which is automatically deployed from the `main` branch, can be accessed here: [https://vax-availability-api-staging.azurewebsites.net](https://vax-availability-api-staging.azurewebsites.net).
+
+- Swagger: [https://vax-availability-api-staging.azurewebsites.net/swagger](https://vax-availability-api-staging.azurewebsites.net/swagger)
+- ReDoc: [https://vax-availability-api-staging.azurewebsites.net/redoc](https://vax-availability-api-staging.azurewebsites.net/redoc)
+- OpenAPI: [https://vax-availability-api-staging.azurewebsites.net/openapi.json](https://vax-availability-api-staging.azurewebsites.net/openapi.json)
+
