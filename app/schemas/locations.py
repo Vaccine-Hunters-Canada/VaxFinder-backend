@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import HttpUrl
+from pydantic.types import NonNegativeInt
 
 from app.schemas.addresses import AddressResponse
 from app.schemas.base import BaseModel
@@ -19,14 +20,14 @@ class LocationResponseBase(BaseModel):
 
 
 class LocationResponse(LocationResponseBase):
-    id: int
+    id: NonNegativeInt
     organization: Optional[int]
     address: Optional[int]
     created_at: datetime
 
 
 class LocationExpandedResponse(LocationResponseBase):
-    id: int
+    id: NonNegativeInt
     organization: Optional[OrganizationResponse]
     address: Optional[AddressResponse]
     created_at: datetime
@@ -38,6 +39,6 @@ class LocationCreateRequest(LocationResponseBase):
 
 
 class LocationUpdateRequest(LocationResponseBase):
-    id: int
+    id: NonNegativeInt
     address: Optional[int]
     organization: Optional[int]

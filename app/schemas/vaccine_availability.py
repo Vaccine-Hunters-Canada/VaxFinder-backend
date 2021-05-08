@@ -33,16 +33,19 @@ class VaccineAvailabilityTimeslotCreateRequest(BaseModel):
         if isinstance(dt, str):
             dt = dt.replace("Z", "+00:00")
             iso = datetime.fromisoformat(dt)
-            if iso.tzinfo is None:
-                raise ValueError(
-                    """
-                    ISO datestring must have timezone info.
-                    i.e. 2020-12-13T21:20:37+04:00
-                    """
-                )
-            iso = iso.astimezone(timezone.utc)
-            return iso
-        raise ValueError("Must input a string.")
+        elif isinstance(dt, datetime):
+            iso = dt
+        else:
+            raise ValueError("Must input a string or datetime.")
+        if iso.tzinfo is None:
+            raise ValueError(
+                """
+                ISO datestring must have timezone info.
+                i.e. 2020-12-13T21:20:37+04:00
+                """
+            )
+        iso = iso.astimezone(timezone.utc)
+        return iso
 
 
 class VaccineAvailabilityTimeslotCreateSprocParams(
@@ -231,3 +234,23 @@ class VaccineAvailabilityUpdateRequest(VaccineAvailabilityResponseBase):
 
 class VaccineAvailabilityUpdateSprocParams(VaccineAvailabilityUpdateRequest):
     id: UUID
+
+
+# ---------------------- Vaccine Locations ----------------------
+class VaccineAvailabilityTimeslotExpandedResponse(
+    VaccineAvailabilityResponseBase
+):
+    id: UUID
+    location: NonNegativeInt
+    created_at: datetime
+    date: datetime
+    timeslots: List[VaccineAvailabilityTimeslotResponse]
+
+    @validator("date", pre=True)
+    def _date_to_utc(cls, dt: datetime) -> datetime:
+        dt = dt.replace(tzinfo=timezone.utc)
+        return dt
+
+
+class VaccineLocationExpandedResponse(LocationExpandedResponse):
+    vaccine_availabilities: List[VaccineAvailabilityTimeslotExpandedResponse]
