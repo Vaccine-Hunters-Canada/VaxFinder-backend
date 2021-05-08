@@ -237,7 +237,7 @@ class VaccineAvailabilityUpdateSprocParams(VaccineAvailabilityUpdateRequest):
 
 
 # ---------------------- Vaccine Locations ----------------------
-class VaccineAvailabilityTimeslotExpandedResponse(
+class VaccineAvailabilityTimeslotRequirementExpandedResponse(
     VaccineAvailabilityResponseBase
 ):
     id: UUID
@@ -245,6 +245,7 @@ class VaccineAvailabilityTimeslotExpandedResponse(
     created_at: datetime
     date: datetime
     timeslots: List[VaccineAvailabilityTimeslotResponse]
+    requirements: List[VaccineAvailabilityRequirementsResponse]
 
     @validator("date", pre=True)
     def _date_to_utc(cls, dt: datetime) -> datetime:
@@ -253,4 +254,6 @@ class VaccineAvailabilityTimeslotExpandedResponse(
 
 
 class VaccineLocationExpandedResponse(LocationExpandedResponse):
-    vaccine_availabilities: List[VaccineAvailabilityTimeslotExpandedResponse]
+    vaccine_availabilities: List[
+        VaccineAvailabilityTimeslotRequirementExpandedResponse
+    ]

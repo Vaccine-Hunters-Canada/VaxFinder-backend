@@ -13,6 +13,7 @@ from app.schemas.organizations import OrganizationResponse
 from app.schemas.vaccine_availability import (
     VaccineAvailabilityCreateRequest,
     VaccineAvailabilityExpandedResponse,
+    VaccineAvailabilityRequirementsResponse,
     VaccineAvailabilityResponse,
     VaccineAvailabilityTimeslotResponse,
     VaccineAvailabilityUpdateRequest,
@@ -110,6 +111,7 @@ class VaccineLocationsService(
         address_rows = sproc_processed[2]
         availability_rows = sproc_processed[3]
         timeslot_rows = sproc_processed[4]
+        requirement_rows = sproc_processed[5]
 
         if location_rows is None:
             return []
@@ -119,10 +121,25 @@ class VaccineLocationsService(
             or timeslot_rows is None
             or address_rows is None
             or organization_rows is None
+            or requirement_rows is None
+            or availability_rows is None
         ):
             raise InternalDatabaseError()
 
         # convert to hash tables
+
+        # availabilities should be hashable by location
+        availability_hash: Dict[
+            NonNegativeInt, List[VaccineAvailabilityResponse]
+        ] = defaultdict(list)
+        availability_rows_valid = [
+            VaccineAvailabilityResponse(**t) for t in availability_rows
+        ]
+
+        for availability_row in availability_rows_valid:
+            availability_hash[availability_row.location].append(
+                availability_row
+            )
 
         # timeslots should be hashable by vaccine_availability
         timeslot_rows_valid = [
@@ -136,19 +153,18 @@ class VaccineLocationsService(
                 timeslot_row
             )
 
-        # availabilities should be hashable by location
-        availability_hash: Dict[
-            NonNegativeInt, List[VaccineAvailabilityResponse]
+        # requirements should be hashable by vaccine_availability
+        requirement_rows_valid = [
+            VaccineAvailabilityRequirementsResponse(**r)
+            for r in requirement_rows
+        ]
+        requirement_hash: Dict[
+            UUID, List[VaccineAvailabilityRequirementsResponse]
         ] = defaultdict(list)
-        if availability_rows is not None:
-            availability_rows_valid = [
-                VaccineAvailabilityResponse(**t) for t in availability_rows
-            ]
-
-            for availability_row in availability_rows_valid:
-                availability_hash[availability_row.location].append(
-                    availability_row
-                )
+        for requirement_row in requirement_rows_valid:
+            requirement_hash[requirement_row.vaccine_availability].append(
+                requirement_row
+            )
 
         address_hash = {a["id"]: AddressResponse(**a) for a in address_rows}
         organization_hash = {
@@ -156,7 +172,7 @@ class VaccineLocationsService(
         }
 
         locations: List[VaccineLocationExpandedResponse] = []
-        # expand availabilities
+        # expand locations
         for location_row in location_rows:
             location = LocationResponse(**location_row)
 
@@ -182,8 +198,11 @@ class VaccineLocationsService(
             availabilities = availability_hash.get(location.id, [])
             for availability in availabilities:
                 timeslots = timeslot_hash.get(availability.id, [])
+                requirements = requirement_hash.get(availability.id, [])
+
                 availability_dict = availability.dict()
                 availability_dict["timeslots"] = timeslots
+                availability_dict["requirements"] = requirements
                 availabilities_list.append(availability_dict)
 
             location_dict["vaccineAvailabilities"] = availabilities_list
