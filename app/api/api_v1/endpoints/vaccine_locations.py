@@ -15,21 +15,7 @@ from loguru import logger
 
 from app.api.dependencies import get_api_key, get_db
 from app.db.database import MSSQLConnection
-from app.schemas.vaccine_availability import (
-    VaccineAvailabilityCreateRequest,
-    VaccineAvailabilityExpandedResponse,
-    VaccineAvailabilityRequirementCreateRequest,
-    VaccineAvailabilityRequirementCreateSprocParams,
-    VaccineAvailabilityRequirementsResponse,
-    VaccineAvailabilityRequirementUpdateRequest,
-    VaccineAvailabilityResponse,
-    VaccineAvailabilityTimeslotCreateRequest,
-    VaccineAvailabilityTimeslotCreateSprocParams,
-    VaccineAvailabilityTimeslotResponse,
-    VaccineAvailabilityTimeslotUpdateRequest,
-    VaccineAvailabilityUpdateRequest,
-    VaccineLocationExpandedResponse,
-)
+from app.schemas.vaccine_availability import VaccineLocationExpandedResponse
 from app.services.exceptions import (
     DatabaseNotInSyncError,
     InternalDatabaseError,
@@ -37,12 +23,6 @@ from app.services.exceptions import (
 )
 from app.services.vaccine_availability import VaccineAvailabilityService
 from app.services.vaccine_availability_locations import VaccineLocationsService
-from app.services.vaccine_availability_requirement import (
-    VaccineAvailabilityRequirementService,
-)
-from app.services.vaccine_availability_timeslot import (
-    VaccineAvailabilityTimeslotService,
-)
 
 router = APIRouter()
 

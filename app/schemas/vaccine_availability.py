@@ -162,6 +162,7 @@ class VaccineAvailabilityExpandedResponse(VaccineAvailabilityResponseBase):
     location: LocationExpandedResponse
     created_at: datetime
     timeslots: List[VaccineAvailabilityTimeslotResponse]
+    requirements: List[VaccineAvailabilityRequirementsResponse]
     date: datetime
 
     @validator("date", pre=True)
