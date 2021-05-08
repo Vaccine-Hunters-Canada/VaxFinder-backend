@@ -6,9 +6,16 @@ from app.api.api_v1.endpoints import (
     organizations,
     requirements,
     vaccine_availability,
+    vaccine_locations,
 )
 
 api_router = APIRouter()
+
+api_router.include_router(
+    vaccine_locations.router,
+    prefix="/vaccine-locations",
+    tags=["Vaccine Locations"],
+)
 
 api_router.include_router(
     vaccine_availability.router,

@@ -1,5 +1,9 @@
 openapi_tags = [
     {
+        "name": "Vaccine Locations",
+        "description": "Operations about vaccine availability grouped by location.",
+    },
+    {
         "name": "Vaccine Availability",
         "description": "Operations about vaccine availability. _Vaccine availability should include a certain date and location._",
     },
