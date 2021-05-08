@@ -25,12 +25,12 @@ class VaccineAvailabilityRequirementService(
     ]
 ):
     read_procedure_name = None
-    read_procedure_id_parameter = None
+    read_procedure_id_parameter = "id"
     create_procedure_name = "vaccine_availability_requirements_Create"
     update_procedure_name = "vaccine_availability_requirements_Update"
     update_procedure_id_parameter = "id"
     delete_procedure_name = None
-    delete_procedure_id_parameter = None
+    delete_procedure_id_parameter = "id"
 
     @property
     def table(self) -> str:
@@ -54,94 +54,30 @@ class VaccineAvailabilityRequirementService(
     ) -> Type[VaccineAvailabilityRequirementUpdateRequest]:
         return VaccineAvailabilityRequirementUpdateRequest
 
-    async def get(
-        self, identifier: Union[UUID, int], auth_key: Optional[UUID] = None
-    ) -> None:
-        raise NotImplementedError(
-            "Get by ID is not available for requirements"
-        )
-
     async def get_multi(
         self,
     ) -> List[VaccineAvailabilityRequirementsResponse]:
         raise NotImplementedError("Get multi is not available for timeslots")
 
-    # async def get_by_vaccine_availability_id(
-    #     self,
-    #     vaccine_availability_id: UUID,
-    #     auth_key: Optional[UUID] = None
-    # ) -> Optional[List[VaccineAvailabilityRequirementsResponse]]:
-    #     procedure_name = (
-    #         f"{self.table}_Read"
-    #         if self.read_procedure_name is None
-    #         else self.read_procedure_name
-    #     )
+    async def get_by_vaccine_availability_id(
+        self, vaccine_availability_id: UUID, auth_key: Optional[UUID] = None
+    ) -> Optional[List[VaccineAvailabilityRequirementsResponse]]:
+        procedure_name = "vaccine_availability_requirements_ReadByParent"
 
-    #     ret_value, db_rows = await self._db.sproc_fetch_all(
-    #         procedure_name,
-    #         {f"{self.table}ID": vaccine_availability_id},
-    #         auth_key=auth_key
-    #     )
-
-    #     if db_rows is None:
-    #         # We are assuming that any error on the stored procedure is due
-    #         # to the fact that the object doesn't exist.
-    #         return []
-
-    #     if ret_value == -1:
-    #         # We are assuming that any error on the stored procedure is due
-    #         # to the fact that the object doesn't exist.
-    #         raise InternalDatabaseError(
-    #             f'Failed to execute {procedure_name}'
-    #         )
-
-    #     return [
-    #         VaccineAvailabilityRequirementsResponse(**o)
-    #         for o in db_rows
-    #     ]
-
-    async def create(
-        self,
-        params: VaccineAvailabilityRequirementCreateSprocParams,
-        auth_key: UUID,
-    ) -> VaccineAvailabilityRequirementsResponse:
-        """
-        Temporary until dbo.vaccine_availability_requirement_ReadByParent
-        and dbo.vaccine_availability_requirement_Read sproc is applied.
-        """
-
-        procedure_name = (
-            f"{self.table}_Create"
-            if self.create_procedure_name is None
-            else self.create_procedure_name
+        ret_value, db_rows = await self._db.sproc_fetch_all(
+            procname=procedure_name,
+            parameters={"parentID": vaccine_availability_id},
+            auth_key=auth_key,
         )
 
-        ret_value = await self._db.execute_sproc(
-            procedure_name, params.dict(), auth_key
-        )
-        logger.critical(ret_value)
+        if db_rows is None:
+            # We are assuming that any error on the stored procedure is due
+            # to the fact that the object doesn't exist.
+            return []
 
-        if ret_value == 0:
-            raise InvalidAuthenticationKeyForRequest()
-        elif ret_value == -1:
+        if ret_value == -1:
             raise InternalDatabaseError(f"Failed to execute {procedure_name}")
 
-        # all_timeslots = await self.get_by_vaccine_availability_id(
-        #     params.parentID
-        # )
+        logger.critical(db_rows)
 
-        # if all_timeslots is None:
-        #     raise InternalDatabaseError()
-
-        # created = next((t for t in all_timeslots if t.id == UUID(ret_value)), None)
-
-        # if created is None:
-        #     raise InternalDatabaseError()
-
-        return VaccineAvailabilityRequirementsResponse(
-            id=1,
-            vaccine_availability=params.vaccine_availability,
-            requirement=1,
-            active=True,
-            created_at=datetime.now(),
-        )
+        return [VaccineAvailabilityRequirementsResponse(**o) for o in db_rows]

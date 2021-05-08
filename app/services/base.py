@@ -167,7 +167,7 @@ class BaseService(
         if ret_value == 0:
             raise InvalidAuthenticationKeyForRequest()
         elif ret_value == -1:
-            raise InternalDatabaseError()
+            raise InternalDatabaseError(f"Failed to execute {procedure_name}")
 
         updated = await self.get(identifier)
 

@@ -305,84 +305,133 @@ async def create_timeslot_for_vaccine_availability_by_id(
     return timeslot
 
 
-# @router.put(
-#     "/{vaccine_availability_id}/timeslots/{timeslot_id}",
-#     response_model=VaccineAvailabilityTimeslotResponse,
-#     responses={
-#         status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."},
-#         status.HTTP_403_FORBIDDEN: {
-#             "description": "Invalid permissions or credentials."
-#         },
-#         status.HTTP_404_NOT_FOUND: {
-#             "description": "The vaccine availability with the id from the "
-#             "`vaccine_availability_id` path parameter or "
-#             "the timeslot with the id from the `timeslot_id` "
-#             "path parameter could not be found."
-#         },
-#     },
-# )
-# async def update_timeslot_for_vaccine_availability_by_id(
-#     timeslot_id: UUID,
-#     body: VaccineAvailabilityTimeslotUpdateRequest,
-#     vaccine_availability_id: UUID = Path(
-#         ...,
-#         description="Timeslot for a vaccine availability with this id.",
-#     ),
-#     db: MSSQLConnection = Depends(get_db),
-#     api_key: UUID = Depends(get_api_key),
-# ) -> VaccineAvailabilityTimeslotResponse:
-#     """
-#     **Updates a timeslot with the id from the `timeslot_id` path parameter
-#     with the entity enclosed in the request body. The timeslot must be
-#     for a vaccine availability that has an ID of `vaccine_availability_id`
-#     from the path.** On success, the updated timeslot is returned in the body
-#     of the response.
-#     """
-#     # TODO: Check vaccine_availability_id against body
-#     # Check if timeslot with the id exists
-#     timeslot = await VaccineAvailabilityTimeslotService(db).get(timeslot_id)
-#     if not timeslot:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-#     # Perform update
-#     try:
-#         timeslot = await VaccineAvailabilityTimeslotService(db).update(
-#             timeslot_id, body, api_key
-#         )
-#     except InvalidAuthenticationKeyForRequest as e:
-#         raise HTTPException(status.HTTP_403_FORBIDDEN, e.message)
-#     except InternalDatabaseError:
-#         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
-#     return timeslot
+@router.put(
+    "/{vaccine_availability_id}/timeslots/{timeslot_id}",
+    response_model=VaccineAvailabilityTimeslotResponse,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."},
+        status.HTTP_403_FORBIDDEN: {
+            "description": "Invalid permissions or credentials."
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The vaccine availability with the id from the "
+            "`vaccine_availability_id` path parameter or "
+            "the timeslot with the id from the `timeslot_id` "
+            "path parameter could not be found."
+        },
+    },
+)
+async def update_timeslot_for_vaccine_availability_by_id(
+    timeslot_id: UUID,
+    body: VaccineAvailabilityTimeslotUpdateRequest,
+    vaccine_availability_id: UUID = Path(
+        ...,
+        description="Timeslot for a vaccine availability with this id.",
+    ),
+    db: MSSQLConnection = Depends(get_db),
+    api_key: UUID = Depends(get_api_key),
+) -> VaccineAvailabilityTimeslotResponse:
+    """
+    **Updates a timeslot with the id from the `timeslot_id` path parameter
+    with the entity enclosed in the request body. The timeslot must be
+    for a vaccine availability that has an ID of `vaccine_availability_id`
+    from the path.** On success, the updated timeslot is returned in the body
+    of the response.
+    """
+    # Check if timeslot with the id exists
+    timeslot = await VaccineAvailabilityTimeslotService(db).get(timeslot_id)
+    if not timeslot:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    # Perform update
+    try:
+        timeslot = await VaccineAvailabilityTimeslotService(db).update(
+            identifier=timeslot_id, params=body, auth_key=api_key
+        )
+    except InvalidAuthenticationKeyForRequest as e:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, e.message)
+    except InternalDatabaseError:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return timeslot
+
+
+@router.delete(
+    "/{vaccine_availability_id}/timeslots/{timeslot_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_204_NO_CONTENT: {
+            "description": "The timeslot with the specified id "
+            "has been successfully deleted."
+        },
+        status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."},
+        status.HTTP_403_FORBIDDEN: {
+            "description": "Invalid permissions or credentials."
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The timeslot with the specified id "
+            "could not be found."
+        },
+    },
+)
+async def delete_timeslot_for_vaccine_availability_by_id(
+    timeslot_id: UUID,
+    vaccine_availability_id: UUID = Path(
+        ...,
+        description="Timeslot for a vaccine availability with this id.",
+    ),
+    db: MSSQLConnection = Depends(get_db),
+    api_key: UUID = Depends(get_api_key),
+) -> Response:
+    """
+    **Deletes a timeslot with the id from the
+    `timeslot_id` path parameter.**
+    """
+    # Check if timeslot with the id exists
+    timeslot = await VaccineAvailabilityTimeslotService(db).get(timeslot_id)
+    if not timeslot:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    # Perform delete
+    try:
+        await VaccineAvailabilityTimeslotService(db).delete(
+            identifier=timeslot_id, auth_key=api_key
+        )
+    except InvalidAuthenticationKeyForRequest as e:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, e.message)
+    except InternalDatabaseError:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 # ------------------------- Requirements -------------------------
-# @router.get(
-#     "/{vaccine_availability_id}/requirements",
-#     response_model=List[VaccineAvailabilityRequirementsResponse],
-#     responses={
-#         status.HTTP_404_NOT_FOUND: {
-#             "description": "The vaccine availability with the specified id "
-#             "could not be found."
-#         }
-#     },
-# )
-# async def list_requirements_for_vaccine_availability_by_id(
-#     vaccine_availability_id: UUID = Path(
-#         ...,
-#         description="Requirements for a vaccine availability with this id.",
-#     ),
-#     db: MSSQLConnection = Depends(get_db),
-# ) -> List[VaccineAvailabilityRequirementsResponse]:
-#     """
-#     **Retrieves the list of requirements for a vaccine availability. This
-#     vaccine availability has an ID of `vaccine_availability_id` from the
-#     path.**
-#     """
-#     # TODO: Filter by vaccine availability
-#     requirements = await VaccineAvailabilityRequirementService(db).get_multi()
-#     if requirements is None:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-#     return requirements
+@router.get(
+    "/{vaccine_availability_id}/requirements",
+    response_model=List[VaccineAvailabilityRequirementsResponse],
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The vaccine availability with the specified id "
+            "could not be found."
+        }
+    },
+)
+async def list_requirements_for_vaccine_availability_by_id(
+    vaccine_availability_id: UUID = Path(
+        ...,
+        description="Requirements for a vaccine availability with this id.",
+    ),
+    db: MSSQLConnection = Depends(get_db),
+) -> List[VaccineAvailabilityRequirementsResponse]:
+    """
+    **Retrieves the list of requirements for a vaccine availability. This
+    vaccine availability has an ID of `vaccine_availability_id` from the
+    path.**
+    """
+    # TODO: Filter by vaccine availability
+    requirements = await VaccineAvailabilityRequirementService(
+        db
+    ).get_by_vaccine_availability_id(vaccine_availability_id)
+    if requirements is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    return requirements
 
 
 @router.post(
@@ -425,54 +474,103 @@ async def create_requirement_for_vaccine_availability_by_id(
     return requirement
 
 
-# @router.put(
-#     "/{vaccine_availability_id}/requirements/{requirement_id}",
-#     response_model=VaccineAvailabilityRequirementsResponse,
-#     responses={
-#         status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."},
-#         status.HTTP_403_FORBIDDEN: {
-#             "description": "Invalid permissions or credentials."
-#         },
-#         status.HTTP_404_NOT_FOUND: {
-#             "description": "The vaccine availability with the id from the "
-#             "`vaccine_availability_id` path parameter or "
-#             "the requirement with the id from the "
-#             "`requirement_id` path parameter could not be "
-#             "found."
-#         },
-#     },
-# )
-# async def update_requirement_for_vaccine_availability_by_id(
-#     requirement_id: UUID,
-#     body: VaccineAvailabilityRequirementUpdateRequest,
-#     vaccine_availability_id: UUID = Path(
-#         ...,
-#         description="Requirement for a vaccine availability with this id.",
-#     ),
-#     db: MSSQLConnection = Depends(get_db),
-#     api_key: UUID = Depends(get_api_key),
-# ) -> VaccineAvailabilityRequirementsResponse:
-#     """
-#     **Updates a requirement with the id from the `requirement_id` path
-#     parameter with the entity enclosed in the request body. The requirement
-#     must be for a vaccine availability that has an ID of
-#     `vaccine_availability_id` from the path.** On success, the updated
-#     requirement is returned in the body of the response.
-#     """
-#     # TODO: Check vaccine_availability_id against body
-#     # Check if vaccine availability requirement with the id exists
-#     requirement = await VaccineAvailabilityRequirementService(db).get(
-#         requirement_id
-#     )
-#     if not requirement:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-#     # Perform update
-#     try:
-#         requirement = await VaccineAvailabilityRequirementService(db).update(
-#             requirement_id, body, api_key
-#         )
-#     except InvalidAuthenticationKeyForRequest as e:
-#         raise HTTPException(status.HTTP_403_FORBIDDEN, e.message)
-#     except InternalDatabaseError:
-#         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
-#     return requirement
+@router.put(
+    "/{vaccine_availability_id}/requirements/{requirement_id}",
+    response_model=VaccineAvailabilityRequirementsResponse,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."},
+        status.HTTP_403_FORBIDDEN: {
+            "description": "Invalid permissions or credentials."
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The vaccine availability with the id from the "
+            "`vaccine_availability_id` path parameter or "
+            "the requirement with the id from the "
+            "`requirement_id` path parameter could not be "
+            "found."
+        },
+    },
+)
+async def update_requirement_for_vaccine_availability_by_id(
+    requirement_id: UUID,
+    body: VaccineAvailabilityRequirementUpdateRequest,
+    vaccine_availability_id: UUID = Path(
+        ...,
+        description="Requirement for a vaccine availability with this id.",
+    ),
+    db: MSSQLConnection = Depends(get_db),
+    api_key: UUID = Depends(get_api_key),
+) -> VaccineAvailabilityRequirementsResponse:
+    """
+    **Updates a requirement with the id from the `requirement_id` path
+    parameter with the entity enclosed in the request body. The requirement
+    must be for a vaccine availability that has an ID of
+    `vaccine_availability_id` from the path.** On success, the updated
+    requirement is returned in the body of the response.
+    """
+    # TODO: Check vaccine_availability_id against body
+    # Check if vaccine availability requirement with the id exists
+    requirement = await VaccineAvailabilityRequirementService(db).get(
+        requirement_id
+    )
+    if not requirement:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    # Perform update
+    try:
+        requirement = await VaccineAvailabilityRequirementService(db).update(
+            requirement_id, body, api_key
+        )
+    except InvalidAuthenticationKeyForRequest as e:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, e.message)
+    except InternalDatabaseError:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return requirement
+
+
+@router.delete(
+    "/{vaccine_availability_id}/requirements/{requirement_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_204_NO_CONTENT: {
+            "description": "The requirement with the specified id "
+            "has been successfully deleted."
+        },
+        status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."},
+        status.HTTP_403_FORBIDDEN: {
+            "description": "Invalid permissions or credentials."
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The requirement with the specified id "
+            "could not be found."
+        },
+    },
+)
+async def delete_requirement_for_vaccine_availability_by_id(
+    requirement_id: UUID,
+    vaccine_availability_id: UUID = Path(
+        ...,
+        description="Requirement for a vaccine availability with this id.",
+    ),
+    db: MSSQLConnection = Depends(get_db),
+    api_key: UUID = Depends(get_api_key),
+) -> Response:
+    """
+    **Deletes a requirement with the id from the
+    `timeslot_id` path parameter.**
+    """
+    # Check if timeslot with the id exists
+    requirement = await VaccineAvailabilityRequirementService(db).get(
+        requirement_id
+    )
+    if not requirement:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    # Perform delete
+    try:
+        await VaccineAvailabilityRequirementService(db).delete(
+            identifier=requirement_id, auth_key=api_key
+        )
+    except InvalidAuthenticationKeyForRequest as e:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, e.message)
+    except InternalDatabaseError:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

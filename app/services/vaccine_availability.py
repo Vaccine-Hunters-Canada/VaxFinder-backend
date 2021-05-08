@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datetime import date, timezone
+from pprint import PrettyPrinter
 from typing import Dict, List, Optional, Type
 from uuid import UUID
 
@@ -37,7 +38,7 @@ class VaccineAvailabilityService(
     read_procedure_id_parameter = "availabilityID"
     create_procedure_name = "vaccine_availability_Create"
     update_procedure_name = "vaccine_availability_Update"
-    update_procedure_id_parameter = "entryID"
+    update_procedure_id_parameter = "id"
     delete_procedure_name = "vaccine_availability_Delete"
     delete_procedure_id_parameter = "avaliabilityID"
 
@@ -140,6 +141,7 @@ class VaccineAvailabilityService(
 
         # expand availabilities
         availabilities: List[VaccineAvailabilityExpandedResponse] = []
+
         for availability_row in availability_rows:
             availability = VaccineAvailabilityResponse(**availability_row)
 
