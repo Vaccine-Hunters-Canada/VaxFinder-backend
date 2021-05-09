@@ -23,6 +23,9 @@ from app.services.exceptions import (
     InternalDatabaseError,
 )
 from app.services.locations import LocationService
+from app.services.vaccine_availability_requirement import (
+    VaccineAvailabilityRequirementService,
+)
 from app.services.vaccine_availability_timeslot import (
     VaccineAvailabilityTimeslotService,
 )
@@ -81,9 +84,19 @@ class VaccineAvailabilityService(
                 vaccine_availability_id=vaccine_availability.id
             )
 
+            requirements = await VaccineAvailabilityRequirementService(
+                self._db
+            ).get_by_vaccine_availability_id(
+                vaccine_availability_id=vaccine_availability.id
+            )
+
             vaccine_availability_expanded = vaccine_availability.dict()
             vaccine_availability_expanded.update(
-                {"location": location, "timeslots": timeslots}
+                {
+                    "location": location,
+                    "timeslots": timeslots,
+                    "requirements": requirements,
+                }
             )
 
             logger.critical(vaccine_availability_expanded)
