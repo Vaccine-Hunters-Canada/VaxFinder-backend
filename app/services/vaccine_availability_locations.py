@@ -97,13 +97,17 @@ class VaccineLocationsService(
     #     return vaccine_availability
 
     async def get_filtered_multi_expanded(
-        self, postal_code: str, min_date: date
+        self, postal_code: str, min_date: date, include_empty: bool
     ) -> List[VaccineLocationExpandedResponse]:
         procedure_name = "GetVaccineLocationsNearby"
 
         ret_val, sproc_processed = await self._db.sproc_fetch(
             procedure_name,
-            parameters={"postal": postal_code, "date": min_date},
+            parameters={
+                "postal": postal_code,
+                "date": min_date,
+                "includeEmpty": include_empty,
+            },
         )
 
         location_rows = sproc_processed[0]
