@@ -1,8 +1,8 @@
-from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 
+from app.api.api_v1.pagination import AbstractPage, Page, paginate
 from app.api.dependencies import get_api_key, get_db
 from app.db.database import MSSQLConnection
 from app.schemas.organizations import (
@@ -19,15 +19,15 @@ from app.services.organizations import OrganizationService
 router = APIRouter()
 
 
-@router.get("", response_model=List[OrganizationResponse])
+@router.get("", response_model=Page[OrganizationResponse])
 async def list_organizations(
     db: MSSQLConnection = Depends(get_db),
-) -> List[OrganizationResponse]:
+) -> AbstractPage[OrganizationResponse]:
     """
     **Retrieves the list of organizations.**
     """
     # TODO: Filter by name
-    return await OrganizationService(db).get_multi()
+    return paginate(await OrganizationService(db).get_multi())
 
 
 @router.get(

@@ -1,8 +1,8 @@
-from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 
+from app.api.api_v1.pagination import AbstractPage, Page, paginate
 from app.api.dependencies import get_api_key, get_db
 from app.db.database import MSSQLConnection
 from app.schemas.requirements import (
@@ -19,14 +19,14 @@ from app.services.requirements import RequirementService
 router = APIRouter()
 
 
-@router.get("", response_model=List[RequirementResponse])
+@router.get("", response_model=Page[RequirementResponse])
 async def list_requirements(
     db: MSSQLConnection = Depends(get_db),
-) -> List[RequirementResponse]:
+) -> AbstractPage[RequirementResponse]:
     """
     **Retrieves the list of requirements.**
     """
-    return await RequirementService(db).get_multi()
+    return paginate(await RequirementService(db).get_multi())
 
 
 @router.get(

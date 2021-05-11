@@ -1,8 +1,8 @@
-from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 
+from app.api.api_v1.pagination import AbstractPage, Page, paginate
 from app.api.dependencies import get_api_key, get_db
 from app.db.database import MSSQLConnection
 from app.schemas.addresses import (
@@ -19,15 +19,15 @@ from app.services.exceptions import (
 router = APIRouter()
 
 
-@router.get("", response_model=List[AddressResponse])
+@router.get("", response_model=Page[AddressResponse])
 async def list_addresses(
     db: MSSQLConnection = Depends(get_db),
-) -> List[AddressResponse]:
+) -> AbstractPage[AddressResponse]:
     """
     **Retrieves the list of addresses.**
     """
     # TODO: Filter by postal code and requirements
-    return await AddressService(db).get_multi()
+    return paginate(await AddressService(db).get_multi())
 
 
 @router.get(

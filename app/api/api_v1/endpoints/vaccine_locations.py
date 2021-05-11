@@ -1,40 +1,30 @@
 from datetime import date, datetime, timezone
-from typing import List, Optional
-from uuid import UUID
+from typing import Optional
 
-from fastapi import (
-    APIRouter,
-    Depends,
-    HTTPException,
-    Path,
-    Query,
-    Response,
-    status,
-)
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from loguru import logger
 
-from app.api.dependencies import get_api_key, get_db
+from app.api.api_v1.pagination import AbstractPage, Page, paginate
+from app.api.dependencies import get_db
 from app.db.database import MSSQLConnection
 from app.schemas.vaccine_availability import VaccineLocationExpandedResponse
 from app.services.exceptions import (
     DatabaseNotInSyncError,
     InternalDatabaseError,
-    InvalidAuthenticationKeyForRequest,
 )
-from app.services.vaccine_availability import VaccineAvailabilityService
 from app.services.vaccine_availability_locations import VaccineLocationsService
 
 router = APIRouter()
 
 
-@router.get("", response_model=List[VaccineLocationExpandedResponse])
+@router.get("", response_model=Page[VaccineLocationExpandedResponse])
 async def list_vaccine_locations(
     min_date: Optional[date] = Query(
         date.today(),
         title="Minimum Date",
         description="**Search for vaccine availabilities after a certain date "
-        "and time (UTC) in the format YYYY-MM-DD**. The default value is the current date ("
-        "UTC).<br/><br/>Valid example(s): *2021-05-30*",
+        "and time (UTC) in the format YYYY-MM-DD**. The default value is the "
+        "current date (UTC).<br/><br/>Valid example(s): *2021-05-30*",
     ),
     postal_code: str = Query(
         ...,
@@ -53,7 +43,7 @@ async def list_vaccine_locations(
         "<br/><br/>Valid example(s): *true; false;* ",
     ),
     db: MSSQLConnection = Depends(get_db),
-) -> List[VaccineLocationExpandedResponse]:
+) -> AbstractPage[VaccineLocationExpandedResponse]:
     """
     **Retrieves the list of vaccine availabilities within the vicinity of a
     `postal_code` and after the `min_date`.**
@@ -75,4 +65,4 @@ async def list_vaccine_locations(
     except DatabaseNotInSyncError as e:
         logger.warning("Database not in sync: {}", e.message)
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return availabilities
+    return paginate(availabilities)
