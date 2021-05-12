@@ -84,7 +84,12 @@
     - Swagger: [http://localhost:8007/swagger](http://localhost:8007/swagger)
     - ReDoc: [http://localhost:8007/redoc](http://localhost:8007/redoc)
     - OpenAPI Spec (JSON): [http://localhost:8007/openapi.json](http://localhost:8007/openapi.json)
-   
+
+    A note on the `DB_URL`. Since we're using SQL Server with a `pyodbc`-type driver, we form the URL like so:
+    ```
+    pyodbc+mssql://<USERNAME>:<PASSWORD>@<HOSTNAME>/<DATABASE_NAME>?driver=ODBC+Driver+17+for+SQL+Server
+    ```
+
 ### Pre-commit Hooks
 
 Pre-commit hooks helps identify simple issues in code before it's committed into Git. At the moment, *isort* and *black* are the only hooks that are set up. 
