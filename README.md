@@ -27,6 +27,8 @@
 1. [Python 3.8](https://www.python.org/downloads/release/python-380/)
 2. [Poetry](https://python-poetry.org/): A tool for dependency management and packaging.
 3. Access to VaxFinder's Microsoft SQL Server database hosted on [Azure](https://azure.microsoft.com/en-ca/services/sql-database/). Please message Patrick or Evan for access.
+4. [Docker](https://www.docker.com/) (for testing): A container management tool which we use to package our application.
+5. [Docker Compose](https://docs.docker.com/compose/install/) (for testing): Multi-container orchestration to give high-level control of containers during testing.
 
 ### Installation
 
@@ -100,6 +102,27 @@ It's possible to disable hooks temporarily, but it isn't recommended.
 ```bash
 $ SKIP=isort,black git commit -m <message>
 ```
+
+## Testing
+
+### Integration and Unit Tests
+
+To run the integration and unit tests, you will need to use Docker Compose to spin up a Microsoft SQL Server instance, and then run the tests with the `DB_URL` pointed to it.
+
+```bash
+$ docker-compose up
+$ DB_URL=pyodbc+mssql://SA:Password0@localhost/tempdb?driver=ODBC+Driver+17+for+SQL+Server poetry run pytest -vvs app/tests/
+```
+
+Once you're done running the tests, you will need to tear down the database instance, otherwise if you try running the tests again it will use the same instance.
+
+```bash
+$ docker-compose down
+$ docker-compose rm -f
+```
+
+There are ideas in the works to possibly group this all into a simple shell script or something or further wrap it in a test harness so it's not cumbersome.
+
 
 ## Environments
 
