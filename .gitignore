@@ -154,3 +154,8 @@ Thumbs.db
 
 # Ignore PyCharm
 .idea/
+
+
+# Vim files
+**.swp
+**.swo
