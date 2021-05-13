@@ -16,7 +16,8 @@ class TestSettings(BaseSettings):
 
     MIN_SQL_QUERY_LENGTH: int = 4
     MAX_TEST_DB_CONNECT_RETRIES: int = 10
-    SETUP_SQL_FILES_LOCATION: str = "sql/"
+    SETUP_SQL_FILES_LOCATION: str = "sql/setup/"
+    AFTER_TESTCASE_SQL_FILES_LOCATION: str = "sql/delete_all_rows/"
     DB_URL: str
 
 
