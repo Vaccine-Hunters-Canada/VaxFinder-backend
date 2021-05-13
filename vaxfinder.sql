@@ -65,8 +65,6 @@ create table locations
 	name varchar(255) not null,
 	organization int
 		constraint FK__locations__organ__656C112C
-			references organizations
-		constraint FK__locations__organ__797309D9
 			references organizations,
 	phone varchar(255),
 	notes text,
