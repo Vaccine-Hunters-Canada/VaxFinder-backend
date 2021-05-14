@@ -116,7 +116,7 @@ To run the integration and unit tests, you will need to use Docker Compose to sp
 
 ```bash
 $ docker-compose up
-$ DB_URL=pyodbc+mssql://SA:Password0@localhost/tempdb?driver=ODBC+Driver+17+for+SQL+Server poetry run pytest -vvs app/tests/
+$ DB_URL=pyodbc+mssql://SA:Password0@localhost?driver=ODBC+Driver+17+for+SQL+Server poetry run pytest -vvs app/tests/
 ```
 
 Once you're done running the tests, you will need to tear down the database instance, otherwise if you try running the tests again it will use the same instance.

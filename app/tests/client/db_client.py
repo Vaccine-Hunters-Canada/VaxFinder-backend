@@ -20,13 +20,13 @@ from app.tests.utils.utils import (
 )
 
 
-class TestMSSQLClient:
+class MSSQLClient:
     """
     A quick and dirty SQL client for the mock SQL Server instance that will
     be used for integration testing.
 
     This is meant to be used as an async context manager, ie.
-    with TestMSSQLClient() as client:
+    with MSSQLClient() as client:
         client.execute_query(...)
         ...
     """
@@ -70,7 +70,7 @@ class TestMSSQLClient:
 
         return rows
 
-    async def __aenter__(self) -> "TestMSSQLClient":
+    async def __aenter__(self) -> "MSSQLClient":
         logger.debug("Verifying MSSQL client connection...")
 
         for attempt_number in range(test_settings.MAX_TEST_DB_CONNECT_RETRIES):

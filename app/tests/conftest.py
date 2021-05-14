@@ -7,32 +7,33 @@ from typing import AsyncGenerator, Generator, Iterable, Union
 
 import pytest
 from fastapi.testclient import TestClient
+from httpx import AsyncClient
 from loguru import logger
 from requests import Session
 from toolz.functoolz import compose
 
 from app.db.database import MSSQLBackend
 from app.main import app
-from app.tests.client.db_client import MSSQLFileGroupReader, TestMSSQLClient
+from app.tests.client.db_client import MSSQLClient, MSSQLFileGroupReader
 from app.tests.settings import test_settings
 
 VAXHUNTER_SQL_LOCATION = "vaxfinder.sql"
 
 
 @pytest.fixture(scope="session")
-def event_loop() -> AbstractEventLoop:
+def event_loop() -> Generator[AbstractEventLoop, None, None]:
     """
     To solve scope issues with the event loop and session-level pytest fixtures.
     Without this, async tests die with some obscure message about scope-level mismatch.
     """
-    return get_event_loop()
+    yield get_event_loop()
 
 
 async def execute_sequence_of_queries(
-    db: TestMSSQLClient,
+    db: MSSQLClient,
     queries: Iterable[str],
     logger_purpose: str = "unknown purpose",
-) -> TestMSSQLClient:
+) -> MSSQLClient:
     for query_num, query in enumerate(queries):
         try:
             await db.execute_query(query)
@@ -48,7 +49,7 @@ async def execute_sequence_of_queries(
     return db
 
 
-async def create_tables_and_sprocs(db: TestMSSQLClient) -> TestMSSQLClient:
+async def create_tables_and_sprocs(db: MSSQLClient) -> MSSQLClient:
     """
     Read schema setup queries and apply to DB instance.
     """
@@ -62,17 +63,17 @@ async def create_tables_and_sprocs(db: TestMSSQLClient) -> TestMSSQLClient:
 
 
 @pytest.fixture(scope="session")
-async def _db_session() -> AsyncGenerator[TestMSSQLClient, None]:
+async def _db_session() -> AsyncGenerator[MSSQLClient, None]:
     """
     Use separate DB client so we can verify the startup hook of the app
     independently.
     """
-    async with TestMSSQLClient() as test_db_client:
+    async with MSSQLClient() as test_db_client:
         test_db_client = await create_tables_and_sprocs(test_db_client)
         yield test_db_client
 
 
-async def delete_all_rows(db: TestMSSQLClient) -> TestMSSQLClient:
+async def delete_all_rows(db: MSSQLClient) -> MSSQLClient:
     """
     Use preset queries to delete all data after a test case.
     """
@@ -87,8 +88,8 @@ async def delete_all_rows(db: TestMSSQLClient) -> TestMSSQLClient:
 
 @pytest.fixture(scope="function")
 async def db_client(
-    _db_session: TestMSSQLClient,
-) -> AsyncGenerator[TestMSSQLClient, None]:
+    _db_session: MSSQLClient,
+) -> AsyncGenerator[MSSQLClient, None]:
     """
     Clears the DB after every use of it.
     """
@@ -97,7 +98,20 @@ async def db_client(
     await delete_all_rows(_db_session)
 
 
-@pytest.fixture(scope="module")
-def app_client() -> Generator[Session, None, None]:
-    with TestClient(app) as c:
+@pytest.fixture(scope="session")
+async def app_client() -> AsyncGenerator[AsyncClient, None]:
+    async with AsyncClient(app=app, base_url="http://testhost") as c:
+        from app.db.database import db
+
+        while True:
+            try:
+                # check health
+                await db.connect()
+                logger.info("Database connection established")
+                break
+            except Exception as e:
+                logger.critical(e)
+                logger.critical("Connecting to database...")
+                time.sleep(5)
         yield c
+        await db.disconnect()
