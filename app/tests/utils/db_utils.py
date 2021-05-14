@@ -1,8 +1,5 @@
-from abc import ABC, abstractmethod
 from functools import reduce
 from typing import Any, Callable, Tuple
-
-from loguru import logger
 
 from app.tests.client.db_client import MSSQLClient
 
@@ -10,6 +7,13 @@ NULL_STR = "NULL"
 
 
 def create_sql_values_string(values: Tuple[Any, ...]) -> str:
+    """
+    Given a tuple of Pythonic values to be used in a SQL query,
+    concatenate them together into a string that will used as the values
+    tuple for a SQL query.
+    Ex. Given (1, "Location0", "1112223333"), we will turn that into the
+    string "(1, 'Location0', '1112223333')"
+    """
     assert len(values) > 0
 
     convert_to_null_if_none = (
