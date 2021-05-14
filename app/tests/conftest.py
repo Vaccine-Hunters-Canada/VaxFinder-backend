@@ -17,8 +17,6 @@ from app.main import app
 from app.tests.client.db_client import MSSQLClient, MSSQLFileGroupReader
 from app.tests.settings import test_settings
 
-VAXHUNTER_SQL_LOCATION = "vaxfinder.sql"
-
 
 @pytest.fixture(scope="session")
 def event_loop() -> Generator[AbstractEventLoop, None, None]:
