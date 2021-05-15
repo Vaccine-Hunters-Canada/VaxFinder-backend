@@ -25,11 +25,37 @@ async def test_GivenOneLocation_WhenGettingLocations_ThenLocationReceived(
 ) -> None:
     locations_helper = LocationsDBHelper(db_client)
 
-    await locations_helper.create_location("Location1", 1)
+    name = "Location1"
+    active = 1
+    phone = "6041112222"
+    notes = "Accepting all V postal codes"
+    postcode = "V6C1P7"
+    url = "http://novaxhere.ca/"
+
+    await locations_helper.create_location(
+        name,
+        active,
+        phone=phone,
+        notes=notes,
+        postcode=postcode,
+        url=url,
+    )
 
     response = await app_client.get("/api/v1/locations")
 
     assert response.status_code == 200
 
     content = response.json()
-    assert not content == []
+    assert len(content) == 1
+
+    received_location = content[0]
+
+    assert received_location["name"] == name
+    assert received_location["active"] == active
+    assert received_location["organization"] is None
+    assert received_location["phone"] == phone
+    assert received_location["notes"] == notes
+    assert received_location["postcode"] == postcode
+    assert received_location["url"] == url
+    assert received_location["address"] is None
+    assert received_location["tags"] is None

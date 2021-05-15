@@ -35,7 +35,7 @@ async def execute_sequence_of_queries(
     for query_num, query in enumerate(queries):
         try:
             await db.execute_query(query)
-            logger.info(
+            logger.debug(
                 f"The {query_num}th query for {logger_purpose} has succeeded."
             )
         except Exception as e:
@@ -98,6 +98,21 @@ async def db_client(
 
 @pytest.fixture(scope="session")
 async def app_client() -> AsyncGenerator[AsyncClient, None]:
+    """
+    Use AsyncClient as test API client instance for all tests.
+
+    Not using FastAPI's TestClient as they recommend to not do so, and instead
+    use httpx.AsyncClient instead. This is because the TestClient is based on
+    the starlette client, which itself does not support an event loop running
+    separately from the starlette. This is because starlette wants to process
+    asynchronous requests in a synchronous manner to the user, so starlette
+    requires complete control of the event loop.
+
+    Another consideration is that the startup and shutdown hooks are not
+    invoked when using the AsyncClient. This is because httpx expects a general
+    ASGI app, so it doesn't know any of FastAPI's special hooks. This means we
+    must start up the database instance for the app manually.
+    """
     async with AsyncClient(app=app, base_url="http://testhost") as c:
         from app.db.database import db
 
@@ -105,7 +120,7 @@ async def app_client() -> AsyncGenerator[AsyncClient, None]:
             try:
                 # check health
                 await db.connect()
-                logger.info("Database connection established")
+                logger.debug("Database connection established")
                 break
             except Exception as e:
                 logger.critical(e)
