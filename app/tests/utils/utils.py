@@ -13,7 +13,7 @@ def read_content_from_file(filepath: Location) -> str:
 
 
 def get_number_in_str(string: str) -> int:
-    numbers_only_regex = "\d+"
+    numbers_only_regex = r"\d+"
 
     numbers = findall(numbers_only_regex, string)
 
