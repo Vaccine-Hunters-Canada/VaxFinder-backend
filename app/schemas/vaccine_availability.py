@@ -111,6 +111,8 @@ class VaccineAvailabilityRequirementsResponse(BaseModel):
     vaccine_availability: UUID
     requirement: int
     active: bool
+    name: str
+    description: str
     created_at: datetime
 
 

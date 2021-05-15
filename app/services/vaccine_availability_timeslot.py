@@ -25,15 +25,15 @@ class VaccineAvailabilityTimeslotService(
 ):
     read_procedure_name = None
     read_procedure_id_parameter = "id"
-    create_procedure_name = "vaccine_availability_children_Create"
-    update_procedure_name = "vaccine_availability_children_Update"
+    create_procedure_name = "vaccine_availability_timeslots_Create"
+    update_procedure_name = "vaccine_availability_timeslots_Update"
     update_procedure_id_parameter = "id"
-    delete_procedure_name = "vaccine_availability_children_Delete"
+    delete_procedure_name = "vaccine_availability_timeslots_Delete"
     delete_procedure_id_parameter = "id"
 
     @property
     def table(self) -> str:
-        return "vaccine_availability_children"
+        return "vaccine_availability_timeslot"
 
     @property
     def db_response_schema(self) -> Type[VaccineAvailabilityTimeslotResponse]:
@@ -59,7 +59,7 @@ class VaccineAvailabilityTimeslotService(
     async def get_by_vaccine_availability_id(
         self, vaccine_availability_id: UUID, auth_key: Optional[UUID] = None
     ) -> Optional[List[VaccineAvailabilityTimeslotResponse]]:
-        procedure_name = "vaccine_availability_children_ReadByParent"
+        procedure_name = "vaccine_availability_timeslots_ReadByParent"
 
         ret_value, db_rows = await self._db.sproc_fetch_all(
             procname=procedure_name,
