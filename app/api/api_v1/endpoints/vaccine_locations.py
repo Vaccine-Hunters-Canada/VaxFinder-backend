@@ -45,6 +45,13 @@ async def list_vaccine_locations(
         min_length=3,
         max_length=3,
     ),
+    include_empty: bool = Query(
+        False,
+        title="Include Empty",
+        description="**Include Vaccine Availabilities "
+        "with no remaining vaccines**"
+        "<br/><br/>Valid example(s): *true; false;* ",
+    ),
     db: MSSQLConnection = Depends(get_db),
 ) -> List[VaccineLocationExpandedResponse]:
     """
@@ -61,6 +68,7 @@ async def list_vaccine_locations(
         ).get_filtered_multi_expanded(
             postal_code=postal_code,
             min_date=min_date,
+            include_empty=include_empty,
         )
     except InternalDatabaseError:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
