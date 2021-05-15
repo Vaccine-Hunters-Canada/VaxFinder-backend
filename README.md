@@ -115,15 +115,15 @@ $ SKIP=isort,black git commit -m <message>
 To run the integration and unit tests, you will need to use Docker Compose to spin up a Microsoft SQL Server instance, and then run the tests with the `DB_URL` pointed to it.
 
 ```bash
-$ docker-compose up
+$ docker-compose --file app/tests/docker-compose.yml up -d
 $ DB_URL=pyodbc+mssql://SA:Password0@localhost?driver=ODBC+Driver+17+for+SQL+Server poetry run pytest -vvs app/tests/
 ```
 
 Once you're done running the tests, you will need to tear down the database instance, otherwise if you try running the tests again it will use the same instance.
 
 ```bash
-$ docker-compose down
-$ docker-compose rm -f
+$ docker-compose --file app/tests/docker-compose.yml down
+$ docker-compose --file app/tests/docker-compose.yml rm -f
 ```
 
 There are ideas in the works to possibly group this all into a simple shell script or something or further wrap it in a test harness so it's not cumbersome.

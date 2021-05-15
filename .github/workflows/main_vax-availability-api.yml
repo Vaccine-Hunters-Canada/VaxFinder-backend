@@ -41,10 +41,10 @@ jobs:
       env:
         DB_URL: pyodbc+mssql://SA:Password0@localhost?driver=ODBC+Driver+17+for+SQL+Server
       run: |
-       docker-compose up -d
+       docker-compose --file app/tests/docker-compose.yml up -d
        poetry run pytest -vvs app/tests/
-       docker-compose down
-       docker-compose rm -f
+       docker-compose --file app/tests/docker-compose.yml down
+       docker-compose --file app/tests/docker-compose.yml rm -f
 
   BuildDocker:
     runs-on: 'ubuntu-latest'
