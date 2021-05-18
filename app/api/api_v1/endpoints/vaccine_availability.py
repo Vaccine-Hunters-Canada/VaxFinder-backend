@@ -13,6 +13,7 @@ from fastapi import (
 )
 from loguru import logger
 
+from app.api.api_v1.pagination import AbstractPage, Page, paginate
 from app.api.dependencies import get_api_key, get_db
 from app.db.database import MSSQLConnection
 from app.schemas.vaccine_availability import (
@@ -45,14 +46,14 @@ from app.services.vaccine_availability_timeslot import (
 router = APIRouter()
 
 
-@router.get("", response_model=List[VaccineAvailabilityExpandedResponse])
+@router.get("", response_model=Page[VaccineAvailabilityExpandedResponse])
 async def list_vaccine_availability(
     min_date: Optional[date] = Query(
         date.today(),
         title="Minimum Date",
         description="**Search for vaccine availabilities after a certain date "
-        "and time (UTC) in the format YYYY-MM-DD**. The default value is the current date ("
-        "UTC).<br/><br/>Valid example(s): *2021-05-30*",
+        "and time (UTC) in the format YYYY-MM-DD**. The default value is the "
+        "current date (UTC).<br/><br/>Valid example(s): *2021-05-30*",
     ),
     postal_code: str = Query(
         ...,
@@ -64,7 +65,7 @@ async def list_vaccine_availability(
         max_length=3,
     ),
     db: MSSQLConnection = Depends(get_db),
-) -> List[VaccineAvailabilityExpandedResponse]:
+) -> AbstractPage[VaccineAvailabilityExpandedResponse]:
     """
     **Retrieves the list of vaccine availabilities within the vicinity of a
     `postal_code` and after the `min_date`.**
@@ -85,7 +86,7 @@ async def list_vaccine_availability(
     except DatabaseNotInSyncError as e:
         logger.warning("Database not in sync: {}", e.message)
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return availabilities
+    return paginate(availabilities)
 
 
 @router.get(
@@ -382,8 +383,7 @@ async def delete_timeslot_for_vaccine_availability_by_id(
     api_key: UUID = Depends(get_api_key),
 ) -> Response:
     """
-    **Deletes a timeslot with the id from the
-    `timeslot_id` path parameter.**
+    **Deletes a timeslot with the id from the `timeslot_id` path parameter.**
     """
     # Check if timeslot with the id exists
     timeslot = await VaccineAvailabilityTimeslotService(db).get(timeslot_id)

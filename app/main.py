@@ -1,5 +1,4 @@
 import time
-from typing import List
 
 import uvicorn
 from fastapi import FastAPI
@@ -10,7 +9,7 @@ from app import logging_config
 from app.api.api_v1.api import api_router
 from app.api.openapi_tags import openapi_tags
 from app.core.config import settings
-from app.db.database import MSSQLBackend, db
+from app.db.database import db
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -33,6 +32,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # --- Database Startup Procedure ---
 @app.on_event("startup")

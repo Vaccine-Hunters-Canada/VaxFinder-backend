@@ -8,6 +8,7 @@ from app.api.api_v1.endpoints import (
     vaccine_availability,
     vaccine_locations,
 )
+from app.api.api_v1.pagination import add_pagination
 
 api_router = APIRouter()
 
@@ -46,3 +47,5 @@ api_router.include_router(
     prefix="/requirements",
     tags=["Requirements"],
 )
+
+add_pagination(api_router)

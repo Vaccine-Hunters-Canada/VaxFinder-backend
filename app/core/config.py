@@ -16,6 +16,7 @@ class Settings(BaseSettings):
 
     # -- API Versioning ---
     API_V1_STR: str = "/api/v1"
+    API_V1_DEFAULT_PAGINATION_SIZE: int = 12
 
     # -- Database Connection ---
     DB_URL: str
