@@ -53,6 +53,7 @@ async def retrieve_location_by_id(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return location
 
+
 @router.get(
     "/external/{external_key}",
     response_model=LocationExpandedResponse,
@@ -74,6 +75,7 @@ async def retrieve_location_by_external_key(
     if location is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return location
+
 
 @router.post(
     "",

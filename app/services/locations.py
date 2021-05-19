@@ -8,6 +8,7 @@ from app.schemas.locations import (
 )
 from app.services.addresses import AddressService
 from app.services.base import BaseService
+from app.services.exceptions import InternalDatabaseError
 from app.services.organizations import OrganizationService
 
 
@@ -77,24 +78,20 @@ class LocationService(
     async def get_expanded_key(
         self, externalKey: str
     ) -> Optional[LocationExpandedResponse]:
-        
 
         procedure_name = "locations_ReadByExternalKey"
 
         ret_val, sproc_processed = await self._db.sproc_fetch(
             procedure_name,
-            parameters={
-                "external_key": externalKey
-            },
+            parameters={"external_key": externalKey},
         )
 
-        location_rows = sproc_processed[0]   
-        location = LocationResponse(**location_rows[0])
-        
-        if location is not None:
-            return await self._expand(location=location)
+        location_rows = sproc_processed[0]
+        if location_rows is None or location_rows[0] is None:
+            raise InternalDatabaseError(f"Failed to execute {procedure_name}")
 
-        return location
+        location = LocationResponse(**location_rows[0])
+        return await self._expand(location=location)
 
     async def get_multi_expanded(self) -> List[LocationExpandedResponse]:
         locations = await super().get_multi()
