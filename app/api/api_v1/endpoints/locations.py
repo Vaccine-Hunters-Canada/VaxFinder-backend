@@ -53,6 +53,27 @@ async def retrieve_location_by_id(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return location
 
+@router.get(
+    "/external/{external_key}",
+    response_model=LocationExpandedResponse,
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The location with the specified id could not be "
+            "found."
+        }
+    },
+)
+async def retrieve_location_by_external_key(
+    external_key: str, db: MSSQLConnection = Depends(get_db)
+) -> LocationExpandedResponse:
+    """
+    **Retrieves a location with the external key from the path
+    parameter.**
+    """
+    location = await LocationService(db).get_expanded_key(external_key)
+    if location is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return location
 
 @router.post(
     "",

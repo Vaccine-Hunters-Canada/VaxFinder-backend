@@ -17,6 +17,7 @@ class LocationResponseBase(BaseModel):
     postcode: Optional[str]
     url: Optional[HttpUrl]
     tags: Optional[str]
+    external_key: Optional[str]
 
 
 class LocationResponse(LocationResponseBase):
