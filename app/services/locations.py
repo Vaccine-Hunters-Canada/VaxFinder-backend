@@ -76,8 +76,7 @@ class LocationService(
 
     async def get_expanded_key(
         self, externalKey: str
-    ) -> Optional[LocationExpandedResponse]:
-        
+    ) -> Optional[LocationExpandedResponse]:        
 
         procedure_name = "locations_ReadByExternalKey"
 
@@ -88,13 +87,17 @@ class LocationService(
             },
         )
 
-        location_rows = sproc_processed[0]   
+        location_rows = sproc_processed[0]  
+
+        if len(location_rows) < 1:
+            return 
+
         location = LocationResponse(**location_rows[0])
         
-        if location is not None:
-            return await self._expand(location=location)
+        if location is None:
+            return 
 
-        return location
+        return await self._expand(location=location)        
 
     async def get_multi_expanded(self) -> List[LocationExpandedResponse]:
         locations = await super().get_multi()
