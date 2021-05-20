@@ -6,8 +6,7 @@ from app.schemas.locations import (
     LocationCreateRequestExpanded,
     LocationExpandedResponse,
     LocationResponse,
-    LocationUpdateRequest,
-    LocationCreateRequestExpanded    
+    LocationUpdateRequest
 )
 from app.services.addresses import AddressService
 from app.services.base import BaseService
