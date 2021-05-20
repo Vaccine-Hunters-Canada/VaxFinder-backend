@@ -1,16 +1,20 @@
+from app.schemas.addresses import AddressCreateRequest, AddressResponseBase
 from typing import List, Optional, Type
 
 from app.schemas.locations import (
     LocationCreateRequest,
+    LocationCreateRequestExpanded,
     LocationExpandedResponse,
     LocationResponse,
     LocationUpdateRequest,
+    LocationCreateRequestExpanded    
 )
 from app.services.addresses import AddressService
 from app.services.base import BaseService
 from app.services.exceptions import InternalDatabaseError
 from app.services.organizations import OrganizationService
-
+from typing import Any, Dict, List, Optional, Tuple, Union
+from uuid import UUID
 
 class LocationService(
     BaseService[LocationResponse, LocationCreateRequest, LocationUpdateRequest]
@@ -127,3 +131,38 @@ class LocationService(
             )
 
         return locations_expanded
+
+    async def create_expanded(self, location : LocationCreateRequestExpanded,
+        auth_key : Optional[UUID]
+            ) -> int :
+        
+        address_Params : dict[str, any] = {
+            "line1" : location.line1,
+            "line2" : location.line2,
+            "city" : location.city,
+            "province" : location.province,
+            "postcode" : location.postcode
+        }         
+        
+        ret_val : int = 0
+
+        ret_val = await self._db.execute_sproc("address_Create", address_Params, auth_key)
+
+        location_Params : dict[str, any] = {
+            "name" : location.name,
+            "organization" : location.organization,
+            "phone" : location.phone,
+            "notes" : location.notes,
+            "address" : ret_val,
+            "active" : location.active,
+            "postcode" : location.postcode,
+            "url" : location.url,
+            "tags" : location.tags,
+            "external_key" : location.external_key
+        }        
+
+        ret_val2 : int = 0
+
+        ret_val2 = await self._db.execute_sproc("locations_Create", location_Params, auth_key)
+
+        return(ret_val2)
