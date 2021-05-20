@@ -10,6 +10,7 @@ from app.schemas.locations import (
 )
 from app.services.addresses import AddressService
 from app.services.base import BaseService
+from app.services.exceptions import InternalDatabaseError
 from app.services.organizations import OrganizationService
 from typing import Any, Dict, List, Optional, Tuple, Union
 from uuid import UUID
@@ -79,28 +80,21 @@ class LocationService(
 
     async def get_expanded_key(
         self, externalKey: str
-    ) -> Optional[LocationExpandedResponse]:        
+    ) -> Optional[LocationExpandedResponse]:
 
         procedure_name = "locations_ReadByExternalKey"
 
         ret_val, sproc_processed = await self._db.sproc_fetch(
             procedure_name,
-            parameters={
-                "external_key": externalKey
-            },
+            parameters={"external_key": externalKey},
         )
 
-        location_rows = sproc_processed[0]  
-
-        if len(location_rows) < 1:
-            return 
+        location_rows = sproc_processed[0]
+        if location_rows is None or location_rows[0] is None:
+            raise InternalDatabaseError(f"Failed to execute {procedure_name}")
 
         location = LocationResponse(**location_rows[0])
-        
-        if location is None:
-            return 
-
-        return await self._expand(location=location)        
+        return await self._expand(location=location)
 
     async def get_multi_expanded(self) -> List[LocationExpandedResponse]:
         locations = await super().get_multi()
@@ -140,7 +134,8 @@ class LocationService(
     async def create_expanded(self, location : LocationCreateRequestExpanded,
         auth_key : Optional[UUID]
             ) -> int :
-        
+       
+
         address_Params = {
             "line1" : location.line1,
             "line2" : location.line2,
@@ -152,6 +147,7 @@ class LocationService(
         ret_val : int = 0
 
         ret_val = await self._db.execute_sproc("address_Create", address_Params, auth_key)
+
 
         location_Params = {
             "name" : location.name,
