@@ -23,7 +23,7 @@ class VaccineAvailabilityTimeslotService(
         VaccineAvailabilityTimeslotUpdateRequest,
     ]
 ):
-    read_procedure_name = None
+    read_procedure_name = "vaccine_availability_timeslots_Read"
     read_procedure_id_parameter = "id"
     create_procedure_name = "vaccine_availability_timeslots_Create"
     update_procedure_name = "vaccine_availability_timeslots_Update"
