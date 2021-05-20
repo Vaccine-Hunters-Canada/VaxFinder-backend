@@ -1,9 +1,8 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import HttpUrl
+from pydantic import ConstrainedStr, HttpUrl
 from pydantic.types import NonNegativeInt
-from pydantic import ConstrainedStr
 
 from app.schemas.addresses import AddressResponse
 from app.schemas.base import BaseModel
@@ -13,7 +12,6 @@ from app.schemas.organizations import OrganizationResponse
 class PostalCode(ConstrainedStr):
     min_length = 6
     max_length = 6
-
 
 
 class LocationResponseBase(BaseModel):
@@ -51,10 +49,11 @@ class LocationUpdateRequest(LocationResponseBase):
     address: Optional[int]
     organization: Optional[int]
 
+
 class LocationCreateRequestExpanded(LocationResponseBase):
     organization: Optional[int]
     line1: Optional[str]
     line2: Optional[str]
-    city: Optional[str]    
+    city: Optional[str]
     province: str
     postcode: PostalCode

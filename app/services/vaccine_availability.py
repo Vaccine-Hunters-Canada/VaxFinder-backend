@@ -222,13 +222,11 @@ class VaccineAvailabilityService(
         )
 
         availability_rows = sproc_processed[0]
-        
+
         if availability_rows is None:
             return []
 
-        if (
-            ret_val == -1        
-        ):
+        if ret_val == -1:
             raise InternalDatabaseError()
 
         # expand availabilities

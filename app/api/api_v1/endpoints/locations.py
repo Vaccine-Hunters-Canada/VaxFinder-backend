@@ -7,10 +7,10 @@ from app.api.dependencies import get_api_key, get_db
 from app.db.database import MSSQLConnection
 from app.schemas.locations import (
     LocationCreateRequest,
+    LocationCreateRequestExpanded,
     LocationExpandedResponse,
     LocationResponse,
     LocationUpdateRequest,
-    LocationCreateRequestExpanded
 )
 from app.services.exceptions import (
     InternalDatabaseError,
@@ -105,6 +105,7 @@ async def create_location(
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
     return location
 
+
 @router.post(
     "/expanded/",
     response_model=int,
@@ -131,6 +132,7 @@ async def create_location_expanded(
     except InternalDatabaseError:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
     return location
+
 
 @router.put(
     "/{location_id}",

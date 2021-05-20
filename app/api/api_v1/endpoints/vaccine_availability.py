@@ -100,7 +100,7 @@ async def list_vaccine_availability_location(
     locationID: int = Query(
         ...,
         title="Location ID",
-        description="**Location searching for**",        
+        description="**Location searching for**",
     ),
     db: MSSQLConnection = Depends(get_db),
 ) -> List[VaccineAvailabilityResponse]:
@@ -113,9 +113,7 @@ async def list_vaccine_availability_location(
         min_date = datetime.today()
         min_date = min_date.replace(tzinfo=timezone.utc)
     try:
-        availabilities = await VaccineAvailabilityService(
-            db
-        ).get_by_location(
+        availabilities = await VaccineAvailabilityService(db).get_by_location(
             locationID=locationID,
             min_date=min_date,
         )
