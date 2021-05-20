@@ -141,7 +141,7 @@ class LocationService(
         auth_key : Optional[UUID]
             ) -> int :
         
-        address_Params : dict[str, any] = {
+        address_Params = {
             "line1" : location.line1,
             "line2" : location.line2,
             "city" : location.city,
@@ -153,7 +153,7 @@ class LocationService(
 
         ret_val = await self._db.execute_sproc("address_Create", address_Params, auth_key)
 
-        location_Params : dict[str, any] = {
+        location_Params = {
             "name" : location.name,
             "organization" : location.organization,
             "phone" : location.phone,
