@@ -7,6 +7,7 @@ from app.api.dependencies import get_api_key, get_db
 from app.db.database import MSSQLConnection
 from app.schemas.locations import (
     LocationCreateRequest,
+    LocationCreateRequestExpanded,
     LocationExpandedResponse,
     LocationResponse,
     LocationUpdateRequest,
@@ -54,6 +55,29 @@ async def retrieve_location_by_id(
     return location
 
 
+@router.get(
+    "/external/{external_key}",
+    response_model=LocationExpandedResponse,
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The location with the specified id could not be "
+            "found."
+        }
+    },
+)
+async def retrieve_location_by_external_key(
+    external_key: str, db: MSSQLConnection = Depends(get_db)
+) -> LocationExpandedResponse:
+    """
+    **Retrieves a location with the external key from the path
+    parameter.**
+    """
+    location = await LocationService(db).get_expanded_key(external_key)
+    if location is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return location
+
+
 @router.post(
     "",
     response_model=LocationResponse,
@@ -75,6 +99,34 @@ async def create_location(
     """
     try:
         location = await LocationService(db).create(body, api_key)
+    except InvalidAuthenticationKeyForRequest as e:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, e.message)
+    except InternalDatabaseError:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return location
+
+
+@router.post(
+    "/expanded/",
+    response_model=int,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."},
+        status.HTTP_403_FORBIDDEN: {
+            "description": "Invalid permissions or credentials."
+        },
+    },
+)
+async def create_location_expanded(
+    body: LocationCreateRequestExpanded,
+    db: MSSQLConnection = Depends(get_db),
+    api_key: UUID = Depends(get_api_key),
+) -> int:
+    """
+    **Creates a new location with the entity enclosed in the request body.** On
+    success, the new location is returned in the body of the response.
+    """
+    try:
+        location = await LocationService(db).create_expanded(body, api_key)
     except InvalidAuthenticationKeyForRequest as e:
         raise HTTPException(status.HTTP_403_FORBIDDEN, e.message)
     except InternalDatabaseError:

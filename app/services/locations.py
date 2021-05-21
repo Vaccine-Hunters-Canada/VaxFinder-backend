@@ -1,13 +1,17 @@
-from typing import List, Optional, Type
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from uuid import UUID
 
+from app.schemas.addresses import AddressCreateRequest, AddressResponseBase
 from app.schemas.locations import (
     LocationCreateRequest,
+    LocationCreateRequestExpanded,
     LocationExpandedResponse,
     LocationResponse,
     LocationUpdateRequest,
 )
 from app.services.addresses import AddressService
 from app.services.base import BaseService
+from app.services.exceptions import InternalDatabaseError
 from app.services.organizations import OrganizationService
 
 
@@ -74,6 +78,24 @@ class LocationService(
 
         return location
 
+    async def get_expanded_key(
+        self, externalKey: str
+    ) -> Optional[LocationExpandedResponse]:
+
+        procedure_name = "locations_ReadByExternalKey"
+
+        ret_val, sproc_processed = await self._db.sproc_fetch(
+            procedure_name,
+            parameters={"external_key": externalKey},
+        )
+
+        location_rows = sproc_processed[0]
+        if location_rows is None or location_rows[0] is None:
+            raise InternalDatabaseError(f"Failed to execute {procedure_name}")
+
+        location = LocationResponse(**location_rows[0])
+        return await self._expand(location=location)
+
     async def get_multi_expanded(self) -> List[LocationExpandedResponse]:
         locations = await super().get_multi()
 
@@ -108,3 +130,42 @@ class LocationService(
             )
 
         return locations_expanded
+
+    async def create_expanded(
+        self, location: LocationCreateRequestExpanded, auth_key: Optional[UUID]
+    ) -> int:
+
+        address_Params = {
+            "line1": location.line1,
+            "line2": location.line2,
+            "city": location.city,
+            "province": location.province,
+            "postcode": location.postcode,
+        }
+
+        ret_val: int = 0
+
+        ret_val = await self._db.execute_sproc(
+            "address_Create", address_Params, auth_key
+        )
+
+        location_Params = {
+            "name": location.name,
+            "organization": location.organization,
+            "phone": location.phone,
+            "notes": location.notes,
+            "address": ret_val,
+            "active": location.active,
+            "postcode": location.postcode,
+            "url": location.url,
+            "tags": location.tags,
+            "external_key": location.external_key,
+        }
+
+        ret_val2: int = 0
+
+        ret_val2 = await self._db.execute_sproc(
+            "locations_Create", location_Params, auth_key
+        )
+
+        return ret_val2

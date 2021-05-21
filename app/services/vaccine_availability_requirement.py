@@ -24,12 +24,12 @@ class VaccineAvailabilityRequirementService(
         VaccineAvailabilityRequirementUpdateRequest,
     ]
 ):
-    read_procedure_name = None
+    read_procedure_name = "vaccine_availability_requirements_Read"
     read_procedure_id_parameter = "id"
     create_procedure_name = "vaccine_availability_requirements_Create"
     update_procedure_name = "vaccine_availability_requirements_Update"
     update_procedure_id_parameter = "id"
-    delete_procedure_name = None
+    delete_procedure_name = "vaccine_availability_requirements_Delete"
     delete_procedure_id_parameter = "id"
 
     @property

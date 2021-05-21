@@ -89,6 +89,43 @@ async def list_vaccine_availability(
     return paginate(availabilities)
 
 
+@router.get("/location/", response_model=List[VaccineAvailabilityResponse])
+async def list_vaccine_availability_location(
+    min_date: Optional[date] = Query(
+        date.today(),
+        title="Minimum Date",
+        description="**Search for vaccine availabilities after a certain date "
+        "and time (UTC) in the format YYYY-MM-DD**. The default value is the current date ("
+        "UTC).<br/><br/>Valid example(s): *2021-05-30*",
+    ),
+    locationID: int = Query(
+        ...,
+        title="Location ID",
+        description="**Location searching for**",
+    ),
+    db: MSSQLConnection = Depends(get_db),
+) -> List[VaccineAvailabilityResponse]:
+    """
+    **Retrieves the list of vaccine availabilities of a
+    `locationid` and after the `min_date`.**
+    """
+    # Done here so the OpenAPI spec doesn't show the wrong default value
+    if min_date is None:
+        min_date = datetime.today()
+        min_date = min_date.replace(tzinfo=timezone.utc)
+    try:
+        availabilities = await VaccineAvailabilityService(db).get_by_location(
+            locationID=locationID,
+            min_date=min_date,
+        )
+    except InternalDatabaseError:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except DatabaseNotInSyncError as e:
+        logger.warning("Database not in sync: {}", e.message)
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return availabilities
+
+
 @router.get(
     "/{vaccine_availability_id}",
     response_model=VaccineAvailabilityExpandedResponse,

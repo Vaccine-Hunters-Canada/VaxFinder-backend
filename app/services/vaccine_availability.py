@@ -210,3 +210,32 @@ class VaccineAvailabilityService(
                 VaccineAvailabilityExpandedResponse(**availability_dict)
             )
         return availabilities
+
+    async def get_by_location(
+        self, locationID: int, min_date: date
+    ) -> List[VaccineAvailabilityResponse]:
+        procedure_name = "vaccine_availability_ReadByLocation"
+
+        ret_val, sproc_processed = await self._db.sproc_fetch(
+            procedure_name,
+            parameters={"locationID": locationID, "date": min_date},
+        )
+
+        availability_rows = sproc_processed[0]
+
+        if availability_rows is None:
+            return []
+
+        if ret_val == -1:
+            raise InternalDatabaseError()
+
+        # expand availabilities
+        availabilities: List[VaccineAvailabilityResponse] = []
+
+        for availability_row in availability_rows:
+            availability = VaccineAvailabilityResponse(**availability_row)
+
+            availabilities.append(
+                VaccineAvailabilityResponse(**availability.dict())
+            )
+        return availabilities
