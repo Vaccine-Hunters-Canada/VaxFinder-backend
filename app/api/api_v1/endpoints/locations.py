@@ -155,7 +155,7 @@ async def create_location_expanded(
     return location
 
 @router.post(
-    "/expanded/",
+    "/expanded",
     response_model=int,
     responses={
         status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."},
