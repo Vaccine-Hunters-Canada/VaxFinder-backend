@@ -55,6 +55,27 @@ async def retrieve_location_by_id(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return location
 
+@router.get(
+    "/organization/{organization_id}",
+    response_model=List[LocationExpandedResponse],
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The location with the specified id could not be "
+            "found."
+        }
+    },
+)
+async def retrieve_locations_by_organization(
+    organization_id: int, db: MSSQLConnection = Depends(get_db)
+) -> List[LocationExpandedResponse]:
+    """
+    **Retrieves a location with the id from the `organization_id` path
+    parameter.**
+    """
+    locations = await LocationService(db).get_multi_expanded_org(organization_id)
+    if locations is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return locations
 
 @router.get(
     "/external/{external_key}",
