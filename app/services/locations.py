@@ -131,8 +131,9 @@ class LocationService(
 
         return locations_expanded
 
-    async def get_multi_expanded_org(self, organizationID : int) -> List[LocationExpandedResponse]:
-        
+    async def get_multi_expanded_org(
+        self, organizationID: int
+    ) -> List[LocationExpandedResponse]:
         procedure_name = "locations_Read"
 
         ret_val, sproc_processed = await self._db.sproc_fetch(
@@ -142,9 +143,14 @@ class LocationService(
 
         location_rows = sproc_processed[0]
         locations: List[LocationExpandedResponse] = []
-        
-        for location_row in location_rows:            
-            locations.append(await self._expand(location=LocationResponse(**location_row)))
+
+        if location_rows is None or location_rows[0] is None:
+            raise InternalDatabaseError(f"Failed to execute {procedure_name}")
+
+        for location_row in location_rows:
+            locations.append(
+                await self._expand(location=LocationResponse(**location_row))
+            )
 
         return locations
 

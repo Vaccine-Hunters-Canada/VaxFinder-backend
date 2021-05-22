@@ -78,6 +78,31 @@ async def retrieve_locations_by_organization(
     return locations
 
 @router.get(
+    "/organization/{organization_id}",
+    response_model=List[LocationExpandedResponse],
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The location with the specified id could not be "
+            "found."
+        }
+    },
+)
+async def retrieve_locations_by_organization(
+    organization_id: int, db: MSSQLConnection = Depends(get_db)
+) -> List[LocationExpandedResponse]:
+    """
+    **Retrieves a location with the id from the `organization_id` path
+    parameter.**
+    """
+    locations = await LocationService(db).get_multi_expanded_org(
+        organization_id
+    )
+    if locations is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return locations
+
+
+@router.get(
     "/external/{external_key}",
     response_model=LocationExpandedResponse,
     responses={
@@ -128,7 +153,7 @@ async def create_location(
     return location
 
 @router.post(
-    "/expanded/",
+    "/expanded",
     response_model=int,
     responses={
         status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."},
