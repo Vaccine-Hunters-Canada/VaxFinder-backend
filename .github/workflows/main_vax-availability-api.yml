@@ -6,8 +6,7 @@ name: Build and deploy vax-availability-api
 on:
   push:
     branches:
-      - main
-      - staging
+      - '**'
   workflow_dispatch:
 
 jobs:
