@@ -19,9 +19,11 @@ class AddressResponseBase(BaseModel):
     province: str
     postcode: PostalCode
 
+
 class AddressResponse(AddressResponseBase):
     id: int
     created_at: datetime
+
 
 class AddressCreateRequest(AddressResponseBase):
     latitude: Optional[float]
