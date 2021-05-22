@@ -82,7 +82,7 @@ class LocationService(
         self, externalKey: str
     ) -> Optional[LocationExpandedResponse]:
 
-        procedure_name = "locations_ReadByExternalKey"
+        procedure_name = "locations_Read"
 
         ret_val, sproc_processed = await self._db.sproc_fetch(
             procedure_name,
@@ -130,6 +130,23 @@ class LocationService(
             )
 
         return locations_expanded
+
+    async def get_multi_expanded_org(self, organizationID : int) -> List[LocationExpandedResponse]:
+        
+        procedure_name = "locations_Read"
+
+        ret_val, sproc_processed = await self._db.sproc_fetch(
+            procedure_name,
+            parameters={"organizationID": organizationID},
+        )
+
+        location_rows = sproc_processed[0]
+        locations: List[LocationExpandedResponse] = []
+        
+        for location_row in location_rows:            
+            locations.append(await self._expand(location=LocationResponse(**location_row)))
+
+        return locations
 
     async def create_expanded(
         self, location: LocationCreateRequestExpanded, auth_key: Optional[UUID]
