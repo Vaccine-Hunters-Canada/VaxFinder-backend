@@ -11,7 +11,6 @@ from app.schemas.locations import (
     LocationExpandedResponse,
     LocationResponse,
     LocationUpdateRequest,
-    LocationCreateRequestExpanded
 )
 from app.services.exceptions import (
     InternalDatabaseError,
@@ -55,6 +54,7 @@ async def retrieve_location_by_id(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return location
 
+
 @router.get(
     "/organization/{organization_id}",
     response_model=List[LocationExpandedResponse],
@@ -72,10 +72,13 @@ async def retrieve_locations_by_organization(
     **Retrieves a location with the id from the `organization_id` path
     parameter.**
     """
-    locations = await LocationService(db).get_multi_expanded_org(organization_id)
+    locations = await LocationService(db).get_multi_expanded_org(
+        organization_id
+    )
     if locations is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return locations
+
 
 @router.get(
     "/external/{external_key}",
@@ -126,6 +129,7 @@ async def create_location(
     except InternalDatabaseError:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
     return location
+
 
 @router.post(
     "/expanded",
