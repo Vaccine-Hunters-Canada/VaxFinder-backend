@@ -128,33 +128,6 @@ async def create_location(
     return location
 
 @router.post(
-    "/expanded/",
-    response_model=int,
-    responses={
-        status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."},
-        status.HTTP_403_FORBIDDEN: {
-            "description": "Invalid permissions or credentials."
-        },
-    },
-)
-async def create_location_expanded(
-    body: LocationCreateRequestExpanded,
-    db: MSSQLConnection = Depends(get_db),
-    api_key: UUID = Depends(get_api_key),
-) -> int:
-    """
-    **Creates a new location with the entity enclosed in the request body.** On
-    success, the new location is returned in the body of the response.
-    """
-    try:
-        location = await LocationService(db).create_expanded(body, api_key)
-    except InvalidAuthenticationKeyForRequest as e:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, e.message)
-    except InternalDatabaseError:
-        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return location
-
-@router.post(
     "/expanded",
     response_model=int,
     responses={

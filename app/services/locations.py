@@ -143,6 +143,9 @@ class LocationService(
         location_rows = sproc_processed[0]
         locations: List[LocationExpandedResponse] = []
         
+        if location_rows is None or location_rows[0] is None:
+            raise InternalDatabaseError(f"Failed to execute {procedure_name}")
+
         for location_row in location_rows:            
             locations.append(await self._expand(location=LocationResponse(**location_row)))
 
