@@ -1,3 +1,4 @@
+from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
@@ -11,7 +12,6 @@ from app.schemas.locations import (
     LocationExpandedResponse,
     LocationResponse,
     LocationUpdateRequest,
-    LocationCreateRequestExpanded
 )
 from app.services.exceptions import (
     InternalDatabaseError,
@@ -55,27 +55,6 @@ async def retrieve_location_by_id(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return location
 
-@router.get(
-    "/organization/{organization_id}",
-    response_model=List[LocationExpandedResponse],
-    responses={
-        status.HTTP_404_NOT_FOUND: {
-            "description": "The location with the specified id could not be "
-            "found."
-        }
-    },
-)
-async def retrieve_locations_by_organization(
-    organization_id: int, db: MSSQLConnection = Depends(get_db)
-) -> List[LocationExpandedResponse]:
-    """
-    **Retrieves a location with the id from the `organization_id` path
-    parameter.**
-    """
-    locations = await LocationService(db).get_multi_expanded_org(organization_id)
-    if locations is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    return locations
 
 @router.get(
     "/organization/{organization_id}",
@@ -152,32 +131,6 @@ async def create_location(
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
     return location
 
-@router.post(
-    "/expanded",
-    response_model=int,
-    responses={
-        status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."},
-        status.HTTP_403_FORBIDDEN: {
-            "description": "Invalid permissions or credentials."
-        },
-    },
-)
-async def create_location_expanded(
-    body: LocationCreateRequestExpanded,
-    db: MSSQLConnection = Depends(get_db),
-    api_key: UUID = Depends(get_api_key),
-) -> int:
-    """
-    **Creates a new location with the entity enclosed in the request body.** On
-    success, the new location is returned in the body of the response.
-    """
-    try:
-        location = await LocationService(db).create_expanded(body, api_key)
-    except InvalidAuthenticationKeyForRequest as e:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, e.message)
-    except InternalDatabaseError:
-        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return location
 
 @router.post(
     "/expanded",

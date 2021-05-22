@@ -67,6 +67,7 @@ jobs:
   DeployStaging:
     runs-on: ubuntu-latest
     needs: BuildDocker
+    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' }}
     environment:
       name: 'staging'
       url: ${{ steps.deploy-to-webapp-staging.outputs.webapp-url }}
@@ -84,6 +85,7 @@ jobs:
   DeployProduction:
     runs-on: ubuntu-latest
     needs: DeployStaging
+    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' }}
     environment:
       name: 'production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
