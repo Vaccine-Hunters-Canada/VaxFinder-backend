@@ -16,7 +16,8 @@ async def test_GivenNoLocations_WhenGettingLocations_ThenNothingReceived(
     assert response.status_code == 200
 
     content = response.json()
-    assert content == []
+    assert content["results"] == []
+    assert content["total"] == 0
 
 
 @pytest.mark.asyncio
@@ -46,9 +47,13 @@ async def test_GivenOneLocation_WhenGettingLocations_ThenLocationReceived(
     assert response.status_code == 200
 
     content = response.json()
-    assert len(content) == 1
 
-    received_location = content[0]
+    assert content["total"] == 1
+
+    results = content["results"]
+    assert len(results) == 1
+
+    received_location = results[0]
 
     assert received_location["name"] == name
     assert received_location["active"] == active

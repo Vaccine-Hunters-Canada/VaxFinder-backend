@@ -1,33 +1,12 @@
-
-
-
-
-create procedure [dbo].[vaccine_availability_children_ReadByParent]
-(	
-	@parentID uniqueidentifier
-)
-AS
-	SET NOCOUNT ON;
-	declare @ID uniqueidentifier = newid()
-	declare @location int
-
-	BEGIN TRY
-
-		BEGIN TRANSACTION;
-			select * from dbo.vaccine_availability_children where vaccine_availability_children.vaccine_availability = @parentID
-
-		COMMIT TRANSACTION;
-		
-		RETURN(1);
-
-	END TRY
-
-	BEGIN CATCH
-
--- ==== Rollback transaction
-		IF XACT_STATE() <> 0
-			ROLLBACK TRANSACTION;
-
-		RETURN(-1);
-
-	END CATCH
+CREATE TABLE [dbo].[postal_geo](
+	[postal] [nchar](3) NOT NULL,
+	[area] [nchar](255) NOT NULL,
+	[province] [nchar](255) NOT NULL,
+	[lat] [decimal](10, 6) NOT NULL,
+	[lon] [decimal](10, 6) NOT NULL,
+	[geohash] [geography] NULL,
+ CONSTRAINT [PK_postal_geo] PRIMARY KEY CLUSTERED 
+(
+	[postal] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]

@@ -1,6 +1,1 @@
-
-create table roles
-(
-	RoleType int identity,
-	RoleName nchar(255)
-)
+ALTER DATABASE [vax-aggregator-staging] SET COMPATIBILITY_LEVEL = 150

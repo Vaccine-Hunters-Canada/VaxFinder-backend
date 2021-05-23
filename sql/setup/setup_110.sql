@@ -1,0 +1,1 @@
+ALTER TABLE [dbo].[keys] ADD  CONSTRAINT [DF_keys_created_at]  DEFAULT (getdate()) FOR [created_at]

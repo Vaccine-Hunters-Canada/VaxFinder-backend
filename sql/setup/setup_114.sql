@@ -1,0 +1,1 @@
+ALTER TABLE [dbo].[requirements] ADD  CONSTRAINT [DF_requirements_created_at]  DEFAULT (getdate()) FOR [created_at]

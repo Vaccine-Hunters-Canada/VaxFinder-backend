@@ -1,0 +1,1 @@
+ALTER TABLE [dbo].[keys] ADD  CONSTRAINT [DF_keys_id]  DEFAULT (newid()) FOR [id]

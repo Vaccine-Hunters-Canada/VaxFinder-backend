@@ -1,27 +1,21 @@
 
-
-
-CREATE procedure [dbo].[requirements_ReadAll]
+-- =============================================
+-- Author:      Evan Gamble	
+-- Create Date: 05-03-2021
+-- Description: Calculating a geohash based on lat/long
+-- =============================================
+CREATE FUNCTION [dbo].[GetGeoHash]
+(
+    -- Add the parameters for the function here
+   @latitude decimal(10,6),
+   @longitude decimal(10,6)
+)
+RETURNS geography
 AS
-	SET NOCOUNT ON;
-	declare @ID int = 0;
-	BEGIN TRY
+BEGIN
+    declare @geographyPoint geography;
 
-		BEGIN TRANSACTION;
-			select * from requirements
+	select @geographyPoint = geography::Point(@latitude, @longitude, '4326');		
 
-		COMMIT TRANSACTION;
-		
-		RETURN(1);
-
-	END TRY
-
-	BEGIN CATCH
-
--- ==== Rollback transaction
-		IF XACT_STATE() <> 0
-			ROLLBACK TRANSACTION;
-
-		RETURN(-1);
-
-	END CATCH
+	return @geographyPoint
+END

@@ -1,8 +1,1 @@
-
-create table location_keys
-(
-	id int identity
-		primary key,
-	location int,
-	[key] uniqueidentifier
-)
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'Password0';

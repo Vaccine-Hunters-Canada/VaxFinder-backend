@@ -1,0 +1,1 @@
+ALTER TABLE [dbo].[organization_keys] CHECK CONSTRAINT [FK__organizatio__key__41B8C09B]

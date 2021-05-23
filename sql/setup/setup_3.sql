@@ -1,6 +1,1 @@
-
-create table inputType
-(
-	ID int identity,
-	InputType nchar(255)
-)
+ALTER DATABASE [vax-aggregator-staging] SET CONTAINMENT = PARTIAL

@@ -1,0 +1,1 @@
+ALTER TABLE [dbo].[locations] ADD  CONSTRAINT [DF__locations__activ__5EBF139D]  DEFAULT ((1)) FOR [active]

@@ -1,16 +1,14 @@
 
--- =============================================
--- Author:      Alvin
--- =============================================
-CREATE PROCEDURE dbo.testingstuff
-AS
+CREATE FUNCTION [dbo].[ValidateAdminKey](@key uniqueidentifier)
+RETURNS bit AS
 BEGIN
-    -- SET NOCOUNT ON added to prevent extra result sets from
-    -- interfering with SELECT statements.
-    SET NOCOUNT ON
+    declare @role int
+	select @role = [role] from dbo.keys where id = @key
 
-	select id from dbo.address
-	select id from dbo.vaccine_availability
+	IF @role = 1
+	BEGIN
+		RETURN 1
+	END
 
-	return(-1)
+	RETURN 0
 END

@@ -20,3 +20,4 @@ repos:
       - 'pydantic'
       - 'fastapi'
       - 'fastapi-pagination'
+      - 'pytest-asyncio'

@@ -1,9 +1,10 @@
+import importlib
 import os
 import time
 from asyncio import AbstractEventLoop, get_event_loop
 from functools import partial
 from operator import le
-from typing import AsyncGenerator, Generator, Iterable, Union
+from typing import Any, AsyncGenerator, Generator, Iterable, Union
 
 import pytest
 from fastapi.testclient import TestClient
@@ -12,7 +13,7 @@ from loguru import logger
 from requests import Session
 from toolz.functoolz import compose
 
-from app.db.database import MSSQLBackend
+from app.db.database import db
 from app.main import app
 from app.tests.client.db_client import MSSQLClient, MSSQLFileGroupReader
 from app.tests.settings import test_settings
@@ -97,9 +98,16 @@ async def db_client(
 
 
 @pytest.fixture(scope="session")
-async def app_client() -> AsyncGenerator[AsyncClient, None]:
+async def app_client(
+    _db_session: MSSQLClient,
+) -> AsyncGenerator[AsyncClient, None]:
     """
-    Use AsyncClient as test API client instance for all tests.
+    Use AsyncClient as test API client instance for all tests. We make this
+    fixture depend on the _db_session fixture first because we want the
+    database to be first prepped with the setup statements. Allowing the
+    database client in the app without letting the test database client set
+    up the database first may cause a race condition where the app will try
+    to execute a database that doesn't exist yet.
 
     Not using FastAPI's TestClient as they recommend to not do so, and instead
     use httpx.AsyncClient instead. This is because the TestClient is based on
@@ -114,8 +122,6 @@ async def app_client() -> AsyncGenerator[AsyncClient, None]:
     must start up the database instance for the app manually.
     """
     async with AsyncClient(app=app, base_url="http://testhost") as c:
-        from app.db.database import db
-
         while True:
             try:
                 # check health

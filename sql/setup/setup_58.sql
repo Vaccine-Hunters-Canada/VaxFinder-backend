@@ -1,46 +1,20 @@
-
-
-
-
-
-CREATE procedure [dbo].[vaccine_availability_requirements_Delete] 
-(
-	@id uniqueidentifier,
-	@auth uniqueidentifier
+-- =============================================
+-- Author:		Evan Gamble
+-- Create date: 2021-04-05
+-- Description:	Function call
+-- =============================================
+CREATE FUNCTION [dbo].[udfGetPostCodesNearMe] (
+    @Latitude DECIMAL(10,6),  
+    @Longitude DECIMAL(10,6),
+	@LatRad DECIMAL(2,2),
+	@LonRad DECIMAL(2,2)
 )
+RETURNS TABLE
 AS
-	SET NOCOUNT ON;
-
-	BEGIN TRY
-
-		BEGIN TRANSACTION;
-
-			declare @valid bit
-			declare @location int
-			
-			select @location = vaccine_availability.location from dbo.vaccine_availability join dbo.vaccine_availability_requirements on vaccine_availability_requirements.vaccine_availability = vaccine_availability.id where vaccine_availability_requirements.id = @id
-
-			select @valid = dbo.ValidateLocationKey(@auth, @location)
-
-			if @valid = 0
-			BEGIN
-				return(0);
-			END
-			
-			delete from vaccine_availability_requirements where id = @id
-
-		COMMIT TRANSACTION;
-		
-		RETURN(1);
-
-	END TRY
-
-	BEGIN CATCH
-
--- ==== Rollback transaction
-		IF XACT_STATE() <> 0
-			ROLLBACK TRANSACTION;
-
-		RETURN(-1);
-
-	END CATCH
+RETURN     
+    select distinct  
+    PC.postal    
+    from dbo.postal_geo PC
+    where (ABS(@Latitude - PC.Lat) < @LatRad)  -- Lines of latitude are ~69 miles apart.   
+    and (ABS(@Longitude - PC.Lon) < @LonRad)  -- Lines of longitude in the U.S. are ~53 miles apart.            
+	

@@ -1,44 +1,50 @@
+CREATE FUNCTION [dbo].[ValidateLocationKey](@key uniqueidentifier, @location int)
+RETURNS bit AS
+BEGIN
+    declare @role int
+	select @role = [role] from dbo.keys where id = @key
 
+	IF @role = 1
+	BEGIN
+		RETURN 1
+	END
+    
+	IF @role = 2
+	BEGIN
+		RETURN 1
+	END
 
+	declare @count int
 
-CREATE procedure [dbo].[vaccine_availability_Delete] 
-(
-	@avaliabilityID uniqueidentifier,
-	@auth uniqueidentifier
-)
-AS
-	SET NOCOUNT ON;
-
-	BEGIN TRY
-
-		BEGIN TRANSACTION;
-
-			declare @valid bit
-			declare @location int
-			
-			select @location = vaccine_availability.location from dbo.vaccine_availability where vaccine_availability.id = @avaliabilityID
-
-			select @valid = dbo.ValidateLocationKey(@auth, @location)
-
-			if @valid = 0
-			BEGIN
-				return(0);
-			END
-			
-			delete from vaccine_availability where id = @avaliabilityID
-
-		COMMIT TRANSACTION;
+	IF @role = 3
+	BEGIN
 		
-		RETURN(1);
+		set @count = 0		
+		
 
-	END TRY
+		select @count = count(*) from dbo.location_keys where [location] = @location and [key] = @key
 
-	BEGIN CATCH
+		if @count > 0
+		BEGIN
+			return 1
+		END
 
--- ==== Rollback transaction
-		IF XACT_STATE() <> 0
-			ROLLBACK TRANSACTION;
+	END
 
-		RETURN(-1);
+	if @role = 4
+	BEGIN
+		declare @organization int
+		select @organization = organization from dbo.locations
+				
+		set @count = 0		
 
-	END CATCH
+		select @count = count(*) from dbo.organization_keys where [organization] = @organization and [key] = @key
+
+		if @count > 0
+		BEGIN
+			return 1
+		END
+	END
+
+	return 0
+END

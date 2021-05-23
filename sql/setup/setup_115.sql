@@ -1,0 +1,1 @@
+ALTER TABLE [dbo].[vaccine_availability] ADD  CONSTRAINT [DF_vaccine_avaliability_id]  DEFAULT (newid()) FOR [id]

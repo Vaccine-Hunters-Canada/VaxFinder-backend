@@ -47,9 +47,11 @@ class MSSQLClient:
 
         self._event_loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
 
+        self._autocommit: bool = autocommit
+
         self._pool: Optional[aioodbc.pool.Pool] = None
 
-        self._autocommit: bool = autocommit
+        self._connection: Optional[aioodbc.connection.Connection] = None
 
     @property
     def pool(self) -> Optional[aioodbc.pool.Pool]:
@@ -57,16 +59,18 @@ class MSSQLClient:
 
     async def execute_query(self, query: str) -> None:
         assert self._pool is not None
-        async with self._pool.acquire() as connection:
-            async with connection.cursor() as cur:
-                await cur.execute(query)
+        assert self._connection is not None
+
+        async with self._connection.cursor() as cur:
+            await cur.execute(query)
 
     async def fetch_all(self, query: str) -> Any:
         assert self._pool is not None
-        async with self._pool.acquire() as connection:
-            async with connection.cursor() as cur:
-                await cur.execute(query)
-                rows = await cur.fetchall()
+        assert self._connection is not None
+
+        async with self._connection.cursor() as cur:
+            await cur.execute(query)
+            rows = await cur.fetchall()
 
         return rows
 
@@ -86,6 +90,9 @@ class MSSQLClient:
                     async with connection.cursor() as cur:
                         pass
                 logger.debug("Test MSSQL client created.")
+
+                self._connection = await self._pool.acquire()
+
                 return self
             except Exception as e:
                 logger.critical(e)
@@ -102,9 +109,15 @@ class MSSQLClient:
         exc: Optional[BaseException],
         tb: TracebackType,
     ) -> None:
+        assert self._connection is not None
         assert self._pool is not None
+
+        await self._pool.release(self._connection)
         self._pool.close()
         await self._pool.wait_closed()
+
+        assert self._connection.closed is True
+
         logger.debug("Test MSSQL client closed.")
 
 
