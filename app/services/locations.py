@@ -134,6 +134,7 @@ class LocationService(
     async def get_multi_expanded_org(
         self, organizationID: int
     ) -> List[LocationExpandedResponse]:
+
         procedure_name = "locations_Read"
 
         ret_val, sproc_processed = await self._db.sproc_fetch(
