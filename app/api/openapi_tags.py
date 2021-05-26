@@ -23,4 +23,8 @@ openapi_tags = [
         "name": "Requirements",
         "description": "Operations about eligibility requirements. _An eligibility requirement must be met in order for one to receive a vaccine._",
     },
+    {
+        "name": "Security",
+        "description": "Basic authentication",
+    },
 ]
