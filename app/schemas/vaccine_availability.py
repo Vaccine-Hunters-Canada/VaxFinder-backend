@@ -3,11 +3,21 @@ from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 
 from loguru import logger
-from pydantic import NonNegativeInt, validator
+from pydantic import ConstrainedStr, HttpUrl, NonNegativeInt, validator
 
+from app.schemas.addresses import AddressCreateRequest
 from app.schemas.base import BaseModel
 from app.schemas.enums import InputTypeEnum
-from app.schemas.locations import LocationExpandedResponse
+from app.schemas.locations import (
+    LocationCreateRequest,
+    LocationCreateRequestExpanded,
+    LocationExpandedResponse,
+)
+
+
+class PostalCode(ConstrainedStr):
+    min_length = 6
+    max_length = 6
 
 
 # ------------------------- Timeslots -------------------------
@@ -175,6 +185,53 @@ class VaccineAvailabilityExpandedResponse(VaccineAvailabilityResponseBase):
 
 class VaccineAvailabilityCreateRequest(VaccineAvailabilityResponseBase):
     location: NonNegativeInt
+    date: datetime
+
+    @validator("date", pre=True)
+    def _validate_time(cls, dt: str) -> datetime:
+        if isinstance(dt, str):
+            dt = dt.replace("Z", "+00:00")
+            iso = datetime.fromisoformat(dt)
+            if iso.tzinfo is None:
+                raise ValueError(
+                    "ISO datestring must have timezone info."
+                    "i.e. 2020-12-13T00:00:00+04:00"
+                )
+            if (
+                iso.hour != 0
+                or iso.minute != 0
+                or iso.second != 0
+                or iso.microsecond != 0
+            ):
+                raise ValueError(
+                    "ISO datestring must be midnight "
+                    "at your specified timezone "
+                    "i.e. 2020-12-13T00:00:00+04:00"
+                )
+            iso = iso.astimezone(timezone.utc)
+            return iso
+        raise ValueError("Must input a string.")
+
+
+class VaccineAvailabilityExpandedCreateRequest(
+    VaccineAvailabilityResponseBase
+):
+    locationID: Optional[int]
+    organization: Optional[int]
+    line1: Optional[str]
+    line2: Optional[str]
+    city: Optional[str]
+    province: str
+    postcode: PostalCode
+    name: str
+    phone: Optional[str]
+    notes: Optional[str]
+    active: int
+    url: Optional[HttpUrl]
+    tagsL: Optional[str]
+    tagsA: Optional[str]
+    external_key: Optional[str]
+
     date: datetime
 
     @validator("date", pre=True)

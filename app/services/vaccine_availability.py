@@ -11,6 +11,7 @@ from app.schemas.locations import LocationResponse
 from app.schemas.organizations import OrganizationResponse
 from app.schemas.vaccine_availability import (
     VaccineAvailabilityCreateRequest,
+    VaccineAvailabilityExpandedCreateRequest,
     VaccineAvailabilityExpandedResponse,
     VaccineAvailabilityRequirementsResponse,
     VaccineAvailabilityResponse,
@@ -239,3 +240,55 @@ class VaccineAvailabilityService(
                 VaccineAvailabilityResponse(**availability.dict())
             )
         return availabilities
+
+    async def create_expanded(
+        self,
+        va_expanded: VaccineAvailabilityExpandedCreateRequest,
+        locationID: Optional[int],
+        external_key: Optional[str],
+        auth_key: UUID,
+    ) -> VaccineAvailabilityResponse:
+        procedure_name = "vaccine_availability_expanded_Create"
+
+        parameters = {
+            "numberAvailable": va_expanded.numberAvailable,
+            "numberTotal": va_expanded.numberTotal,
+            "date": va_expanded.date,
+            "vaccine": va_expanded.vaccine,
+            "inputType": va_expanded.inputType,
+            "tagsA": va_expanded.tagsA,
+            "line1": va_expanded.line1,
+            "line2": va_expanded.line2,
+            "city": va_expanded.city,
+            "province": va_expanded.province,
+            "postcode": va_expanded.postcode,
+            "name": va_expanded.name,
+            "organization": va_expanded.organization,
+            "phone": va_expanded.phone,
+            "notes": va_expanded.notes,
+            "active": va_expanded.active,
+            "url": va_expanded.url,
+            "tagsL": va_expanded.tagsL,
+            "external_key": external_key,
+        }
+
+        if locationID is not None:
+            if locationID > 0:
+                parameters.update({"location": locationID})
+
+        if external_key is not None:
+            parameters.update({"external_key": external_key})
+
+        ret_value, sproc_processed = await self._db.sproc_fetch(
+            procedure_name, parameters, auth_key=auth_key
+        )
+
+        if ret_value < 0:
+            raise InternalDatabaseError()
+
+        availability_rows = sproc_processed[0]
+
+        if availability_rows is None or availability_rows[0] is None:
+            raise InternalDatabaseError()
+
+        return VaccineAvailabilityResponse(**availability_rows[0])

@@ -5,6 +5,7 @@ from app.api.api_v1.endpoints import (
     locations,
     organizations,
     requirements,
+    security,
     vaccine_availability,
     vaccine_locations,
 )
@@ -45,4 +46,10 @@ api_router.include_router(
     requirements.router,
     prefix="/requirements",
     tags=["Requirements"],
+)
+
+api_router.include_router(
+    security.router,
+    prefix="/security",
+    tags=["Security"],
 )

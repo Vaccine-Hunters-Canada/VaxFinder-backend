@@ -17,6 +17,7 @@ from app.api.dependencies import get_api_key, get_db
 from app.db.database import MSSQLConnection
 from app.schemas.vaccine_availability import (
     VaccineAvailabilityCreateRequest,
+    VaccineAvailabilityExpandedCreateRequest,
     VaccineAvailabilityExpandedResponse,
     VaccineAvailabilityRequirementCreateRequest,
     VaccineAvailabilityRequirementCreateSprocParams,
@@ -179,6 +180,84 @@ async def create_vaccine_availability(
         raise HTTPException(status.HTTP_403_FORBIDDEN, e.message)
     except InternalDatabaseError:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return availability
+
+
+@router.post(
+    "/locations/key/{external_key}",
+    response_model=VaccineAvailabilityResponse,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."},
+        status.HTTP_403_FORBIDDEN: {
+            "description": "Invalid permissions or credentials."
+        },
+    },
+)
+async def create_vaccine_availability_expanded_key(
+    external_key: str,
+    body: VaccineAvailabilityExpandedCreateRequest,
+    db: MSSQLConnection = Depends(get_db),
+    api_key: UUID = Depends(get_api_key),
+) -> VaccineAvailabilityResponse:
+    """
+    **Creates a new vaccine availability with the entity enclosed in the
+    request body.** On success, the new vaccine availability is returned in the
+    body of the response.
+    """
+    try:
+        availability: VaccineAvailabilityResponse = (
+            await VaccineAvailabilityService(db).create_expanded(
+                va_expanded=body,
+                external_key=external_key,
+                locationID=None,
+                auth_key=api_key,
+            )
+        )
+
+    except InvalidAuthenticationKeyForRequest as e:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, e.message)
+    except InternalDatabaseError:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    return availability
+
+
+@router.post(
+    "/locations/id/{location_id}",
+    response_model=VaccineAvailabilityResponse,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."},
+        status.HTTP_403_FORBIDDEN: {
+            "description": "Invalid permissions or credentials."
+        },
+    },
+)
+async def create_vaccine_availability_expanded(
+    location_id: int,
+    body: VaccineAvailabilityExpandedCreateRequest,
+    db: MSSQLConnection = Depends(get_db),
+    api_key: UUID = Depends(get_api_key),
+) -> VaccineAvailabilityResponse:
+    """
+    **Creates a new vaccine availability with the entity enclosed in the
+    request body.** On success, the new vaccine availability is returned in the
+    body of the response.
+    """
+    try:
+        availability: VaccineAvailabilityResponse = (
+            await VaccineAvailabilityService(db).create_expanded(
+                va_expanded=body,
+                locationID=location_id,
+                external_key=None,
+                auth_key=api_key,
+            )
+        )
+
+    except InvalidAuthenticationKeyForRequest as e:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, e.message)
+    except InternalDatabaseError:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     return availability
 
 
