@@ -1,18 +1,19 @@
 from datetime import datetime
-
-from app.schemas.base import BaseModel
 from typing import List, Optional
 from uuid import UUID
 
+from app.schemas.base import BaseModel
+
+
 class SecurityResponseBase(BaseModel):
-    name : str
-    password : str
-    
+    name: str
+    password: str
+
 
 class SecurityResponse(SecurityResponseBase):
     id: int
     created_at: datetime
-    key : UUID
+    key: UUID
 
 
 class SecurityCreateRequest(SecurityResponseBase):
@@ -21,9 +22,9 @@ class SecurityCreateRequest(SecurityResponseBase):
 
 class SecurityUpdateRequest(SecurityResponseBase):
     id: int
-    key : UUID
+    key: UUID
 
 
 class SecurityLoginResponse(BaseModel):
-    result : int
-    key : Optional[UUID]
+    result: int
+    key: Optional[UUID]

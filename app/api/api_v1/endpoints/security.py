@@ -5,10 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.api.dependencies import get_api_key, get_db
 from app.db.database import MSSQLConnection
-from app.schemas.security import (
-    SecurityLoginResponse,
-    SecurityResponseBase,
-)
+from app.schemas.security import SecurityLoginResponse, SecurityResponseBase
 from app.services.exceptions import (
     InternalDatabaseError,
     InvalidAuthenticationKeyForRequest,
@@ -28,9 +25,8 @@ router = APIRouter()
         },
     },
 )
-async def login(    
-    body: SecurityResponseBase,
-    db: MSSQLConnection = Depends(get_db)
+async def login(
+    body: SecurityResponseBase, db: MSSQLConnection = Depends(get_db)
 ) -> SecurityLoginResponse:
     """
     **Creates a new vaccine availability with the entity enclosed in the
@@ -38,13 +34,9 @@ async def login(
     body of the response.
     """
     try:
-        resp: SecurityLoginResponse = (
-            await SecurityService(db).Login(
-                body.name,
-                body.password
-            )
+        resp: SecurityLoginResponse = await SecurityService(db).Login(
+            body.name, body.password
         )
-
 
     except InvalidAuthenticationKeyForRequest as e:
         raise HTTPException(status.HTTP_403_FORBIDDEN, e.message)
