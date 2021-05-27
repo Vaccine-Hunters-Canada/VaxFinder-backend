@@ -60,8 +60,7 @@ async def list_vaccine_locations(
     """
     # Done here so the OpenAPI spec doesn't show the wrong default value
     if min_date is None:
-        min_date = datetime.today()
-        min_date = min_date.replace(tzinfo=timezone.utc)
+        min_date = datetime.today().date()
     try:
         availabilities = await VaccineLocationsService(
             db
