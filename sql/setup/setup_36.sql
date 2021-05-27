@@ -1,0 +1,1 @@
+sys.sp_addrolemember @rolename = N'VaxHuntersDev', @membername = N'Staging'

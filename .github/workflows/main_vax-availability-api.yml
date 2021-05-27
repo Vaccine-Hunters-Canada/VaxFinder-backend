@@ -37,6 +37,15 @@ jobs:
        poetry run isort --profile black --line-length 79 --multi-line 3 \
          --filter-files --check --diff .
 
+    - name: Run integration tests
+      env:
+        DB_URL: pyodbc+mssql://SA:Password0@localhost?driver=ODBC+Driver+17+for+SQL+Server
+      run: |
+       docker-compose --file app/tests/docker-compose.yml up -d
+       poetry run pytest -vvs app/tests/
+       docker-compose --file app/tests/docker-compose.yml down
+       docker-compose --file app/tests/docker-compose.yml rm -f
+
   BuildDocker:
     runs-on: 'ubuntu-latest'
     needs: BuildAndTest

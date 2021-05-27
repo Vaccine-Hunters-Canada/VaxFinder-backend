@@ -1,0 +1,1 @@
+ALTER TABLE [dbo].[vaccine_availability] ADD  CONSTRAINT [DF_entries_created_at]  DEFAULT (getdate()) FOR [created_at]

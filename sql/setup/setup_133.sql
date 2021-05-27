@@ -1,0 +1,1 @@
+ALTER TABLE [dbo].[vaccine_availability] CHECK CONSTRAINT [FK__entries__vaccine__7C4F7684]

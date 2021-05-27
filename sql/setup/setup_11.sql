@@ -1,0 +1,1 @@
+ALTER DATABASE [vax-aggregator-staging] SET ANSI_NULL_DEFAULT OFF 

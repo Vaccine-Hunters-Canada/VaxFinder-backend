@@ -1,0 +1,1 @@
+ALTER DATABASE [vax-aggregator-staging] SET CURSOR_CLOSE_ON_COMMIT OFF 

@@ -1,0 +1,1 @@
+ALTER TABLE [dbo].[organizations] ADD  CONSTRAINT [DF_organizations_created_at]  DEFAULT (getdate()) FOR [created_at]

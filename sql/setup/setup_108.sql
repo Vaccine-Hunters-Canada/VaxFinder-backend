@@ -1,0 +1,1 @@
+ALTER TABLE [dbo].[address] ADD  CONSTRAINT [DF_address_created_at]  DEFAULT (getdate()) FOR [created_at]

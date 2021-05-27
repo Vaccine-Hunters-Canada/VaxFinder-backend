@@ -1,0 +1,1 @@
+ALTER DATABASE [vax-aggregator-staging] SET COMPATIBILITY_LEVEL = 150

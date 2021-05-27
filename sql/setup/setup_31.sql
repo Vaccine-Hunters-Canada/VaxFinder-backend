@@ -1,0 +1,1 @@
+/*** The scripts of database scoped configurations in Azure should be executed inside the target database connection. ***/

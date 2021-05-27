@@ -1,0 +1,1 @@
+CREATE CERTIFICATE MyServerCert WITH SUBJECT = 'Vaxhunter Certificate';

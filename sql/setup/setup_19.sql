@@ -1,0 +1,1 @@
+ALTER DATABASE [vax-aggregator-staging] SET CONCAT_NULL_YIELDS_NULL OFF 

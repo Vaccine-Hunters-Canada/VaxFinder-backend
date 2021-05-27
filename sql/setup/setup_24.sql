@@ -1,0 +1,1 @@
+ALTER DATABASE [vax-aggregator-staging] SET ALLOW_SNAPSHOT_ISOLATION ON 

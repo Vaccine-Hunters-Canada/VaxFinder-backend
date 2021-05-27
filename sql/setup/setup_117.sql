@@ -1,0 +1,1 @@
+ALTER TABLE [dbo].[vaccine_availability_requirements] ADD  CONSTRAINT [DF_entry_requirements_active]  DEFAULT ((1)) FOR [active]

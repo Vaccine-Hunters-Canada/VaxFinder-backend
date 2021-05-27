@@ -1,0 +1,1 @@
+EXEC sp_MSForEachTable 'DISABLE TRIGGER ALL ON ?'

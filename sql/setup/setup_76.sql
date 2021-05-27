@@ -1,0 +1,9 @@
+CREATE TABLE [dbo].[organization_keys](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[organization] [int] NULL,
+	[key] [uniqueidentifier] NULL,
+ CONSTRAINT [PK__organiza__3213E83FD1649FC8] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]

@@ -1,0 +1,1 @@
+ALTER TABLE [dbo].[locations] CHECK CONSTRAINT [FK__locations__addre__7A672E12]
