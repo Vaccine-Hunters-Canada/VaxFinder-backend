@@ -17,6 +17,7 @@ from app.services.security import SecurityService
 
 router = APIRouter()
 
+
 @router.get(
     "/login",
     response_model=SecurityLoginResponse,
@@ -43,6 +44,7 @@ async def login(
                 body.password
             )
         )
+
 
     except InvalidAuthenticationKeyForRequest as e:
         raise HTTPException(status.HTTP_403_FORBIDDEN, e.message)

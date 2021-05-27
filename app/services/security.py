@@ -41,12 +41,12 @@ class SecurityService(
     def update_response_schema(self) -> Type[SecurityUpdateRequest]:
         return SecurityUpdateRequest
 
+
     async def Login(
         self,
         userName : str,
         password : str
-    ) -> SecurityLoginResponse:        
-
+    ) -> SecurityLoginResponse:
         procedure_name = "security_Login"
 
         ret_val, sproc_processed = await self._db.sproc_fetch(
