@@ -15,7 +15,7 @@ from app.services.security import SecurityService
 router = APIRouter()
 
 
-@router.get(
+@router.post(
     "/login",
     response_model=SecurityLoginResponse,
     responses={
