@@ -66,7 +66,7 @@ class VaccineAvailabilityTimeslotCreateSprocParams(
 
 class VaccineAvailabilityTimeslotUpdateRequest(BaseModel):
     time: datetime
-    taken_at: Optional[Union[datetime, str]]
+    taken_at: Optional[datetime]
 
     @validator("time", pre=True)
     def _validate_time(cls, dt: str) -> datetime:
@@ -86,31 +86,21 @@ class VaccineAvailabilityTimeslotUpdateRequest(BaseModel):
         return iso
 
     @validator("taken_at", pre=True)
-    def _validate_taken_at(
-        cls, taken_at: Optional[Union[datetime, str]], values: Dict[str, Any]
-    ) -> Optional[datetime]:
-        if taken_at is not None:
-            if isinstance(taken_at, str):
-                taken_at = taken_at.replace("Z", "+00:00")
-                iso = datetime.fromisoformat(taken_at)
-            elif isinstance(taken_at, datetime):
-                iso = taken_at
-            else:
-                raise ValueError("Must input a string or datetime.")
-            if iso.tzinfo is None:
-                raise ValueError(
-                    "ISO datestring must have timezone info."
-                    "i.e. 2020-12-13T00:00:00+04:00"
-                )
-            iso = iso.astimezone(timezone.utc)
-            if iso < values["time"]:
-                raise ValueError(
-                    "timeslot taken_at cannot be before "
-                    "the time the vaccine is offered"
-                )
-            return iso
-
-        return taken_at
+    def _validate_taken_at(cls, dt: str) -> datetime:
+        if isinstance(dt, str):
+            dt = dt.replace("Z", "+00:00")
+            iso = datetime.fromisoformat(dt)
+        elif isinstance(dt, datetime):
+            iso = dt
+        else:
+            raise ValueError("Must input a string or datetime.")
+        if iso.tzinfo is None:
+            raise ValueError(
+                "ISO datestring must have timezone info."
+                "i.e. 2020-12-13T00:00:00+04:00"
+            )
+        iso = iso.astimezone(timezone.utc)
+        return iso
 
 
 # ------------------------- Requirements -------------------------

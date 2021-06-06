@@ -90,8 +90,12 @@ class LocationService(
         )
 
         location_rows = sproc_processed[0]
-        if location_rows is None or location_rows[0] is None:
-            raise InternalDatabaseError(f"Failed to execute {procedure_name}")
+
+        if location_rows is None:
+            return None
+
+        if len(location_rows) < 1:
+            return None
 
         location = LocationResponse(**location_rows[0])
         return await self._expand(location=location)

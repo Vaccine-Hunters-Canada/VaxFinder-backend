@@ -84,7 +84,7 @@ async def retrieve_locations_by_organization(
     "/external/{external_key}",
     response_model=LocationExpandedResponse,
     responses={
-        status.HTTP_404_NOT_FOUND: {
+        status.HTTP_204_NO_CONTENT: {
             "description": "The location with the specified id could not be "
             "found."
         }
@@ -99,7 +99,7 @@ async def retrieve_location_by_external_key(
     """
     location = await LocationService(db).get_expanded_key(external_key)
     if location is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise HTTPException(status_code=status.HTTP_204_NO_CONTENT)
     return location
 
 
