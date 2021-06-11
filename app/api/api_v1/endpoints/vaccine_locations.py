@@ -30,7 +30,7 @@ router = APIRouter()
 @router.get("", response_model=List[VaccineLocationExpandedResponse])
 async def list_vaccine_locations(
     min_date: Optional[date] = Query(
-        date.today(),
+        datetime.today().date(),
         title="Minimum Date",
         description="**Search for vaccine availabilities after a certain date "
         "and time (UTC) in the format YYYY-MM-DD**. The default value is the current date ("
@@ -60,7 +60,8 @@ async def list_vaccine_locations(
     """
     # Done here so the OpenAPI spec doesn't show the wrong default value
     if min_date is None:
-        min_date = datetime.today().date()
+        min_date = datetime.today()
+        min_date = min_date.replace(tzinfo=timezone.utc)
     try:
         availabilities = await VaccineLocationsService(
             db
