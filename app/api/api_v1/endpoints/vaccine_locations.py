@@ -61,6 +61,7 @@ async def list_vaccine_locations(
     # Done here so the OpenAPI spec doesn't show the wrong default value
     if min_date is None:
         min_date = datetime.utcnow().date()
+
         min_date = min_date + timedelta(days=-1)
 
     try:
