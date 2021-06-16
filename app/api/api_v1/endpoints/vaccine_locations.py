@@ -62,7 +62,8 @@ async def list_vaccine_locations(
     if min_date is None:
         min_date = datetime.utcnow().date()
 
-        min_date = min_date + timedelta(days=-1)
+        if datetime.utcnow().time().hour < 4:
+            min_date = min_date + timedelta(days=-1)
 
     try:
         availabilities = await VaccineLocationsService(
