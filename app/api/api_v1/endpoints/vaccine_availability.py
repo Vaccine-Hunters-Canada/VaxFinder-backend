@@ -18,6 +18,7 @@ from app.db.database import MSSQLConnection
 from app.schemas.vaccine_availability import (
     VaccineAvailabilityCreateRequest,
     VaccineAvailabilityExpandedCreateRequest,
+    VaccineAvailabilityExpandedCreateResponse,
     VaccineAvailabilityExpandedResponse,
     VaccineAvailabilityRequirementCreateRequest,
     VaccineAvailabilityRequirementCreateSprocParams,
@@ -185,7 +186,7 @@ async def create_vaccine_availability(
 
 @router.post(
     "/locations/key/{external_key}",
-    response_model=VaccineAvailabilityResponse,
+    response_model=VaccineAvailabilityExpandedCreateResponse,
     responses={
         status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."},
         status.HTTP_403_FORBIDDEN: {
@@ -198,14 +199,14 @@ async def create_vaccine_availability_expanded_key(
     body: VaccineAvailabilityExpandedCreateRequest,
     db: MSSQLConnection = Depends(get_db),
     api_key: UUID = Depends(get_api_key),
-) -> VaccineAvailabilityResponse:
+) -> VaccineAvailabilityExpandedCreateResponse:
     """
     **Creates a new vaccine availability with the entity enclosed in the
     request body.** On success, the new vaccine availability is returned in the
     body of the response.
     """
     try:
-        availability: VaccineAvailabilityResponse = (
+        availability: VaccineAvailabilityExpandedCreateResponse = (
             await VaccineAvailabilityService(db).create_expanded(
                 va_expanded=body,
                 external_key=external_key,
@@ -224,7 +225,7 @@ async def create_vaccine_availability_expanded_key(
 
 @router.post(
     "/locations/id/{location_id}",
-    response_model=VaccineAvailabilityResponse,
+    response_model=VaccineAvailabilityExpandedCreateResponse,
     responses={
         status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials."},
         status.HTTP_403_FORBIDDEN: {
@@ -237,14 +238,14 @@ async def create_vaccine_availability_expanded(
     body: VaccineAvailabilityExpandedCreateRequest,
     db: MSSQLConnection = Depends(get_db),
     api_key: UUID = Depends(get_api_key),
-) -> VaccineAvailabilityResponse:
+) -> VaccineAvailabilityExpandedCreateResponse:
     """
     **Creates a new vaccine availability with the entity enclosed in the
     request body.** On success, the new vaccine availability is returned in the
     body of the response.
     """
     try:
-        availability: VaccineAvailabilityResponse = (
+        availability: VaccineAvailabilityExpandedCreateResponse = (
             await VaccineAvailabilityService(db).create_expanded(
                 va_expanded=body,
                 locationID=location_id,

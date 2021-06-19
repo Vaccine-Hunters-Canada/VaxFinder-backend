@@ -187,17 +187,6 @@ class VaccineAvailabilityCreateRequest(VaccineAvailabilityResponseBase):
                     "ISO datestring must have timezone info."
                     "i.e. 2020-12-13T00:00:00+04:00"
                 )
-            if (
-                iso.hour != 0
-                or iso.minute != 0
-                or iso.second != 0
-                or iso.microsecond != 0
-            ):
-                raise ValueError(
-                    "ISO datestring must be midnight "
-                    "at your specified timezone "
-                    "i.e. 2020-12-13T00:00:00+04:00"
-                )
             iso = iso.astimezone(timezone.utc)
             return iso
         raise ValueError("Must input a string.")
@@ -234,20 +223,13 @@ class VaccineAvailabilityExpandedCreateRequest(
                     "ISO datestring must have timezone info."
                     "i.e. 2020-12-13T00:00:00+04:00"
                 )
-            if (
-                iso.hour != 0
-                or iso.minute != 0
-                or iso.second != 0
-                or iso.microsecond != 0
-            ):
-                raise ValueError(
-                    "ISO datestring must be midnight "
-                    "at your specified timezone "
-                    "i.e. 2020-12-13T00:00:00+04:00"
-                )
             iso = iso.astimezone(timezone.utc)
             return iso
         raise ValueError("Must input a string.")
+
+
+class VaccineAvailabilityExpandedCreateResponse(VaccineAvailabilityResponse):
+    response_code: int
 
 
 class VaccineAvailabilityUpdateRequest(VaccineAvailabilityResponseBase):
@@ -262,19 +244,6 @@ class VaccineAvailabilityUpdateRequest(VaccineAvailabilityResponseBase):
             if iso.tzinfo is None:
                 raise ValueError(
                     "ISO datestring must have timezone info. "
-                    "i.e. 2020-12-13T00:00:00+04:00"
-                )
-            if (
-                iso.hour != 0
-                or iso.minute != 0
-                or iso.second != 0
-                or iso.microsecond != 0
-            ):
-                raise ValueError(
-                    "ISO datestring must be midnight "
-                    "at your specified timezone "
-                    "(time-specific availabilities should be inside "
-                    "the availability's timeslots) "
                     "i.e. 2020-12-13T00:00:00+04:00"
                 )
             iso = iso.astimezone(timezone.utc)

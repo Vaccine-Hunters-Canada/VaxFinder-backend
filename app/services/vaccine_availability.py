@@ -12,6 +12,7 @@ from app.schemas.organizations import OrganizationResponse
 from app.schemas.vaccine_availability import (
     VaccineAvailabilityCreateRequest,
     VaccineAvailabilityExpandedCreateRequest,
+    VaccineAvailabilityExpandedCreateResponse,
     VaccineAvailabilityExpandedResponse,
     VaccineAvailabilityRequirementsResponse,
     VaccineAvailabilityResponse,
@@ -247,7 +248,7 @@ class VaccineAvailabilityService(
         locationID: Optional[int],
         external_key: Optional[str],
         auth_key: UUID,
-    ) -> VaccineAvailabilityResponse:
+    ) -> VaccineAvailabilityExpandedCreateResponse:
         procedure_name = "vaccine_availability_expanded_Create"
 
         parameters = {
@@ -291,4 +292,10 @@ class VaccineAvailabilityService(
         if availability_rows is None or availability_rows[0] is None:
             raise InternalDatabaseError()
 
-        return VaccineAvailabilityResponse(**availability_rows[0])
+        availability_rows[0]["response_code"] = ret_value
+
+        resp = VaccineAvailabilityExpandedCreateResponse(
+            **availability_rows[0]
+        )
+
+        return resp
