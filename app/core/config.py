@@ -20,5 +20,9 @@ class Settings(BaseSettings):
     # -- Database Connection ---
     DB_URL: str
 
+    # -- Discord Connection ---
+    DISCORD_WEBHOOK_ADD: str
+    DISCORD_WEBHOOK_REM: str
+
 
 settings = Settings()

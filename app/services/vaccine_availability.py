@@ -20,6 +20,7 @@ from app.schemas.vaccine_availability import (
     VaccineAvailabilityUpdateRequest,
 )
 from app.services.base import BaseService
+from app.services.discord import discordCallNoDoses, discordCallReport
 from app.services.exceptions import (
     DatabaseNotInSyncError,
     InternalDatabaseError,
@@ -297,5 +298,11 @@ class VaccineAvailabilityService(
         resp = VaccineAvailabilityExpandedCreateResponse(
             **availability_rows[0]
         )
+
+        if ret_value > 0:
+            if va_expanded.numberAvailable > 0:
+                discordCallReport(va_expanded)
+            else:
+                discordCallNoDoses(va_expanded)
 
         return resp
