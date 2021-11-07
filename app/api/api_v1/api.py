@@ -8,6 +8,7 @@ from app.api.api_v1.endpoints import (
     security,
     vaccine_availability,
     vaccine_locations,
+    webPush,
 )
 
 api_router = APIRouter()
@@ -52,4 +53,10 @@ api_router.include_router(
     security.router,
     prefix="/security",
     tags=["Security"],
+)
+
+api_router.include_router(
+    webPush.router,
+    prefix="/webPush",
+    tags=["WebPush"],
 )
