@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Type
 from uuid import UUID
 
 from loguru import logger
+from pywebpush import webpush
 
 from app.schemas.addresses import AddressResponse
 from app.schemas.locations import LocationResponse
@@ -299,10 +300,10 @@ class VaccineAvailabilityService(
             **availability_rows[0]
         )
 
-        if ret_value > 0:
-            if va_expanded.numberAvailable > 0:
-                discordCallReport(va_expanded)
-            else:
-                discordCallNoDoses(va_expanded)
+        # if ret_value > 0:
+        #    if va_expanded.numberAvailable > 0:
+        #        discordCallReport(va_expanded)
+        #    else:
+        #        discordCallNoDoses(va_expanded)
 
         return resp

@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     # -- Discord Connection ---
     DISCORD_WEBHOOK_ADD: str
     DISCORD_WEBHOOK_REM: str
+    # -- VAPID Key ---
+    VAPID_Key: str
 
 
 settings = Settings()
