@@ -33,6 +33,7 @@ from app.services.vaccine_availability_requirement import (
 from app.services.vaccine_availability_timeslot import (
     VaccineAvailabilityTimeslotService,
 )
+from app.services.webPush import WebPushService
 
 
 class VaccineAvailabilityService(
@@ -299,6 +300,13 @@ class VaccineAvailabilityService(
         resp = VaccineAvailabilityExpandedCreateResponse(
             **availability_rows[0]
         )
+
+        if ret_value > 0:
+            if va_expanded.numberAvailable > 0:
+                wpservice = WebPushService(self._db)
+                WebPushService.SendWebpush(
+                    wpservice, va_expanded.postcode, locationID
+                )
 
         # if ret_value > 0:
         #    if va_expanded.numberAvailable > 0:

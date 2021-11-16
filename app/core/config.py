@@ -24,7 +24,8 @@ class Settings(BaseSettings):
     DISCORD_WEBHOOK_ADD: str
     DISCORD_WEBHOOK_REM: str
     # -- VAPID Key ---
-    VAPID_Key: str
+    VAPID_Public_Key: str
+    VAPID_Private_Key: str
 
 
 settings = Settings()
