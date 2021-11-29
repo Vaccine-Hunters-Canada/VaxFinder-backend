@@ -1,5 +1,5 @@
 #FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8
-FROM --platform=linux/amd64 python:3.8.6
+FROM tiangolo/uvicorn-gunicorn:python3.9
 
 WORKDIR /app
 COPY . /app
@@ -10,6 +10,8 @@ RUN curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/so
 
 RUN exit
 RUN apt-get update
+RUN apt-get install -y curl apt-transport-https \
+RUN apt-get update \
 RUN ACCEPT_EULA=Y apt-get install -y msodbcsql17 unixodbc-dev
 
 RUN echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
