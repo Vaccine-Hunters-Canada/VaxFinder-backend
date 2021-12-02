@@ -103,7 +103,7 @@ class WebPushService(
                             },
                         },
                         data="https://witty-ocean-02e42dd0f-161.eastus2.azurestaticapps.net/search/"
-                        & postal,
+                        + postal,
                         vapid_private_key=settings.VAPID_Private_Key,
                         vapid_claims={
                             "sub": "mailto:contact@vaccinehunters.ca",
