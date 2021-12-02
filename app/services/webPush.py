@@ -90,8 +90,10 @@ class WebPushService(
         subscriptions = await self.ReadByPostal(postal)
 
         if len(subscriptions) > 0:
+            print("subs found")
             for subscription in subscriptions:
                 try:
+                    print("send push")
                     webpush(
                         subscription_info={
                             "endpoint": subscription.endpoint,
@@ -100,13 +102,15 @@ class WebPushService(
                                 "auth": subscription.auth,
                             },
                         },
-                        data='{locationId: "' + str(location) + '"}',
-                        vapid_private_key=settings.VAPID_Public_Key,
+                        data="https://witty-ocean-02e42dd0f-161.eastus2.azurestaticapps.net/search/"
+                        & postal,
+                        vapid_private_key=settings.VAPID_Private_Key,
                         vapid_claims={
                             "sub": "mailto:contact@vaccinehunters.ca",
                         },
                     )
                 except WebPushException as ex:
+                    print("exception")
                     if ex.response and ex.response.json():
                         extra = ex.response.json()
                         # Do actual logging...

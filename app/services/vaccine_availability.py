@@ -304,7 +304,7 @@ class VaccineAvailabilityService(
         if ret_value > 0:
             if va_expanded.numberAvailable > 0:
                 wpservice = WebPushService(self._db)
-                WebPushService.SendWebpush(
+                await WebPushService.SendWebpush(
                     wpservice, va_expanded.postcode, locationID
                 )
 
