@@ -22,7 +22,7 @@ class SubscriptionBase(BaseModel):
 
 class SubscriptionResponse(SubscriptionBase):
     id: int
-    created_at: datetime
+    created: datetime
 
 
 class SubscriptionCreateRequest(SubscriptionBase):
