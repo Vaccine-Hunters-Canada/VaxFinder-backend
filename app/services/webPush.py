@@ -1,7 +1,8 @@
+from json import dumps
 from typing import List, Optional, Type
 from uuid import UUID
 
-from pywebpush import WebPushException, webpush
+from pywebpush import WebPusher, WebPushException, webpush
 
 from app.core.config import settings
 from app.schemas.webPush import (
@@ -90,10 +91,15 @@ class WebPushService(
         subscriptions = await self.ReadByPostal(postal)
 
         if len(subscriptions) > 0:
-            print("subs found")
             for subscription in subscriptions:
                 try:
-                    print("send push")
+                    payload = {
+                        "title": "New appointment added on FYI",
+                        "body": "Use the search tool to book",
+                        "url": "https://witty-ocean-02e42dd0f-161.eastus2.azurestaticapps.net/search/"
+                        + postal,
+                    }
+
                     webpush(
                         subscription_info={
                             "endpoint": subscription.endpoint,
@@ -102,15 +108,13 @@ class WebPushService(
                                 "auth": subscription.auth,
                             },
                         },
-                        data="https://witty-ocean-02e42dd0f-161.eastus2.azurestaticapps.net/search/"
-                        + postal,
+                        data=dumps(payload),
                         vapid_private_key=settings.VAPID_Private_Key,
                         vapid_claims={
-                            "sub": "mailto:contact@vaccinehunters.ca",
+                            "sub": "mailto:fyi@vaccinehunters.ca",
                         },
                     )
                 except WebPushException as ex:
-                    print("exception")
                     if ex.response and ex.response.json():
                         extra = ex.response.json()
                         # Do actual logging...
