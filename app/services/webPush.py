@@ -74,17 +74,20 @@ class WebPushService(
     async def ReadByPostal(self, postal: str) -> List[SubscriptionResponse]:
         procedure_name = "subscription_ReadByPostal"
 
-        ret_value, db_rows = await self._db.sproc_fetch_all(
+        ret_value, sproc_processed = await self._db.sproc_fetch(
             procedure_name,
             parameters={"postal": postal},
         )
 
-        if db_rows is None:
-            # We are assuming that any error on the stored procedure is due
-            # to the fact that the object doesn't exist.
+        subscription_rows = sproc_processed[0]
+
+        if subscription_rows is None:
             return []
 
-        return [SubscriptionResponse(**o) for o in db_rows]
+        if len(subscription_rows) < 1:
+            return []
+
+        return [SubscriptionResponse(**o) for o in subscription_rows]
 
     async def SendWebpush(self, postal: str, location: Optional[int]) -> int:
 
