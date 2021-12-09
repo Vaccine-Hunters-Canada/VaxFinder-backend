@@ -4,6 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.api.dependencies import get_api_key, get_db
+from app.core.config import settings
 from app.db.database import MSSQLConnection
 from app.schemas.webPush import KeyResponse, SubscriptionCreateRequest
 from app.services.exceptions import (
@@ -19,15 +20,11 @@ router = APIRouter()
     "/public-key",
     response_model=KeyResponse,
 )
-async def retrieve_publicKey(
-    db: MSSQLConnection = Depends(get_db),
-) -> KeyResponse:
+async def retrieve_publicKey() -> KeyResponse:
     """
     **Retrieves the public key**
     """
-    key = await WebPushService(db).GetKey()
-
-    return key
+    return KeyResponse(key=settings.VAPID_Public_Key)
 
 
 @router.post(

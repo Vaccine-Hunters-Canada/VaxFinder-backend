@@ -42,9 +42,6 @@ class WebPushService(
     def update_response_schema(self) -> Type[SubscriptionUpdateRequest]:
         return SubscriptionUpdateRequest
 
-    async def GetKey(self) -> KeyResponse:
-        return KeyResponse(key=settings.VAPID_Public_Key)
-
     async def CreateWebhook(self, request: SubscriptionCreateRequest) -> None:
         procedure_name = "subscription_Create"
 
