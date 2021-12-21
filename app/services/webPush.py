@@ -76,6 +76,9 @@ class WebPushService(
             parameters={"postal": postal},
         )
 
+        if ret_value == 0:
+            return []
+
         subscription_rows = sproc_processed[0]
 
         if subscription_rows is None:
@@ -96,8 +99,8 @@ class WebPushService(
                     payload = {
                         "title": "New appointment added on FYI",
                         "body": "Use the search tool to book",
-                        "url": "https://witty-ocean-02e42dd0f-161.eastus2.azurestaticapps.net/search/"
-                        + postal,
+                        "url": "https://https://appointments.vaccinehunters.ca/search/"
+                        + subscription.postalCode,
                     }
 
                     webpush(
