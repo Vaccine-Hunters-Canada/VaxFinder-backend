@@ -17,6 +17,17 @@ router = APIRouter()
 
 
 @router.get(
+    "/publicKey",
+    response_model=KeyResponse,
+)
+async def retrieve_publicKey() -> KeyResponse:
+    """
+    **Retrieves the public key**
+    """
+    return KeyResponse(key=settings.VAPID_Public_Key)
+
+
+@router.get(
     "/public-key",
     response_model=KeyResponse,
 )
