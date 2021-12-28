@@ -99,8 +99,8 @@ class WebPushService(
                     payload = {
                         "title": "New appointment added on FYI",
                         "body": "Use the search tool to book",
-                        "url": "https://https://appointments.vaccinehunters.ca/search/"
-                        + subscription.postalCode,
+                        "url": "https://appointments.vaccinehunters.ca/search/"
+                        + subscription.postalCode.replace(" ", ""),
                     }
 
                     webpush(
