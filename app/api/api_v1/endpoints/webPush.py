@@ -20,7 +20,7 @@ router = APIRouter()
     "/publicKey",
     response_model=KeyResponse,
 )
-async def retrieve_publicKey() -> KeyResponse:
+async def retrieve_publicKey2() -> KeyResponse:
     """
     **Retrieves the public key**
     """
