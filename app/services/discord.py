@@ -84,7 +84,7 @@ def discordCallReport(
         vaccineTypeString = "Unknown"
 
     webhook = DiscordWebhook(
-        url=settings.DISCORD_WEBHOOK_ADD,
+        # url=settings.DISCORD_WEBHOOK_ADD,
         username="Pharmacy Updates",
         content="<@&835240707241148428>",
     )
@@ -185,7 +185,7 @@ def discordCallNoDoses(
     va_expanded: VaccineAvailabilityExpandedCreateRequest,
 ) -> int:
     webhook = DiscordWebhook(
-        url=settings.DISCORD_WEBHOOK_REM,
+        # url=settings.DISCORD_WEBHOOK_REM,
         username="Pharmacy Updates",
         content="<@&835240707241148428>",
     )
