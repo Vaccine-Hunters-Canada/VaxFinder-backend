@@ -14,6 +14,7 @@ databases = "^0.4.3"
 loguru = "^0.5.3"
 pyhumps = "^3.0.2"
 discord-webhook = "^0.14.0"
+pywebpush = "^1.14.0"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.812"

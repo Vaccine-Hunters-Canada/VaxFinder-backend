@@ -1,4 +1,4 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8
+FROM python:3.8.6
 
 WORKDIR /app
 COPY . /app
@@ -7,7 +7,6 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
 
 RUN curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list
 
-RUN exit
 RUN apt-get update
 RUN ACCEPT_EULA=Y apt-get install -y msodbcsql17
 
@@ -27,5 +26,7 @@ COPY ./pyproject.toml ./poetry.lock* /app/
 RUN poetry install --no-root --no-dev
 
 ENV MODULE_NAME=app.main
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
 
 EXPOSE 80 2222

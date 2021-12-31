@@ -27,4 +27,8 @@ openapi_tags = [
         "name": "Security",
         "description": "Basic authentication",
     },
+    {
+        "name": "WebPush",
+        "description": "Push notifications",
+    },
 ]

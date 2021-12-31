@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Type
 from uuid import UUID
 
 from loguru import logger
+from pywebpush import webpush
 
 from app.schemas.addresses import AddressResponse
 from app.schemas.locations import LocationResponse
@@ -32,6 +33,7 @@ from app.services.vaccine_availability_requirement import (
 from app.services.vaccine_availability_timeslot import (
     VaccineAvailabilityTimeslotService,
 )
+from app.services.webPush import WebPushService
 
 
 class VaccineAvailabilityService(
@@ -301,8 +303,15 @@ class VaccineAvailabilityService(
 
         if ret_value > 0:
             if va_expanded.numberAvailable > 0:
-                discordCallReport(va_expanded)
-            else:
-                discordCallNoDoses(va_expanded)
+                wpservice = WebPushService(self._db)
+                await WebPushService.SendWebpush(
+                    wpservice, va_expanded.postcode, locationID
+                )
+
+        # if ret_value > 0:
+        #    if va_expanded.numberAvailable > 0:
+        #        discordCallReport(va_expanded)
+        #    else:
+        #        discordCallNoDoses(va_expanded)
 
         return resp

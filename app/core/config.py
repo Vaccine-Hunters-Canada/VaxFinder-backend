@@ -21,8 +21,11 @@ class Settings(BaseSettings):
     DB_URL: str
 
     # -- Discord Connection ---
-    DISCORD_WEBHOOK_ADD: str
-    DISCORD_WEBHOOK_REM: str
+    # DISCORD_WEBHOOK_ADD: str
+    # DISCORD_WEBHOOK_REM: str
+    # -- VAPID Key ---
+    VAPID_Public_Key: str
+    VAPID_Private_Key: str
 
 
 settings = Settings()
